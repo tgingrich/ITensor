@@ -48,6 +48,7 @@ SOURCES+= mps/mpsalgs.cc
 SOURCES+= mps/mpo.cc
 SOURCES+= mps/mpoalgs.cc
 SOURCES+= mps/autompo.cc
+SOURCES+= ttn/binarytree.cc
 
 ####################################
 
@@ -115,9 +116,10 @@ mkdebugdir:
 	@mkdir -p .debug_objs/tensor
 	@mkdir -p .debug_objs/itdata
 	@mkdir -p .debug_objs/mps
+	@mkdir -p .debug_objs/ttn
 
 clean:	
-	@rm -fr *.o .debug_objs util/*.o util/h5/*.o tensor/*.o itdata/*.o mps/*.o libitensor.a libitensor-g.a
+	@rm -fr *.o .debug_objs util/*.o util/h5/*.o tensor/*.o itdata/*.o mps/*.o ttn/*.o libitensor.a libitensor-g.a
 
 util/input.o: util/input.h
 .debug_objs/util/input.o: util/input.h
@@ -196,3 +198,6 @@ mps/mpoalgs.o: $(ITDEPHEADERS) $(GDEPHEADERS)
 .debug_objs/mps/mpoalgs.o: $(ITDEPHEADERS) $(GDEPHEADERS)
 mps/autompo.o: $(ITDEPHEADERS) $(GDEPHEADERS)
 .debug_objs/mps/autompo.o: $(ITDEPHEADERS) $(GDEPHEADERS)
+GDEPHEADERS+= ttn/binarytree.h
+ttn/binarytree.o: $(ITDEPHEADERS) $(GDEPHEADERS)
+.debug_objs/ttn/binarytree.o: $(ITDEPHEADERS) $(GDEPHEADERS)
