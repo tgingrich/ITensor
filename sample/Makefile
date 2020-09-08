@@ -19,11 +19,11 @@ LIBGFLAGS=-L'$(ITENSOR_LIBDIR)' $(ITENSOR_LIBGFLAGS)
 
 #Targets -----------------
 
-build: dmrg dmrg_table dmrgj1j2 exthubbard trg mixedspin hubbard_2d
+build: dmrg dmrg_table dmrgj1j2 exthubbard trg mixedspin hubbard_2d tree_dmrg
 
-debug: dmrg-g dmrg_table-g dmrgj1j2-g exthubbard-g trg-g mixedspin-g hubbard_2d-g
+debug: dmrg-g dmrg_table-g dmrgj1j2-g exthubbard-g trg-g mixedspin-g hubbard_2d-g tree_dmrg-g
 
-all: dmrg dmrg_table dmrgj1j2 exthubbard trg mixedspin hubbard_2d
+all: dmrg dmrg_table dmrgj1j2 exthubbard trg mixedspin hubbard_2d tree_dmrg
 
 dmrg: dmrg.o $(ITENSOR_LIBS) $(TENSOR_HEADERS)
 	$(CCCOM) $(CCFLAGS) dmrg.o -o dmrg $(LIBFLAGS)
@@ -66,6 +66,12 @@ hubbard_2d: hubbard_2d.o $(ITENSOR_LIBS) $(TENSOR_HEADERS)
 
 hubbard_2d-g: mkdebugdir .debug_objs/hubbard_2d.o $(ITENSOR_GLIBS) $(TENSOR_HEADERS)
 	$(CCCOM) $(CCGFLAGS) .debug_objs/hubbard_2d.o -o hubbard_2d-g $(LIBGFLAGS)
+
+tree_dmrg: tree_dmrg.o $(ITENSOR_LIBS) $(TENSOR_HEADERS)
+	$(CCCOM) $(CCFLAGS) tree_dmrg.o -o tree_dmrg $(LIBFLAGS)
+
+tree_dmrg-g: mkdebugdir .debug_objs/tree_dmrg.o $(ITENSOR_GLIBS) $(TENSOR_HEADERS)
+	$(CCCOM) $(CCGFLAGS) .debug_objs/tree_dmrg.o -o tree_dmrg-g $(LIBGFLAGS)
 
 mkdebugdir:
 	mkdir -p .debug_objs
