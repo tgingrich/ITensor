@@ -70,7 +70,7 @@ namespace itensor {
   BinaryTree::BinaryTree(SiteSet const& sites,int m)
     : N_(sites.length()-1),  height_(intlog2(sites.length())-1), N_sites_(sites.length()),
       A_(sites.length()-1), //2^(h+1)-1
-      orth_pos_(sites.length()-1,-1),order_(sites.length()-1), reverse_order_(sites.length()-1), site_dim_(sites.inds()(1).dim())
+      orth_pos_(sites.length()-1,-1),order_(sites.length()-1), reverse_order_(sites.length()-1), site_dim_(sites.inds()[0].dim())
   { 
     if(!islog2(sites.length())) Error("The number of sites is not a power of 2"); 
     binary_new_tensors(A_,sites,m);
@@ -85,7 +85,7 @@ namespace itensor {
   BinaryTree::BinaryTree(IndexSet const& sites,int m)
     : N_(sites.length()-1),  height_(intlog2(sites.length())-1), N_sites_(sites.length()),
       A_(2*sites.length()-1),  //2*2^(h)-1
-      orth_pos_(sites.length()-1,-1), order_(sites.length()-1), reverse_order_(sites.length()-1), site_dim_(sites(1).dim())
+      orth_pos_(sites.length()-1,-1), order_(sites.length()-1), reverse_order_(sites.length()-1), site_dim_(sites[0].dim())
   { 
     if(!islog2(sites.length())) Error("The number of sites is not a power of 2"); 
     binary_new_tensors(A_,sites,m);
@@ -102,7 +102,7 @@ namespace itensor {
     : N_(initState.sites().length()-1),  height_(intlog2(initState.sites().length())-1), N_sites_(initState.sites().length()),
       A_(2*initState.sites().length()-1), //2*2^(h)-1
       orth_pos_(initState.sites().length()-1,-1), 
-      order_(initState.sites().length()-1), reverse_order_(initState.sites().length()-1), site_dim_(initState.sites().inds()(1).dim())
+      order_(initState.sites().length()-1), reverse_order_(initState.sites().length()-1), site_dim_(initState.sites().inds()[0].dim())
   { 
     if(!islog2(initState.sites().length())) Error("The number of sites is not a power of 2"); 
     init_tensors(initState);
@@ -1211,6 +1211,43 @@ call .position(j) or .orthogonalize() to set ortho center");
     auto bnd_qr = commonIndex(L, R);
     L.replaceInds({bnd_qr}, {bnd});
     R.replaceInds({bnd_qr}, {bnd});
+  }
+
+  MPO
+  MPO_ASEP(SiteSet const& sites, std::vector<Real> plist, std::vector<Real> qlist)
+  {
+    if(sites.inds()[0].dim() != 2) Error("Only SpinHalf systems currently supported.");
+    auto W = MPO(sites.length());
+    W.logRefNorm(sites.length());
+    for(int j = 1; j <= length(W); ++j) {
+      W.ref(j) = sites.op("Id", j);
+    }
+    string pfix = "l=";
+    auto links = vector<Index>(length(W) + 1);
+    for(int b = 1; b <= length(W); ++b) {
+      string ts = "Link," + pfix + str(b);
+      links.at(b) = Index(6, ts);
+    }
+    if ((int)plist.size() == length(W) && (int)qlist.size() == length(W)) {
+      W.ref(1) *= setElt(links.at(length(W))(1));
+      W.ref(1) *= setElt(links.at(1)(1));
+      for(int b = 2; b <= length(W); ++b) {
+        W.ref(b) *= setElt(links.at(b - 1)(1));
+        W.ref(b) *= setElt(links.at(b)(1));
+      }
+
+    } else if ((int)plist.size() == length(W) + 1 && (int)qlist.size() == length(W) + 1) {
+      W.ref(1) *= setElt(links.at(1)(1));
+      for(int b = 2; b < length(W); ++b) {
+        W.ref(b) *= setElt(links.at(b - 1)(1));
+        W.ref(b) *= setElt(links.at(b)(1));
+      }
+      W.ref(length(W)) *= setElt(links.at(length(W) - 1)(1));
+      
+    } else {
+      Error("plist and/or qlist improperly formatted.");
+    }
+    return W;
   }
 
 } //namespace itensor

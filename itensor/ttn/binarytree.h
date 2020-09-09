@@ -770,6 +770,9 @@ namespace itensor {
     Tree.sweepnext(b,ha,args);
   }
 
+  MPO
+  MPO_ASEP(SiteSet const& sites, std::vector<Real> plist, std::vector<Real> qlist);
+
 } //namespace itensor
 
 #include "binarytree_impl.h"

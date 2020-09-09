@@ -79,4 +79,4 @@ mkdebugdir:
 clean:
 	@rm -fr *.o .debug_objs dmrg dmrg-g \
 	dmrg_table dmrg_table-g dmrgj1j2 dmrgj1j2-g exthubbard exthubbard-g \
-    mixedspin mixedspin-g trg trg-g hubbard_2d hubbard_2d-g
+    mixedspin mixedspin-g trg trg-g hubbard_2d hubbard_2d-g tree_dmrg tree_dmrg-g
