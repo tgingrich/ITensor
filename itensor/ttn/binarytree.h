@@ -770,8 +770,11 @@ namespace itensor {
     Tree.sweepnext(b,ha,args);
   }
 
+  void
+  updateOp(ITensor & tens, Matrix const& mat, int r, int c = 0);
+
   MPO
-  MPO_ASEP(SiteSet const& sites, std::vector<Real> plist, std::vector<Real> qlist);
+  MPO_ASEP(SiteSet const& sites, std::vector<Real> plist, std::vector<Real> qlist, Real lambda);
 
 } //namespace itensor
 
