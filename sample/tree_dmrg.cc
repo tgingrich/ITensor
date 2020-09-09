@@ -42,8 +42,7 @@ int main()
   //     ampo +=     "Sz",j,"Sz",j+1;
   //   }
   // auto H = toMPO(ampo);
-  auto H = MPO_ASEP(sites, std::vector<Real>(N, 0.6), std::vector<Real>(N, 0.4));
-  PrintData(H);
+  auto H = MPO_ASEP(sites, std::vector<Real>(N + 1, 0.6), std::vector<Real>(N + 1, 0.4), 0.0);
 
   println("Construction of the MPO and LocalMPO");
 //  LocalMPO_BT PH(H,args);
