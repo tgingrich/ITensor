@@ -24,7 +24,7 @@ void printVect(std::vector <int> const &a) {
 int main()
 {
 
-  int N = 128;
+  int N = 32;
   auto sites = SpinHalf(N,{"ConserveQNs",false});
 
   auto state = InitState(sites);
@@ -34,22 +34,16 @@ int main()
       else         state.set(i,"Dn");
     }
 
-  // Use the AutoMPO feature to create the 
-  // next-neighbor Heisenberg model
-  //
-  auto ampo = AutoMPO(sites);
-  for(auto j : range1(N-1))
-    {
-      ampo += 0.5,"S+",j,"S-",j+1;
-      ampo += 0.5,"S-",j,"S+",j+1;
-      ampo +=     "Sz",j,"Sz",j+1;
-    }
-  auto H = toMPO(ampo);
-  //	for(auto j : range1(N-1))
-  //		println(inds(H(j)));
-
-//	removeQNs(H);
-
+  // auto ampo = AutoMPO(sites);
+  // for(auto j : range1(N-1))
+  //   {
+  //     ampo += 0.5,"S+",j,"S-",j+1;
+  //     ampo += 0.5,"S-",j,"S+",j+1;
+  //     ampo +=     "Sz",j,"Sz",j+1;
+  //   }
+  // auto H = toMPO(ampo);
+  auto H = MPO_ASEP(sites, std::vector<Real>(N, 0.6), std::vector<Real>(N, 0.4));
+  PrintData(H);
 
   println("Construction of the MPO and LocalMPO");
 //  LocalMPO_BT PH(H,args);
