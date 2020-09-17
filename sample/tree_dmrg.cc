@@ -42,13 +42,73 @@ int main()
   //     ampo +=     "Sz",j,"Sz",j+1;
   //   }
   // auto H = toMPO(ampo);
-  auto H = MPO_ASEP(sites, std::vector<Real>(N + 1, 0.6), std::vector<Real>(N + 1, 0.4), 0.0);
+
+  // Real lambda = 0.0;
+  // std::vector<Real> plist(N + 1, 0.6);
+  // std::vector<Real> qlist(N + 1, 0.4);
+  // auto ampo = AutoMPO(sites);
+  // ampo += plist[0] * std::exp(lambda), "S-", 1;
+  // ampo += -plist[0], "projDn", 1;
+  // ampo += qlist[0] * std::exp(-lambda), "S+", 1;
+  // ampo += -qlist[0], "projUp", 1;
+  // for(auto j : range1(N - 1))
+  // {
+  //   ampo += plist[j] * std::exp(lambda), "S+", j, "S-", j + 1;
+  //   ampo += -plist[j], "projUp", j, "projDn", j + 1;
+  //   ampo += qlist[j] * std::exp(-lambda), "S-", j, "S+", j + 1;
+  //   ampo += -qlist[j], "projDn", j, "projUp", j + 1;
+  // }
+  // ampo += qlist[N] * std::exp(-lambda), "S-", N;
+  // ampo += -qlist[N], "projDn", N;
+  // ampo += plist[N] * std::exp(lambda), "S+", N;
+  // ampo += -plist[N], "projUp", N;
+  // auto H = toMPO(ampo);
+
+  Real lambda = 0.0;
+  std::vector<Real> plist(N);
+  std::vector<Real> qlist(N);
+  for(auto j : range(N))
+  {
+    plist[j] = (Real)std::rand() / RAND_MAX;
+    qlist[j] = (Real)std::rand() / RAND_MAX;
+  }
+  // std::vector<Real> plist(N, 0.6);
+  // std::vector<Real> qlist(N, 0.4);
+  // std::vector<Real> plist({ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6 });
+  // std::vector<Real> qlist({ 1.1, 1.2, 1.3, 1.4, 1.5, 1.6 });
+  auto ampo = AutoMPO(sites);
+  for(auto j : range1(N - 1))
+  {
+    ampo += plist[j - 1] * std::exp(lambda), "S+", j, "S-", j + 1;
+    ampo += -plist[j - 1], "projUp", j, "projDn", j + 1;
+    ampo += qlist[j - 1] * std::exp(-lambda), "S-", j, "S+", j + 1;
+    ampo += -qlist[j - 1], "projDn", j, "projUp", j + 1;
+  }
+  ampo += plist[N - 1] * std::exp(lambda), "S+", N, "S-", 1;
+  ampo += -plist[N - 1], "projUp", N, "projDn", 1;
+  ampo += qlist[N - 1] * std::exp(-lambda), "S-", N, "S+", 1;
+  ampo += -qlist[N - 1], "projDn", N, "projUp", 1;
+  auto H = toMPO(ampo);
+
+  // auto H = MPO_ASEP(sites, std::vector<Real>(N + 1, 0.6), std::vector<Real>(N + 1, 0.4), -0.0001);
+  // auto H = MPO_ASEP(sites, std::vector<Real>(N, 0.6), std::vector<Real>(N, 0.4), 0.0);
+  // auto H = MPO_ASEP(sites, { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 }, { 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 }, 0.0001);
+  // auto H = MPO_ASEP(sites, { 0.1, 0.2, 0.3, 0.4 }, { 1.1, 1.2, 1.3, 1.4 }, 0.0);
+
+  // auto Hfull = H(1) * H(2) * H(3) * H(4) * H(5) * H(6);
+  // auto inds = Hfull.inds();
+  // auto C = std::get<0>(combiner(inds[0], inds[2], inds[4], inds[6], inds[8], inds[10]));
+  // auto Cp = std::get<0>(combiner(inds[1], inds[3], inds[5], inds[7], inds[9], inds[11]));
+  // PrintData(Hfull);
+  // PrintData(C * Hfull * Cp);
+  // PrintData(H);
 
   println("Construction of the MPO and LocalMPO");
 //  LocalMPO_BT PH(H,args);
 //	
 
   auto psi0 = BinaryTree(state);
+  // PrintData(psi0);
   // auto psi0 = randomBinaryTree(sites, 100);
   println("Construction of the BinaryTree");
 //  PH.position(0,psi0);
@@ -68,10 +128,11 @@ int main()
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
-  auto sweeps = Sweeps(20);
-  sweeps.maxdim() = 10,10,10,10,10,20,20,20,20,20,100,100,100,100,100,200,200,200,200,200;
+  auto sweeps = Sweeps(5);
+  sweeps.maxdim() = 10,20,100,100,200;
+  // sweeps.maxdim() = 10,10,10,10,10,20,20,20,20,20,100,100,100,100,100,200,200,200,200,200;
   sweeps.cutoff() = 1E-13;
-  sweeps.niter() = 2;
+  sweeps.niter() = 10;
   sweeps.noise() = 0.0;
   //sweeps.noise() = 1E-7,1E-8,0.0; // The noise feature does not work for now
   println(sweeps);

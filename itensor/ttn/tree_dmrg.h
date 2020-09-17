@@ -185,6 +185,8 @@ namespace itensor {
         args.add("Noise",sweeps.noise(sw));
         args.add("MaxIter",sweeps.niter(sw));
 
+        args.add("WhichEig","LargestReal");
+
         if(!PH.doWrite()
            && args.defined("WriteDim")
            && sweeps.maxdim(sw) >= args.getInt("WriteDim"))
@@ -220,9 +222,15 @@ namespace itensor {
 	    if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
             else if(numCenter == 1) phi = psi(b);
 	    TIMER_STOP(2);
-		
+      // PrintData(phi);
+      // if (PH.lop().R()) {
+      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
+      // } else {
+      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2());
+      // }
 	    TIMER_START(3);
-            energy = davidson(PH,phi,args); //TODO Change algo
+            energy = arnoldi(PH,phi,args).real();
+            phi.takeReal();
 	    TIMER_STOP(3);
 		// PrintData(phi);
 
@@ -255,7 +263,7 @@ namespace itensor {
 	      }
 
             obs.lastSpectrum(spec);
-			println(spec);
+			// println(spec);
             args.add("AtBond",b);
             args.add("HalfSweep",ha);
             args.add("Energy",energy); 

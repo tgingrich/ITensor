@@ -112,6 +112,12 @@ namespace itensor {
       return *Op_;
     }
 
+    LocalOpTree const&
+    lop() const 
+        { 
+        return lop_;
+        }
+
     int
     numCenter() const { return nc_; }
     void

@@ -13,7 +13,21 @@ int main()
     // Define our Index 
     // (the space we are working with)
     //
+auto i = Index(3);
+auto j = Index(5);
+auto k = Index(7);
+auto l = Index(9);
 
+auto T = randomITensor(i,j,k,l);
+
+auto [C,c] = combiner(i,k);
+
+//
+// Combine
+// 
+auto cT = C * T; //or T * C, which has same effect
+PrintData(T);
+PrintData(cT);
     auto s = Index(2,"s");
 
     //
