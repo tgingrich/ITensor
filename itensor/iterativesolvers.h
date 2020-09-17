@@ -702,6 +702,20 @@ findEig(Vector const& vr, Vector const& vi, std::string whichEig)
           n = i;
           }
         }
+      else if(whichEig == "LargestReal")
+        {
+        auto ival = vr(i);
+        if(i == 0)
+          {
+          foundval = ival;
+          n = 0;
+          }
+        else if(ival > foundval)
+          {
+          foundval = ival;
+          n = i;
+          }
+        }
       else
         {
         error("Unsupported eigenvalue target, currently only support: LargestMagnitude, SmallestReal");        
@@ -750,7 +764,7 @@ arnoldi(const BigMatrixT& A,
 
     if(maxsize == 1)
         {
-        if(norm(phi.front()) == 0) randomize(phi.front());
+        if(norm(phi.front()) == 0) phi.front().randomize();
         phi.front() /= norm(phi.front());
         ITensor Aphi(phi.front());
         A.product(phi.front(),Aphi);
@@ -831,7 +845,7 @@ arnoldi(const BigMatrixT& A,
                 if(pass == 1) nh = nrm;
 
                 if(nrm != 0) V.at(j+1) /= nrm;
-                else         randomize(V.at(j+1));
+                else         V.at(j+1).randomize();
                 }
 
             //for(int i1 = 0; i1 <= j+1; ++i1)
@@ -928,7 +942,7 @@ arnoldi(const BigMatrixT& A,
         if(nrm != 0)
             phi.at(w) /= nrm;
         else
-            randomize(phi.at(w));
+            phi.at(w).randomize();
 
         if(err < errgoal_) break;
 
