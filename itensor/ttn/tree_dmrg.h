@@ -185,7 +185,7 @@ namespace itensor {
         args.add("Noise",sweeps.noise(sw));
         args.add("MaxIter",sweeps.niter(sw));
 
-        args.add("WhichEig","LargestReal");
+        // args.add("WhichEig","LargestReal");
 
         if(!PH.doWrite()
            && args.defined("WriteDim")
@@ -222,18 +222,19 @@ namespace itensor {
 	    if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
             else if(numCenter == 1) phi = psi(b);
 	    TIMER_STOP(2);
-      // PrintData(phi);
-      // if (PH.lop().R()) {
-      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
-      // } else {
-      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2());
-      // }
+      PrintData(psi);
+      PrintData(phi);
+      if (b == 1 || b == 2) {
+        PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().R());
+      } else {
+        PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
+      }
 	    TIMER_START(3);
             energy = arnoldi(PH,phi,args).real();
             phi.takeReal();
 	    TIMER_STOP(3);
-		// PrintData(phi);
-
+		  PrintData(phi);
+      printfln("%d %d %d", sw, b, energy);
 	    TIMER_START(4);
 	    //Restore tensor network form
             if (numCenter == 2) 

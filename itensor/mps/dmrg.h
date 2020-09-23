@@ -387,6 +387,8 @@ DMRGWorker(MPS & psi,
         args.add("Noise",sweeps.noise(sw));
         args.add("MaxIter",sweeps.niter(sw));
 
+        args.add("WhichEig","LargestReal");
+
         if(!PH.doWrite()
            && args.defined("WriteDim")
            && sweeps.maxdim(sw) >= args.getInt("WriteDim"))
@@ -417,7 +419,8 @@ TIMER_START(2);
 TIMER_STOP(2);
 
 TIMER_START(3);
-            energy = davidson(PH,phi,args);
+            energy = arnoldi(PH,phi,args).real();
+            phi.takeReal();
 TIMER_STOP(3);
             
 TIMER_START(4);
