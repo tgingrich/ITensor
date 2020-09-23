@@ -718,7 +718,7 @@ findEig(Vector const& vr, Vector const& vi, std::string whichEig)
         }
       else
         {
-        error("Unsupported eigenvalue target, currently only support: LargestMagnitude, SmallestReal");        
+        error("Unsupported eigenvalue target, currently only support: LargestMagnitude, SmallestReal, LargestReal");        
         }
       }
     return n;
