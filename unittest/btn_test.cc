@@ -67,6 +67,8 @@ SECTION("QNCheck")
     {
     auto psiNeelQNs = BinaryTree(shNeelQNs);
 
+    CHECK(hasQNs(psiNeelQNs));
+
     CHECK(checkQNs(psiNeelQNs));
     CHECK_EQUAL(totalQN(psiNeelQNs),QN({"Sz",0}));
 
@@ -85,7 +87,7 @@ SECTION("hasQNs")
 SECTION("Constructors (m==1)")
     {
     auto psi = BinaryTree(shsitesQNs);
-    CHECK(1==dim(linkIndex(psi,2)));//TODO
+    CHECK(1==dim(linkIndex(psi,3)));//TODO
     CHECK(checkTags(psi));
     }
 

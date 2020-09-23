@@ -340,6 +340,7 @@ namespace itensor {
   operator()(int i) const
   {
     if(i < 0) i = N_+i+1;
+		if(i >= N_) Error("Attempt to access tensor out of the tree")
     return A_.at(i);
   }
 

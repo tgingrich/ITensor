@@ -100,7 +100,7 @@ totalQN(BinaryTree const& psi)
     {
     auto tq = QN();
     const int N = psi.size();
-    for(int j = 0; j <= N; ++j)
+    for(int j = 0; j < N; ++j)
         {
         tq += div(psi(j));
         }
