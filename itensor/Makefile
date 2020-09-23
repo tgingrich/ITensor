@@ -49,7 +49,7 @@ SOURCES+= mps/mpo.cc
 SOURCES+= mps/mpoalgs.cc
 SOURCES+= mps/autompo.cc
 SOURCES+= ttn/binarytree.cc
-
+SOURCES+= ttn/binarytreealgs.cc
 ####################################
 
 CCFLAGS= $(ITENSOR_INCLUDEFLAGS) $(OPTIMIZATIONS) -DPLATFORM_$(PLATFORM) -D__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0

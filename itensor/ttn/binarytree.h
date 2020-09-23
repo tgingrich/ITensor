@@ -1,4 +1,4 @@
-//The following ifndef/define/endif pattern is called a 
+//The following ifndef/define/endif pattern is called a
 //scope guard, and prevents the C++ compiler (actually, preprocessor)
 //from including a header file more than once.
 #ifndef __BINARY_TREE_H_
@@ -54,10 +54,10 @@ namespace itensor {
     int N_;
     int height_;
     int N_sites_;
-    
+
     mutable    std::vector<ITensor> A_; // List of ITensor inside the tree
     std::vector<int> orth_pos_; //We store the direction of orthogonality for each node (ie the node towards ), set to -1 if not orthogonalized
-  
+
     std::vector<int> order_; //We store the direction of orthogonality for each node (ie the node towards ), set to -1 if not orthogonalized
     std::vector<int> reverse_order_; //We store the direction of orthogonality for each node (ie the node towards ), set to -1 if not orthogonalized
     int order_start_;
@@ -85,7 +85,7 @@ namespace itensor {
 
     ~BinaryTree();
 
-    void 
+    void
     init_tensors(const InitState& initState);
 
 
@@ -96,7 +96,7 @@ namespace itensor {
       if (i== 0) return -1;//Check if we are not at the top
       //if (i > N_) return -1;// We are out of the tree there is no parents
       return (i-1)/2;
-    } 
+    }
 
     int leftchild(int i) const {
       if ((2*i+1) > N_-1) return -1;//Check if we are below the bottom
@@ -108,7 +108,7 @@ namespace itensor {
       return 2*i+2;
     }
 
-    std::vector<int> childrens(int i) const { 
+    std::vector<int> childrens(int i) const {
       if (((2*i+1) > N_-1) || i < 0) return std::vector<int>(0); // Out of the tree
       return std::vector<int>{ this->leftchild(i),this->rightchild(i) };
     }
@@ -124,15 +124,15 @@ namespace itensor {
       else if (i == 0) return std::vector<int>({sibling(dir)});
       else return std::vector<int>({parent(i),sibling(dir)});
 
-    } 
+    }
 
     int depth(int i) const {return intlog2(i+1);} // Find depth of the node (i.e. distance from root node)
 
     int  //Return the id of the tensor connected to the site i
     bottomLayer(int site) const
-    {	
+    {
       if(site <= 0)  site=N_sites_;
-      return pow2(height_)-1+(site-1)/2; 
+      return pow2(height_)-1+(site-1)/2;
     }
 
     std::vector<int> children(int i,int distance) const; // Return all the children of the node that are at a certain distance, there is 2^distance of them
@@ -171,8 +171,8 @@ namespace itensor {
     doWrite() const { return false; }
     void
     doWrite(bool val,
-            Args const& args = Args::global()) 
-    { 
+            Args const& args = Args::global())
+    {
       Error("doWrite is not supported by BinaryTree");
     }
 
@@ -182,18 +182,18 @@ namespace itensor {
 
     //Returns reference to i'th BinaryTree tensor
     //which allows reading and writing
-    ITensor& 
+    ITensor&
     ref(int i);
 
     void
-    set(int i, ITensor const& nA) { 
-      ref(i) = nA; 
+    set(int i, ITensor const& nA) {
+      ref(i) = nA;
       orth_pos_[i]=-1; // The site is not longer orthogonalized
     }
 
     void
-    set(int i, ITensor && nA) { 
-      ref(i) = std::move(nA); 
+    set(int i, ITensor && nA) {
+      ref(i) = std::move(nA);
     }
 
     // Dagger all BinaryTree tensors
@@ -245,7 +245,7 @@ namespace itensor {
     }
 
     template<typename... VarArgs>
-    BinaryTree& 
+    BinaryTree&
     noTags(VarArgs&&... vargs)
     {
       for(int i=0; i < N_; ++i)
@@ -419,33 +419,33 @@ namespace itensor {
     BinaryTree&
     randomize(Args const& args = Args::global());
 
-    Spectrum 
-    svdBond(int b1, 
-            ITensor const& AA, 
-            int b2, 
+    Spectrum
+    svdBond(int b1,
+            ITensor const& AA,
+            int b2,
             Args args = Args::global());
 
     template<class LocalOpT>
-    Spectrum 
-    svdBond(int b1, 
-            ITensor const& AA, 
-            int b2, 
-            LocalOpT const& PH, 
+    Spectrum
+    svdBond(int b1,
+            ITensor const& AA,
+            int b2,
+            LocalOpT const& PH,
             Args args = Args::global());
 
-    //Move the orthogonality center to site i 
-    BinaryTree& 
+    //Move the orthogonality center to site i
+    BinaryTree&
     position(int i, Args args = Args::global());
 
-    BinaryTree& 
+    BinaryTree&
     orthogonalize(Args args = Args::global());
 
   }; //class BinaryTree
 
-  BinaryTree& 
+  BinaryTree&
   operator*=(BinaryTree & x, Real a);
 
-  BinaryTree& 
+  BinaryTree&
   operator/=(BinaryTree & x, Real a);
 
   BinaryTree
@@ -454,10 +454,10 @@ namespace itensor {
   BinaryTree
   operator*(Real r, BinaryTree x);
 
-  BinaryTree& 
+  BinaryTree&
   operator*=(BinaryTree & x, Cplx z);
 
-  BinaryTree& 
+  BinaryTree&
   operator/=(BinaryTree & x, Cplx z);
 
   BinaryTree
@@ -508,7 +508,7 @@ namespace itensor {
     A.addTags(std::forward<VarArgs>(vargs)...);
     return A;
   }
-    
+
   BinaryTree
   removeTags(BinaryTree A, TagSet const& ts, IndexSet const& is);
 
@@ -557,7 +557,7 @@ namespace itensor {
 	VarArgs&&... vargs)
   {
     A.prime(std::forward<VarArgs>(vargs)...);
-    return A; 
+    return A;
   }
 
   BinaryTree
@@ -613,7 +613,7 @@ namespace itensor {
   // Other Methods Related to BinaryTree
   //
 
-  int 
+  int
   length(BinaryTree const& W);
 
   int size(BinaryTree const& W);
@@ -653,6 +653,9 @@ namespace itensor {
   int
   orthoCenter(BinaryTree const& x);
 
+	int
+  findCenter(BinaryTree const& x);
+
   Real
   norm(BinaryTree const& x);
 
@@ -672,7 +675,7 @@ namespace itensor {
   BinaryTree
   replaceLinkInds(BinaryTree x, IndexSet const& links);
 
-  IndexSet
+  Index
   siteIndex(BinaryTree const& x, int site);
 
   template<typename BinaryTreeType>
@@ -695,7 +698,7 @@ namespace itensor {
   int
   maxLinkDim(BinaryTreeType const& x);
 
-  bool 
+  bool
   checkQNs(BinaryTree const& x);
 
   QN
@@ -707,39 +710,39 @@ namespace itensor {
 
 
   // Re[<x|y>]
-  Real 
+  Real
   inner(BinaryTree const& x, BinaryTree const& y);
 
   // <x|y>
-  Cplx 
-  innerC(BinaryTree const& x, 
+  Cplx
+  innerC(BinaryTree const& x,
 	 BinaryTree const& y);
 
   // <x|y>
-  void 
+  void
   inner(BinaryTree const& x,
-	BinaryTree const& y, 
+	BinaryTree const& y,
 	Real& re, Real& im);
 
   //Inner product with MPO
   // Re[<x|y>]
-  Real 
+  Real
   inner(BinaryTree const& x, MPO const& A,  BinaryTree const& y);
 
   // <x|y>
-  Cplx 
-  innerC(BinaryTree const& x, 
-	 MPO const& A, 
+  Cplx
+  innerC(BinaryTree const& x,
+	 MPO const& A,
 	 BinaryTree const& y);
 
   // <x|y>
-  void 
+  void
   inner(BinaryTree const& x,
-	MPO const& A, 
-	BinaryTree const& y, 
+	MPO const& A,
+	BinaryTree const& y,
 	Real& re, Real& im);
 
-  std::ostream& 
+  std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M);
 
   void

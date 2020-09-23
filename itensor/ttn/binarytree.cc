@@ -71,8 +71,8 @@ namespace itensor {
     : N_(sites.length()-1),  height_(intlog2(sites.length())-1), N_sites_(sites.length()),
       A_(sites.length()-1), //2^(h+1)-1
       orth_pos_(sites.length()-1,-1),order_(sites.length()-1), reverse_order_(sites.length()-1), site_dim_(sites.inds()[0].dim())
-  { 
-    if(!islog2(sites.length())) Error("The number of sites is not a power of 2"); 
+  {
+    if(!islog2(sites.length())) Error("The number of sites is not a power of 2");
     binary_new_tensors(A_,sites,m);
     for(int i =0; i < N_; ++i)
       {
@@ -86,8 +86,8 @@ namespace itensor {
     : N_(sites.length()-1),  height_(intlog2(sites.length())-1), N_sites_(sites.length()),
       A_(2*sites.length()-1),  //2*2^(h)-1
       orth_pos_(sites.length()-1,-1), order_(sites.length()-1), reverse_order_(sites.length()-1), site_dim_(sites[0].dim())
-  { 
-    if(!islog2(sites.length())) Error("The number of sites is not a power of 2"); 
+  {
+    if(!islog2(sites.length())) Error("The number of sites is not a power of 2");
     binary_new_tensors(A_,sites,m);
     for(int i =0; i < N_; ++i)
       {
@@ -101,10 +101,10 @@ namespace itensor {
   BinaryTree(InitState const& initState)
     : N_(initState.sites().length()-1),  height_(intlog2(initState.sites().length())-1), N_sites_(initState.sites().length()),
       A_(2*initState.sites().length()-1), //2*2^(h)-1
-      orth_pos_(initState.sites().length()-1,-1), 
+      orth_pos_(initState.sites().length()-1,-1),
       order_(initState.sites().length()-1), reverse_order_(initState.sites().length()-1), site_dim_(initState.sites().inds()[0].dim())
-  { 
-    if(!islog2(initState.sites().length())) Error("The number of sites is not a power of 2"); 
+  {
+    if(!islog2(initState.sites().length())) Error("The number of sites is not a power of 2");
     init_tensors(initState);
     for(int i =0; i < N_; ++i)
       {
@@ -116,7 +116,7 @@ namespace itensor {
 
 
   BinaryTree::BinaryTree(BinaryTree const& other)
-  { 
+  {
     N_ = other.N_;
     height_ = other.height_;
     N_sites_ = other.N_sites_;
@@ -129,7 +129,7 @@ namespace itensor {
 
   BinaryTree& BinaryTree::
   operator=(BinaryTree const& other)
-  { 
+  {
     N_ = other.N_;
     height_ = other.height_;
     N_sites_ = other.N_sites_;
@@ -168,7 +168,7 @@ namespace itensor {
 
     //First tensor that is only a rank-2 tensor
     A[0] = ITensor(a[1],a[2]);
-	
+
     for(int i = 1; i < N/2; ++i) //Ony the middle ones
       {
         A[i] = ITensor(dag(a[i]),a[2*i+1],a[2*i+2]);
@@ -196,7 +196,7 @@ namespace itensor {
     for(auto i : range1(N)) a[i] = Index(m,format("Link,l=%d",i));
     //First tensor that is only a rank-2 tensor
     A[0] = ITensor(a[1],a[2]);
-	
+
     for(int i = 1; i < N/2; ++i) //Ony the middle ones
       {
         A[i] = ITensor(dag(a[i]),a[2*i+1],a[2*i+2]);
@@ -210,7 +210,7 @@ namespace itensor {
 
   void BinaryTree::
   init_tensors(InitState const& initState)
-  { 
+  {
     auto N = initState.sites().length()-1;// Number of nodes that is 2^(h+1)-1
     auto N_sites=initState.sites().length(); // Number of sites
     auto height=intlog2(initState.sites().length())-1;//Compute the height from the number of sites
@@ -242,7 +242,7 @@ namespace itensor {
       }
     //Last line connection to the sites
     for(int i=0; i < N_sites/2; ++i) //That correspond the the N_sites /2 of the last line
-      {	
+      {
     	A_[pow2(height)+i-1] = setElt(itensor::dag(a[pow2(height)+i-1])(1),initState(2*i+1),initState(2*i+2));
       }
   }
@@ -251,8 +251,8 @@ namespace itensor {
   BinaryTree& BinaryTree::
   randomize(Args const& args)
   {
-    //if(maxLinkDim(*this)>1) Error(".randomize() not currently supported on BinaryTree with bond dimension greater than 1."); 
-    for(auto i : range(N_)) 
+    //if(maxLinkDim(*this)>1) Error(".randomize() not currently supported on BinaryTree with bond dimension greater than 1.");
+    for(auto i : range(N_))
       {
 	ref(i).randomize(args);
       }
@@ -286,7 +286,7 @@ namespace itensor {
     return child;
   }
 
-  std::vector<int[2]> BinaryTree::node_list(int i, int distance) const{ 
+  std::vector<int[2]> BinaryTree::node_list(int i, int distance) const{
     // Return all the nodes that are at a certain distance from a given node as well as the predecessor in the graph
     // This is all the children at a given distance from every parent of the node for the other subgraph
     // So we iterate to the root and get the children at the reduced distance for each node in the road
@@ -301,7 +301,7 @@ namespace itensor {
 	std::vector<int> nodes_to_add(0);
 	std::vector<int> pred_to_add(0);
 
-	if (distance > d) 
+	if (distance > d)
 	  {	nodes_to_add = this->children(this->sibling(new_node),distance-d-1);
 	    pred_to_add.resize(nodes_to_add.size());
 	    fill(pred_to_add.begin(), pred_to_add.end(), -1);
@@ -338,17 +338,17 @@ namespace itensor {
 
   ITensor const& BinaryTree::
   operator()(int i) const
-  { 
+  {
     if(i < 0) i = N_+i+1;
-    return A_.at(i); 
+    return A_.at(i);
   }
 
   ITensor& BinaryTree::
   ref(int i)
-  { 
+  {
     if(i < 0) i = N_+i+1;
     orth_pos_[i]=-1; // The site is not longer orthogonalized
-    return A_.at(i); 
+    return A_.at(i);
   }
 
   Real BinaryTree::
@@ -366,7 +366,7 @@ namespace itensor {
   //
 
   BinaryTree& BinaryTree::
-  position(int k, Args args) 
+  position(int k, Args args)
   {
     auto nc = args.getInt("NumCenter",2);
     if(not *this) Error("position: BinaryTree is default constructed");
@@ -391,7 +391,7 @@ namespace itensor {
       }
     }
     return *this;
-  }	
+  }
 
   BinaryTree& BinaryTree::
   orthogonalize(Args args) // Since position check the orthognality along the path
@@ -408,7 +408,7 @@ namespace itensor {
 
   int BinaryTree::
   startPoint(Args const& args) const {
-    auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value   
+    auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
     if (chosenOrder == "Default" ) {
       return 0;
     } else {
@@ -424,7 +424,7 @@ namespace itensor {
   setOrder(Args const& args) // Set the chosen direction of travel
   // We have the choices: Default, PostOrder, PreOrder, InOrder
   {
-    auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value 	
+    auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
     if (chosenOrder == "Default" ) {
       for(int i =0; i < N_; ++i) {
         order_[i] = i+1;
@@ -564,7 +564,7 @@ namespace itensor {
         reverse_order_[data[i + 1]] = data[i];
       }
       reverse_order_[N_ / 2] = -N_ / 2 - 1;
-		
+
     } else {
       Error("setOrder: the required order is not part of Default,PostOrder,PreOrder,InOrder");
     }
@@ -582,7 +582,7 @@ namespace itensor {
       }
     if(!find_negative) { // We should have a least one postion with a negative value
       Error("setOrder: The new_order should contains a negative value to stop the iteration");
-    } 
+    }
     order_=new_order;
     //Update reverse order
     for(unsigned int i=1; i < new_order.size();i ++)
@@ -603,14 +603,14 @@ namespace itensor {
     if(b < 0 || ((ha % 2== 1? order_.at(b) : reverse_order_.at(b)) < 0 && numCenter==2)) // At the end, either we stop or we return in the reverse direction
       {
 	b= -1*b-1;//The negative indicate where to start for the reverse (-1-> 0 , -2 -> 1 and so forth
-	if (reverse) 
+	if (reverse)
 	  {
 	    ++ha;
 	    if (numCenter == 2) b= (ha % 2== 1 ? order_.at(b) : reverse_order_.at(b)); // We avance once more for the double center
 	  }
 	else{ha+=2;} // We skip the reverse part
 
-		
+
       }
 	//println("Sweep next ",b," ",ha);
   }
@@ -637,7 +637,7 @@ namespace itensor {
     }
     //Last line connection to the sites
     for(int i=0; i < N_sites/2; ++i) //That correspond the the N_sites /2 of the last line
-    { 
+    {
       psi.ref(pow2(height)+i-1) = setElt(itensor::dag(a[pow2(height)+i-1])(1),sites.inds()[2*i](1),sites.inds()[2*i+1](1));
     }
 
@@ -661,7 +661,7 @@ namespace itensor {
     return randomBinaryTree(initstate,1,args);
   }
 
-  bool 
+  bool
   isOrtho(BinaryTree const& psi)
   {
     int number_center=0;
@@ -684,6 +684,17 @@ namespace itensor {
       }
     return -1;
   }
+
+	int findCenter(BinaryTree const& psi)
+	{
+		if(!isOrtho(psi)) return -1;
+    auto ortho= psi.orthoVect();
+    for(unsigned int i=0; i< ortho.size();++i)
+      {
+	if(ortho.at(i) == -1) return i;
+      }
+    return -1;
+	}
 
 
   //
@@ -751,7 +762,7 @@ namespace itensor {
     if(not isOrtho(psi)) Error("\
 BinaryTree must have well-defined ortho center to compute norm; \
 call .position(j) or .orthogonalize() to set ortho center");
-    return itensor::norm(psi(orthoCenter(psi)));
+    return itensor::norm(psi(findCenter(psi)));
   }
 
   template<typename TreeType>
@@ -770,7 +781,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   template Real averageLinkDim<BinaryTree>(BinaryTree const& x);
 
   template<typename TreeType>
-  int 
+  int
   maxLinkDim(TreeType const& x)
   {
     int maxdim = 0;
@@ -803,7 +814,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     A.addTags(ts,is);
     return A;
   }
-  
+
   BinaryTree
   removeTags(BinaryTree A, TagSet const& ts, IndexSet const& is)
   {
@@ -881,10 +892,10 @@ call .position(j) or .orthogonalize() to set ortho center");
     return true;
   }
 
-  IndexSet
+  Index
   siteIndex(BinaryTree const& psi, int site) // Should return only the link connected to the site
   {
-    return uniqueInds(psi(psi.bottomLayer(site)),psi(psi.parent(psi.bottomLayer(site))));
+    return uniqueIndex(psi(psi.bottomLayer(site)),psi(psi.parent(psi.bottomLayer(site))));
   }
 
   template <typename TreeType>
@@ -942,8 +953,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     auto inds=IndexSet();
     for( auto n : range1(N) )
       {
-      	auto s = uniqueInds(siteIndex(x,n), inds);// To avoid putting twice the same index
-	inds=unionInds(inds,s);
+				inds=unionInds(inds,siteIndex(x,n));
       }
     return inds;
   }
@@ -1010,7 +1020,7 @@ call .position(j) or .orthogonalize() to set ortho center");
 
 
   Cplx
-  innerC(BinaryTree const& psi, 
+  innerC(BinaryTree const& psi,
 	 BinaryTree const& phi)
   {
     auto N = size(psi);
@@ -1022,7 +1032,7 @@ call .position(j) or .orthogonalize() to set ortho center");
 
     // auto L = phi(N-1) * psidag(N-1);
     // if(N == 0) return eltC(L);
-    // for(int i = N-2 ; i >=0; i-- ) 
+    // for(int i = N-2 ; i >=0; i-- )
     //   L = L * phi(i) * psidag(i);
     // return eltC(L);
 
@@ -1040,7 +1050,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     return eltC(psi2[1]);
   }
 
-  void 
+  void
   inner(BinaryTree const& psi, BinaryTree const& phi, Real& re, Real& im)
   {
     auto z = innerC(psi,phi);
@@ -1060,8 +1070,8 @@ call .position(j) or .orthogonalize() to set ortho center");
 
   ////<x|A|y>
   //Cplx
-  //innerC(BinaryTree const& x, 
-  //		MPO const& A, 
+  //innerC(BinaryTree const& x,
+  //		MPO const& A,
   //       BinaryTree const& y)
   //    {
   //	auto N = length(A);
@@ -1079,8 +1089,8 @@ call .position(j) or .orthogonalize() to set ortho center");
 
   //    //L *= (A(0) ? A(0)*A(1) : A(1));
 
-  //    for( auto n : range1(2,N) ) 
-  //        L = L * y(n) * A(n) * xdag(n); 
+  //    for( auto n : range1(2,N) )
+  //        L = L * y(n) * A(n) * xdag(n);
 
   //    // in A(0) and A(N+1). Add this back?
   //    //if(A(N+1)) L *= A(N+1);
@@ -1089,8 +1099,8 @@ call .position(j) or .orthogonalize() to set ortho center");
 
 
   Cplx
-  innerC(BinaryTree const& x, 
-	 MPO const& A, 
+  innerC(BinaryTree const& x,
+	 MPO const& A,
 	 BinaryTree const& y)
   {
     auto N = length(A);
@@ -1114,7 +1124,7 @@ call .position(j) or .orthogonalize() to set ortho center");
  //    for(int d =x.height(); d >= 0; d--) //Max distance is zero as we do not want to contract into the node k
  //      {
 	// auto node_d = x.node_list(0,d); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
-	// for(unsigned int i=0; i < node_d.size(); i++) 
+	// for(unsigned int i=0; i < node_d.size(); i++)
 	//   {
 	//     auto node=node_d.at(i)[0];
 	//     auto direction=node_d.at(i)[1];
@@ -1143,7 +1153,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     return eltC(yAx[1]);
   }
 
-  void 
+  void
   inner(BinaryTree const& psi,MPO const& A,  BinaryTree const& phi, Real& re, Real& im)
   {
     auto z = innerC(psi,A,phi);
@@ -1165,7 +1175,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   operator<<(std::ostream& s, BinaryTree const& M)
   {
     s << "\n";
-    for(int i = 0; i <= size(M); ++i) 
+    for(int i = 0; i <= size(M); ++i)
       {
         s << M(i) << "\n";
       }
