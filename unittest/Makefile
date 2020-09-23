@@ -23,6 +23,7 @@ SOURCES+= itensor_test.cc
 SOURCES+= qn_test.cc
 SOURCES+= decomp_test.cc
 SOURCES+= mps_test.cc
+SOURCES+= btn_test.cc
 SOURCES+= mpo_test.cc
 SOURCES+= autompo_test.cc
 SOURCES+= iterativesolvers_test.cc
@@ -67,15 +68,15 @@ LIBGFLAGS=-L'$(ITENSOR_LIBDIR)' $(ITENSOR_LIBGFLAGS)
 #@$(CCCOM) $(CCGFLAGS) .debug_objs/test.o .debug_objs/%_test.o -o test-g $(LIBGFLAGS)
 
 test_%: mkdebugdir .debug_objs/test.o $(ITENSOR_GLIBS) .debug_objs/%_test.o
-	@echo 
+	@echo
 	@echo Running test index...
-	@echo 
+	@echo
 	@./test-g
 
 run: test-g
-	@echo 
+	@echo
 	@echo Running all tests...
-	@echo 
+	@echo
 	@./test-g
 
 debug: test-g
@@ -138,4 +139,3 @@ LIBHEADERS+= $(ITENSOR_INCLUDEDIR)/itensor/mps/localmpo_mps.h
 LIBHEADERS+= $(ITENSOR_INCLUDEDIR)/itensor/mps/localmposet.h
 localop_test.o: $(LIBHEADERS)
 .debug_objs/localop_test.o: $(LIBHEADERS)
-
