@@ -98,7 +98,7 @@ SECTION("Constructors (dim>1)")
     auto l2 = commonIndex(psi(1),psi(3));
     CHECK(d==dim(l2));
 
-    //CHECK(checkTags(psi));
+    CHECK(checkTags(psi));
 
     for(int n = 1; n <= N; ++n)
       psi.ref(n).randomize({"Complex=",true});
@@ -108,7 +108,7 @@ SECTION("Constructors (dim>1)")
     CHECK(checkTags(psi));
     CHECK(isOrtho(psi));
 
-    psi.position(N);
+    psi.position(N-2);
 
     CHECK(checkTags(psi));
     CHECK(isOrtho(psi));
@@ -136,7 +136,7 @@ SECTION("Random constructors (dim==1)")
     CHECK(checkTags(psi1));
     CHECK_CLOSE(diff(psi,psi1),0.);
 
-    psi1.position(N);
+    psi1.position(N-2);
 
     norm2 = innerC(psi1,psi1);
 
@@ -169,7 +169,7 @@ SECTION("Check .position() with custom tags")
     CHECK_CLOSE(diff(opsi,psi),0.);
     CHECK(checkTags(opsi,"MySite","MyLink"));
 
-    opsi.position(N);
+    opsi.position(N-2);
 
     CHECK_CLOSE(diff(opsi,psi),0.);
     CHECK(checkTags(opsi,"MySite","MyLink"));
@@ -307,7 +307,7 @@ SECTION("Orthogonalize")
 
     //Make a random BinaryTree of bond dim. d
     auto psi = BinaryTree(sites,d);
-    for(auto n : range1(N))
+    for(auto n : range(N))
         psi.ref(n).randomize({"Complex=",true});
 
     CHECK(checkTags(psi));
@@ -330,14 +330,14 @@ SECTION("Orthogonalize")
     CHECK(checkTags(psi));
     }
 
-SECTION("Overlap - 1 site")
-    {
-    auto psi = BinaryTree(1);
-    auto s = Index(2,"s");
-    psi.ref(1) = randomITensorC(s);
-
-    CHECK_CLOSE(innerC(psi,psi),eltC(dag(psi(1))*psi(1)));
-    }
+// SECTION("Overlap - 1 site")
+//     {
+//     auto psi = BinaryTree(1);
+//     auto s = Index(2,"s");
+//     psi.ref(1) = randomITensorC(s);
+//
+//     CHECK_CLOSE(innerC(psi,psi),eltC(dag(psi(1))*psi(1)));
+//     }
 
 SECTION("siteInds")
     {
