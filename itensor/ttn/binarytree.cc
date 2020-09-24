@@ -340,7 +340,7 @@ namespace itensor {
   operator()(int i) const
   {
     if(i < 0) i = N_+i+1;
-		if(i >= N_) Error("Attempt to access tensor out of the tree")
+		if(i >= N_) Error("Attempt to access tensor out of the tree");
     return A_.at(i);
   }
 
@@ -369,7 +369,7 @@ namespace itensor {
   BinaryTree& BinaryTree::
   position(int k, Args args)
   {
-    auto nc = args.getInt("NumCenter",2);
+    auto nc = args.getInt("NumCenter",1);
     if(not *this) Error("position: BinaryTree is default constructed");
 
     //Find the max distance from the position to orthogonalize
@@ -397,7 +397,7 @@ namespace itensor {
   BinaryTree& BinaryTree::
   orthogonalize(Args args) // Since position check the orthognality along the path
   {
-    return position(N_,args);
+    return position(1,args);
   }
 
 
@@ -896,7 +896,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   Index
   siteIndex(BinaryTree const& psi, int site) // Should return only the link connected to the site
   {
-    return uniqueIndex(psi(psi.bottomLayer(site)),psi(psi.parent(psi.bottomLayer(site))));
+    return uniqueIndex(psi(psi.bottomLayer(site)),psi(psi.parent(psi.bottomLayer(site))),"n="+str(site));
   }
 
   template <typename TreeType>
