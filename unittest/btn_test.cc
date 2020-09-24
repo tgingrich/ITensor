@@ -4,6 +4,8 @@
 #include "itensor/mps/sites/fermion.h"
 #include "itensor/util/print_macro.h"
 #include "itensor/util/str.h"
+#include "itensor/ttn/tree_dmrg.h"
+#include "itensor/mps/autompo.h"
 
 namespace itensor {
 
@@ -100,8 +102,7 @@ SECTION("Constructors (dim>1)")
 
     CHECK(checkTags(psi));
 
-    for(int n = 1; n <= N; ++n)
-      psi.ref(n).randomize({"Complex=",true});
+    psi.randomize({"Complex=",true});
 
     psi.position(1);
 
@@ -307,8 +308,7 @@ SECTION("Orthogonalize")
 
     //Make a random BinaryTree of bond dim. d
     auto psi = BinaryTree(sites,d);
-    for(auto n : range(N))
-        psi.ref(n).randomize({"Complex=",true});
+    psi.randomize({"Complex=",true});
 
     CHECK(checkTags(psi));
 
@@ -411,5 +411,68 @@ SECTION("prime")
     CHECK( prime(linkIndex(psi,3)) == linkIndex(psi4,3) );
 
     }
+
+    SECTION("Tree DMRG")
+      {
+      int N = 32;
+      auto sites = SpinHalf(N,{"ConserveQNs=",false});
+      auto psi0 = randomBinaryTree(InitState(sites,"Up"));
+
+      auto h = 0.5; // Critical point
+
+      auto ampo = AutoMPO(sites);
+      for(int j = 1; j < N; ++j)
+          {
+          ampo += -1.0,"Sx",j,"Sx",j+1;
+          ampo += -h,"Sz",j;
+          }
+      ampo += -h,"Sz",N;
+      auto H = toMPO(ampo);
+
+      auto sweeps = Sweeps(5);
+      sweeps.maxdim() = 10,20,30;
+      sweeps.cutoff() = 1E-12;
+      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true});
+      auto energy = Energy/N;
+      (void)psi;
+
+      // Exact energy for transverse field Ising model
+      // with open boundary conditions
+      auto Energy_exact = 1.0 - 1.0/sin(Pi/(2*(2*N+1)));
+      auto energy_exact = Energy_exact/(4*N);
+      CHECK_CLOSE((energy-energy_exact)/energy_exact,0.);
+      }
+
+    SECTION("Tree DMRG with QNs")
+      {
+      int N = 32;
+      auto sites = SpinHalf(N,{"ConserveSz=",false,
+                               "ConserveParity=",true});
+      auto psi0 = randomBinaryTree(InitState(sites,"Up"));
+
+      auto h = 0.5; // Critical point
+
+      auto ampo = AutoMPO(sites);
+      for(int j = 1; j < N; ++j)
+          {
+          ampo += -1.0,"Sx",j,"Sx",j+1;
+          ampo += -h,"Sz",j;
+          }
+      ampo += -h,"Sz",N;
+      auto H = toMPO(ampo);
+
+      auto sweeps = Sweeps(5);
+      sweeps.maxdim() = 10,20,30;
+      sweeps.cutoff() = 1E-12;
+      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true});
+      auto energy = Energy/N;
+      (void)psi;
+
+      // Exact energy for transverse field Ising model
+      // with open boundary conditions
+      auto Energy_exact = 1.0 - 1.0/sin(Pi/(2*(2*N+1)));
+      auto energy_exact = Energy_exact/(4*N);
+      CHECK_CLOSE((energy-energy_exact)/energy_exact,0.);
+      }
 
 }
