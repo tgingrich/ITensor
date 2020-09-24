@@ -348,7 +348,7 @@ namespace itensor {
   ref(int i)
   {
     if(i < 0) i = N_+i+1;
-    orth_pos_[i]=-1; // The site is not longer orthogonalized
+    //orth_pos_[i]=-1; // The site is not longer orthogonalized but that is up to the dev to check this
     return A_.at(i);
   }
 
@@ -369,7 +369,6 @@ namespace itensor {
   BinaryTree& BinaryTree::
   position(int k, Args args)
   {
-    auto nc = args.getInt("NumCenter",1);
     if(not *this) Error("position: BinaryTree is default constructed");
 
     //Find the max distance from the position to orthogonalize
@@ -379,7 +378,7 @@ namespace itensor {
     for(int d =max_dist; d > 0; d--) {
       auto node_d = this->node_list(k,d); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
       for(unsigned int i=0; i < node_d.size(); ++i) {
-        if (orth_pos_.at(node_d.at(i)[0]) != node_d.at(i)[1] && (nc == 1 || node_d.at(i)[1] != k)) {
+        if (orth_pos_.at(node_d.at(i)[0]) != node_d.at(i)[1] ) {
           if(args.getBool("DoSVDBond",false)) {
             auto WF = operator()(node_d.at(i)[0]) * operator()(node_d.at(i)[1]);
             svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);
@@ -410,8 +409,11 @@ namespace itensor {
   int BinaryTree::
   startPoint(Args const& args) const {
     auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    if (chosenOrder == "Default" ) {
-      return 0;
+		const int numCenter = args.getInt("NumCenter",1);
+		if (chosenOrder == "Default" ) {
+			if(numCenter != 1)
+      	return 1;
+			return 0;
     } else {
       return N_ / 2;
     }
@@ -1176,7 +1178,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   operator<<(std::ostream& s, BinaryTree const& M)
   {
     s << "\n";
-    for(int i = 0; i <= size(M); ++i)
+    for(int i = 0; i < size(M); ++i)
       {
         s << M(i) << "\n";
       }
