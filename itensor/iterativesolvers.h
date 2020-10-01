@@ -18,7 +18,6 @@
 #include "itensor/util/iterate.h"
 #include "itensor/itensor.h"
 #include "itensor/tensor/algs.h"
-#include <Eigen/Core>
 #include <Spectra/GenEigsSolver.h>
 
 
@@ -972,7 +971,6 @@ arnoldi(BigMatrixT& A,
 
     int maxiter_ = args.getInt("MaxIter",10);
     int maxrestart_ = args.getInt("MaxRestart",0);
-    // std::string whicheig_ = args.getString("WhichEig","LargestMagnitude");
     const Real errgoal_ = args.getReal("ErrGoal",1E-6);
     const int debug_level_ = args.getInt("DebugLevel",-1);
 

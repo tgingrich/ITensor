@@ -185,8 +185,6 @@ namespace itensor {
         args.add("Noise",sweeps.noise(sw));
         args.add("MaxIter",sweeps.niter(sw));
 
-        // args.add("WhichEig","LargestReal");
-
         if(!PH.doWrite()
            && args.defined("WriteDim")
            && sweeps.maxdim(sw) >= args.getInt("WriteDim"))
@@ -221,8 +219,8 @@ namespace itensor {
 	    // The local vector to update
 	    if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
             else if(numCenter == 1) phi = psi(b);
-	    TIMER_STOP(2);
       PH.setInds(phi.inds());
+	    TIMER_STOP(2);
       PrintData(psi);
       PrintData(phi);
       if (b == 1 || b == 2) {
