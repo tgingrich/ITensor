@@ -136,7 +136,8 @@ namespace itensor {
     std::vector<int> 
     Lim() const{ return Hlim_;}
 
-    void haveBeenUpdated(int b)
+    void
+    haveBeenUpdated(int b)
     { 	
       Hlim_.at(b)=-1;
       /*			for (auto & elem : Hlim_)*/
@@ -151,6 +152,16 @@ namespace itensor {
     { 
       Error("doWrite is not supported by LocalMPO_BT");
     }
+
+    void
+    setInds(IndexSet const& inds) { is_ = inds; }
+
+    int
+    rows() { return size(); }
+    int
+    cols() { return size(); }
+    // y_out = M * x_in
+    void perform_op(const double *x_in, double *y_out);
 
 
   private:
@@ -168,6 +179,8 @@ namespace itensor {
     LocalOpTree lop_;
 
     const MPS* Psi_;
+
+    IndexSet is_;
 
     //
     /////////////////
@@ -325,6 +338,49 @@ namespace itensor {
 	      }
 	  }
       }
+  }
+
+  void LocalMPO_BT::
+  perform_op(const double *x_in, double *y_out)
+  {
+    ITensor phi(is_);
+    ITensor phip(phi);
+    int idx = 0;
+    for(int i = 1; i <= dim(is_(1)); ++i)
+      {
+      for(int j = 1; j <= dim(is_(2)); ++j)
+        {
+        if (phi.order() == 2)
+          {
+          phi.set(x_in[idx++], i, j);
+          }
+        else
+          {
+          for(int k = 1; k <= dim(is_(3)); ++k)
+            {
+            if (phi.order() == 3)
+              {
+              phi.set(x_in[idx++], i, j, k);
+              }
+            else
+              {
+              for(int l = 1; l <= dim(is_(4)); ++l)
+                {
+                phi.set(x_in[idx++], i, j, k, l);
+                }
+              }
+            }
+          }
+        }
+      }
+    product(phi, phip);
+    std::vector<double> pvec(size(), 0.0);
+    auto phivec = std::get<0>(combiner(is_)) * phip;
+    for (i = 1; i <= size(); ++i)
+      {
+      pvec[i - 1] = phivec.elt(i);
+      }
+    return &pvec.front();
   }
 
 
