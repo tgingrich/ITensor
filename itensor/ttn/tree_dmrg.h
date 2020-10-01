@@ -222,6 +222,7 @@ namespace itensor {
 	    if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
             else if(numCenter == 1) phi = psi(b);
 	    TIMER_STOP(2);
+      PH.setInds(phi.inds());
       PrintData(psi);
       PrintData(phi);
       if (b == 1 || b == 2) {
