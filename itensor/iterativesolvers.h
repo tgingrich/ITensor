@@ -728,7 +728,7 @@ findEig(Vector const& vr, Vector const& vi, std::string whichEig)
   
 // template <class BigMatrixT>
 // std::vector<Complex>
-// arnoldi(const BigMatrixT& A,
+// arnoldi(BigMatrixT& A,
 //         std::vector<ITensor>& phi,
 //         Args const& args)
 //     {
@@ -959,7 +959,7 @@ findEig(Vector const& vr, Vector const& vi, std::string whichEig)
 
 template <class BigMatrixT>
 std::vector<Complex>
-arnoldi(const BigMatrixT& A,
+arnoldi(BigMatrixT& A,
         std::vector<ITensor>& phi,
         Args const& args)
     {
@@ -978,8 +978,6 @@ arnoldi(const BigMatrixT& A,
 
     if(maxiter_ < 1) maxiter_ = 1;
     if(maxrestart_ < 0) maxrestart_ = 0;
-
-    const Real Approx0 = 1E-12;
 
     const size_t nget = phi.size();
     if(nget == 0) Error("No initial vectors passed to arnoldi.");
@@ -1020,7 +1018,7 @@ arnoldi(const BigMatrixT& A,
         auto inds = phi.at(w).inds();
         std::vector<double> evec(A.size(), 0.0);
         auto phivec = std::get<0>(combiner(inds)) * phi.at(w);
-        for (int i = 1; i <= A.size(); ++i)
+        for (auto i : range1(A.size()))
             {
             evec[i - 1] = phivec.elt(i);
             }
@@ -1030,7 +1028,7 @@ arnoldi(const BigMatrixT& A,
 
         // Initialize and compute
         es.init(&evec.front());
-        int nconv = es.compute(maxiter_, errgoal_, SELECTION_RULE);
+        es.compute(maxiter_, errgoal_, SELECTION_RULE);
 
         // Retrieve results
         if(es.info() != Spectra::SUCCESSFUL)
@@ -1046,7 +1044,7 @@ arnoldi(const BigMatrixT& A,
                 {
                 if (phi.at(w).order() == 2)
                     {
-                    phi.at(w).set(result(1, idx++), i, j);
+                    phi.at(w).set(i, j, result(1, idx++));
                     }
                 else
                     {
@@ -1054,13 +1052,13 @@ arnoldi(const BigMatrixT& A,
                         {
                         if (phi.at(w).order() == 3)
                             {
-                            phi.at(w).set(result(1, idx++), i, j, k);
+                            phi.at(w).set(i, j, k, result(1, idx++));
                             }
                         else
                             {
                             for(int l = 1; l <= dim(inds(4)); ++l)
                                 {
-                                phi.at(w).set(result(1, idx++), i, j, k, l);
+                                phi.at(w).set(i, j, k, l, result(1, idx++));
                                 }
                             }
                         }
@@ -1077,7 +1075,7 @@ arnoldi(const BigMatrixT& A,
 
 template <class BigMatrixT>
 Complex
-arnoldi(const BigMatrixT& A,
+arnoldi(BigMatrixT& A,
         ITensor& vec,
         Args const& args = Args::global())
     {

@@ -31,6 +31,7 @@ class LocalMPO_MPS
     //of each MPS in psis_
     std::vector<LocalMPO> lmps_;
     Real weight_ = 1;
+    IndexSet is_;
     public:
 
     LocalMPO_MPS(Args const& args = Args::global()) { }
@@ -86,6 +87,16 @@ class LocalMPO_MPS
     doWrite() const { return lmpo_.doWrite(); }
     void
     doWrite(bool val, Args const& args = Args::global()) { lmpo_.doWrite(val,args); }
+
+    void
+    setInds(IndexSet const& inds) { is_ = inds; }
+
+    int
+    rows() { return size(); }
+    int
+    cols() { return size(); }
+    // y_out = M * x_in
+    void perform_op(const double *x_in, double *y_out);
 
     };
 
@@ -151,6 +162,47 @@ position(int b, const MPS& psi)
     for(auto& M : lmps_)
         {
         M.position(b,psi);
+        }
+    }
+
+void LocalMPO_MPS::
+perform_op(const double *x_in, double *y_out)
+    {
+    ITensor phi(is_);
+    ITensor phip(phi);
+    int idx = 0;
+    for(int i = 1; i <= dim(is_(1)); ++i)
+        {
+        for(int j = 1; j <= dim(is_(2)); ++j)
+            {
+            if (phi.order() == 2)
+                {
+                phi.set(i, j, x_in[idx++]);
+                }
+            else
+                {
+                for(int k = 1; k <= dim(is_(3)); ++k)
+                    {
+                    if (phi.order() == 3)
+                        {
+                        phi.set(i, j, k, x_in[idx++]);
+                        }
+                     else
+                        {
+                        for(int l = 1; l <= dim(is_(4)); ++l)
+                            {
+                            phi.set(i, j, k, l, x_in[idx++]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    product(phi, phip);
+    auto phivec = std::get<0>(combiner(is_)) * phip;
+    for (auto i : range1(size()))
+        {
+        y_out[i - 1] = phivec.elt(i);
         }
     }
 
