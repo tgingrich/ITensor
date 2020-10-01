@@ -352,7 +352,7 @@ namespace itensor {
         {
         if (phi.order() == 2)
           {
-          phi.set(x_in[idx++], i, j);
+          phi.set(i, j, x_in[idx++]);
           }
         else
           {
@@ -360,13 +360,13 @@ namespace itensor {
             {
             if (phi.order() == 3)
               {
-              phi.set(x_in[idx++], i, j, k);
+              phi.set(i, j, k, x_in[idx++]);
               }
             else
               {
               for(int l = 1; l <= dim(is_(4)); ++l)
                 {
-                phi.set(x_in[idx++], i, j, k, l);
+                phi.set(i, j, k, l, x_in[idx++]);
                 }
               }
             }
@@ -374,13 +374,11 @@ namespace itensor {
         }
       }
     product(phi, phip);
-    std::vector<double> pvec(size(), 0.0);
     auto phivec = std::get<0>(combiner(is_)) * phip;
-    for (i = 1; i <= size(); ++i)
+    for (auto i : range1(size()))
       {
-      pvec[i - 1] = phivec.elt(i);
+      y_out[i - 1] = phivec.elt(i);
       }
-    return &pvec.front();
   }
 
 
