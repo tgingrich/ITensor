@@ -230,12 +230,8 @@ namespace itensor {
         PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
       }
 	    TIMER_START(3);
-            // phi = prime(phi);
-            // PrintData(phi);
             energy = arnoldi(PH,phi,args).real();
             phi.takeReal();
-            // phi = noPrime(phi);
-            // PrintData(phi);
 	    TIMER_STOP(3);
       PrintData(phi);
       printfln("%d %d %d", sw, b, energy);

@@ -103,16 +103,6 @@ int main()
   // auto H = MPO_ASEP(sites, { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 }, { 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 }, 0.0001);
   // auto H = MPO_ASEP(sites, { 0.1, 0.2, 0.3, 0.4 }, { 1.1, 1.2, 1.3, 1.4 }, 0.0);
 
-  // PrintData(H);
-  // for (auto i : range1(length(H)))
-  //   {
-  //     auto inds = H(i).inds();
-  //     prime(H(i), 2, inds[1]);
-  //     prime(H(i), 1, inds[0]);
-  //     prime(H(i), 0, inds[1]);
-  //   }
-  // PrintData(H);
-
   // auto Hfull = H(1) * H(2) * H(3) * H(4) * H(5) * H(6) * H(7) * H(8);
   // auto inds = Hfull.inds();
   // auto C = std::get<0>(combiner(inds[0], inds[2], inds[4], inds[6], inds[8], inds[10], inds[12], inds[14]));
