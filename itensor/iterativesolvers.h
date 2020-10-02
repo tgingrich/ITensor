@@ -1014,15 +1014,15 @@ arnoldi(BigMatrixT& A,
         {
 
         auto inds = phi.at(w).inds();
-        std::vector<double> evec(A.size(), 0.0);
+        std::vector<double> evec(maxsize, 0.0);
         auto phivec = std::get<0>(combiner(inds)) * phi.at(w);
-        for (auto i : range1(A.size()))
+        for (auto i : range1(maxsize))
             {
             evec[i - 1] = phivec.elt(i);
             }
 
         //Construct eigen solver object, requesting the largest (in magnitude, or norm) three eigenvalues
-        Spectra::GenEigsSolver<double, SELECTION_RULE, BigMatrixT> es(&A, 1, A.size());
+        Spectra::GenEigsSolver<double, SELECTION_RULE, BigMatrixT> es(&A, 1, maxsize);
 
         // Initialize and compute
         es.init(&evec.front());
@@ -1033,31 +1033,43 @@ arnoldi(BigMatrixT& A,
             {
             Error("arnoldi failed");
             }
-        eigs[w] = es.eigenvalues()(1);
+        eigs[w] = es.eigenvalues()(0);
         auto result = es.eigenvectors();
         int idx = 0;
-        for(int i = 1; i <= dim(inds(1)); ++i)
+        if (phi.at(w).order() == 2)
             {
-            for(int j = 1; j <= dim(inds(2)); ++j)
+            for(int i = 1; i <= dim(inds(2)); ++i)
                 {
-                if (phi.at(w).order() == 2)
+                for(int j = 1; j <= dim(inds(1)); ++j)
                     {
-                    phi.at(w).set(i, j, result(1, idx++));
+                    phi.at(w).set(j, i, result(idx++, 0));
                     }
-                else
+                }
+            }
+        else if (phi.at(w).order() == 3)
+            {
+            for(int i = 1; i <= dim(inds(3)); ++i)
+                {
+                for(int j = 1; j <= dim(inds(2)); ++j)
                     {
-                    for(int k = 1; k <= dim(inds(3)); ++k)
+                    for(int k = 1; k <= dim(inds(1)); ++k)
                         {
-                        if (phi.at(w).order() == 3)
+                        phi.at(w).set(k, j, i, result(idx++, 0));
+                        }
+                    }
+                }
+            }
+        else if (phi.at(w).order() == 4)
+            {
+            for(int i = 1; i <= dim(inds(4)); ++i)
+                {
+                for(int j = 1; j <= dim(inds(3)); ++j)
+                    {
+                    for(int k = 1; k <= dim(inds(2)); ++k)
+                        {
+                        for(int l = 1; l <= dim(inds(1)); ++l)
                             {
-                            phi.at(w).set(i, j, k, result(1, idx++));
-                            }
-                        else
-                            {
-                            for(int l = 1; l <= dim(inds(4)); ++l)
-                                {
-                                phi.at(w).set(i, j, k, l, result(1, idx++));
-                                }
+                            phi.at(w).set(l, k, j, i, result(idx++, 0));
                             }
                         }
                     }

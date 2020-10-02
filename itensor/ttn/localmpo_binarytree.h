@@ -346,34 +346,53 @@ namespace itensor {
     ITensor phi(is_);
     ITensor phip(phi);
     int idx = 0;
-    for(int i = 1; i <= dim(is_(1)); ++i)
+    if (phi.order() == 2)
       {
-      for(int j = 1; j <= dim(is_(2)); ++j)
+      for(int i = 1; i <= dim(is_(2)); ++i)
         {
-        if (phi.order() == 2)
+        for(int j = 1; j <= dim(is_(1)); ++j)
           {
-          phi.set(i, j, x_in[idx++]);
+          phi.set(j, i, x_in[idx++]);
           }
-        else
+        }
+      }
+    else if (phi.order() == 3)
+      {
+      for(int i = 1; i <= dim(is_(3)); ++i)
+        {
+        for(int j = 1; j <= dim(is_(2)); ++j)
           {
-          for(int k = 1; k <= dim(is_(3)); ++k)
+          for(int k = 1; k <= dim(is_(1)); ++k)
             {
-            if (phi.order() == 3)
+            phi.set(k, j, i, x_in[idx++]);
+            }
+          }
+        }
+      }
+    else if (phi.order() == 4)
+      {
+      for(int i = 1; i <= dim(is_(4)); ++i)
+        {
+        for(int j = 1; j <= dim(is_(3)); ++j)
+          {
+          for(int k = 1; k <= dim(is_(2)); ++k)
+            {
+            for(int l = 1; l <= dim(is_(1)); ++l)
               {
-              phi.set(i, j, k, x_in[idx++]);
-              }
-            else
-              {
-              for(int l = 1; l <= dim(is_(4)); ++l)
-                {
-                phi.set(i, j, k, l, x_in[idx++]);
-                }
+              phi.set(l, k, j, i, x_in[idx++]);
               }
             }
           }
         }
       }
     product(phi, phip);
+    PrintData(phi);
+    PrintData(lop_.L());
+    PrintData(lop_.Op1());
+    PrintData(lop_.Op2());
+    PrintData(lop_.R());
+    PrintData(lop_.L() * lop_.Op1() * lop_.Op2() * lop_.R());
+    PrintData(phip);
     auto phivec = std::get<0>(combiner(is_)) * phip;
     for (auto i : range1(size()))
       {
