@@ -416,7 +416,6 @@ TIMER_STOP(1);
 
 TIMER_START(2);
             auto phi = psi(b)*psi(b+1);
-            PH.setInds(phi.inds());
 TIMER_STOP(2);
 
 TIMER_START(3);
