@@ -185,6 +185,8 @@ namespace itensor {
         args.add("Noise",sweeps.noise(sw));
         args.add("MaxIter",sweeps.niter(sw));
 
+        args.add("WhichEig","LargestReal");
+
         if(!PH.doWrite()
            && args.defined("WriteDim")
            && sweeps.maxdim(sw) >= args.getInt("WriteDim"))
@@ -219,7 +221,6 @@ namespace itensor {
 	    // The local vector to update
 	    if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
             else if(numCenter == 1) phi = psi(b);
-      PH.setInds(phi.inds());
 	    TIMER_STOP(2);
       PrintData(psi);
       PrintData(phi);
@@ -229,10 +230,14 @@ namespace itensor {
         PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
       }
 	    TIMER_START(3);
+            // phi = prime(phi);
+            // PrintData(phi);
             energy = arnoldi(PH,phi,args).real();
             phi.takeReal();
+            // phi = noPrime(phi);
+            // PrintData(phi);
 	    TIMER_STOP(3);
-		  PrintData(phi);
+      PrintData(phi);
       printfln("%d %d %d", sw, b, energy);
 	    TIMER_START(4);
 	    //Restore tensor network form
