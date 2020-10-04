@@ -59,7 +59,7 @@ namespace itensor {
         if (commonIndex(A_[b1], D).dim() < dim) {
           auto temp1 = A_[b1];
           auto temp2 = D;
-          auto ind = Index(dim, "Link,U");
+          auto ind = Index(dim, "Link,U"); //TODO: Create an Index with QNs
           A_[b1] = ITensor(IndexSet(uniqueInds(temp1, temp2), ind));
           D = ITensor(IndexSet(uniqueInds(temp2, temp1), ind));
           for(auto it : iterInds(temp1)) {
