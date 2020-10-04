@@ -136,7 +136,8 @@ namespace itensor {
     std::vector<int> 
     Lim() const{ return Hlim_;}
 
-    void haveBeenUpdated(int b)
+    void
+    haveBeenUpdated(int b)
     { 	
       Hlim_.at(b)=-1;
       /*			for (auto & elem : Hlim_)*/
@@ -151,7 +152,6 @@ namespace itensor {
     { 
       Error("doWrite is not supported by LocalMPO_BT");
     }
-
 
   private:
 
@@ -326,7 +326,6 @@ namespace itensor {
 	  }
       }
   }
-
 
 } //namespace itensor
 
