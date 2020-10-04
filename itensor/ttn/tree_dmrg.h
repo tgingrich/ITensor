@@ -51,8 +51,8 @@ namespace itensor {
   //DMRG with an MPO
   //
   Real inline
-  tree_dmrg(BinaryTree & psi, 
-	    MPO const& H, 
+  tree_dmrg(BinaryTree & psi,
+	    MPO const& H,
 	    Sweeps const& sweeps,
 	    Args const& args = Args::global())
   {
@@ -81,9 +81,9 @@ namespace itensor {
   //DMRG with an MPO and custom TreeDMRGObserver
   //
   Real inline
-  tree_dmrg(BinaryTree& psi, 
-	    MPO const& H, 
-	    Sweeps const& sweeps, 
+  tree_dmrg(BinaryTree& psi,
+	    MPO const& H,
+	    Sweeps const& sweeps,
 	    TreeDMRGObserver & obs,
 	    Args const& args = Args::global())
   {
@@ -168,11 +168,13 @@ namespace itensor {
 
     // psi.position(psi.startPoint(args));
 
+		const bool subspace_expansion=args.getBool("SubspaceExpansion",false);
+		Real alpha = 0.1; //TODO Get alpha from user parameters
     args.add("DebugLevel",debug_level);
     args.add("DoNormalize",true);
 	args.add("UseSVD",true);
-    
-	
+
+
 
     for(int sw = 1; sw <= sweeps.nsweep(); ++sw)
       {
@@ -214,7 +216,7 @@ namespace itensor {
 	    TIMER_START(1);
 	    psi.position(b,args); //Orthogonalize with respect to b
 
-        PH.position(b,psi); // Compute the local environnement
+      PH.position(b,psi); // Compute the local environnement
 	    TIMER_STOP(1);
 
 	    TIMER_START(2);
@@ -237,9 +239,9 @@ namespace itensor {
       printfln("%d %d %d", sw, b, energy);
 	    TIMER_START(4);
 	    //Restore tensor network form
-            if (numCenter == 2) 
+            if (numCenter == 2)
 	      {
-			spec = psi.svdBond(b,phi,psi.parent(b),PH,args);
+			spec = psi.svdBond(b,phi,psi.parent(b),PH,args);//TODO change to make direction depend of sweep direction
 			PH.haveBeenUpdated(b);
 			PH.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
 	      }
@@ -248,15 +250,23 @@ namespace itensor {
 			psi.ref(b) = phi;
 			PH.haveBeenUpdated(b);
 	      }
+
+				if(subspace_expansion)//Do subspace expansion
+				{
+					subspace_expansion(psi,LocalOpT & PH,int b1,int b2, Real alpha);
+					orthPair(psi.ref(b1),psi.ref(b2),args)//Orthogonalize the pair of tensor, do we need to do it as psi.position will do it later
+					//psi.position(b1);//Instead?
+					spec = psi.svdBond(b,Something,psi.parent(b),PH,args);// But change phi
+				}
 		// PrintData(psi(b));
 		// PrintData(psi(psi.parent(b)));
 	    TIMER_STOP(4);
 
             if(!quiet)
-	      { 
+	      {
                 printfln("    Truncated to Cutoff=%.1E, Min_dim=%d, Max_dim=%d",
 			 sweeps.cutoff(sw),
-			 sweeps.mindim(sw), 
+			 sweeps.mindim(sw),
 			 sweeps.maxdim(sw) );
                 printfln("    Trunc. err=%.1E, States kept: %s",
                          spec.truncerr(),
@@ -267,8 +277,8 @@ namespace itensor {
 			// println(spec);
             args.add("AtBond",b);
             args.add("HalfSweep",ha);
-            args.add("Energy",energy); 
-            args.add("Truncerr",spec.truncerr()); 
+            args.add("Energy",energy);
+            args.add("Truncerr",spec.truncerr());
 
             obs.measure(args);
 
@@ -286,7 +296,7 @@ namespace itensor {
 	  }
 
         if(obs.checkDone(args)) break;
-    
+
       } //for loop over sw
     psi.normalize();
 

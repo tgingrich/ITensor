@@ -15,7 +15,6 @@
 //
 #include "itensor/ttn/binarytree.h"
 // #include "itensor/mps/mpo.h"
-// #include "itensor/mps/localop.h"
 #include "itensor/util/print_macro.h"
 // #include "itensor/tensor/slicemat.h"
 
@@ -31,6 +30,17 @@ using std::endl;
 // using std::make_pair;
 // using std::string;
 // using std::move;
+
+void subspace_expansion(BinaryTree & psi,LocalOpT & PH,int b1,int b2, Real alpha)
+{
+    //Build Pi
+
+    //Expand psi(b1)
+
+    //Build zero block with correct indexes
+
+    //Expand psi(b2)
+}
 
 bool
 checkQNs(BinaryTree const& psi)

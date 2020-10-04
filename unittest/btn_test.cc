@@ -414,7 +414,7 @@ SECTION("prime")
 
     SECTION("Tree DMRG")
       {
-      int N = 32;
+      int N = 8;
       auto sites = SpinHalf(N,{"ConserveQNs=",false});
       auto psi0 = randomBinaryTree(InitState(sites,"Up"));
 
@@ -445,7 +445,7 @@ SECTION("prime")
 
     SECTION("Tree DMRG with QNs")
       {
-      int N = 32;
+      int N = 8;
       auto sites = SpinHalf(N,{"ConserveSz=",false,
                                "ConserveParity=",true});
       auto psi0 = randomBinaryTree(InitState(sites,"Up"));

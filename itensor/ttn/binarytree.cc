@@ -384,9 +384,9 @@ namespace itensor {
             svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);
           } else {
             orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
-            orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
-            orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
           }
+					orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
+					orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
         }
       }
     }
