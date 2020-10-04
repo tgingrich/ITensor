@@ -29,7 +29,7 @@ main()
     //     }
     // auto H = toMPO(ampo);
 
-    Real lambda = 0.0;
+  // Real lambda = 0.0;
   // std::vector<Real> plist(N + 1);
   // std::vector<Real> qlist(N + 1);
   // for(auto j : range(N + 1))
@@ -37,25 +37,27 @@ main()
   //   plist[j] = (Real)std::rand() / RAND_MAX;
   //   qlist[j] = (Real)std::rand() / RAND_MAX;
   // }
-  std::vector<Real> plist(N + 1, 0.6);
-  std::vector<Real> qlist(N + 1, 0.4);
-  auto ampo = AutoMPO(sites);
-  ampo += plist[0] * std::exp(lambda), "S-", 1;
-  ampo += -plist[0], "projDn", 1;
-  ampo += qlist[0] * std::exp(-lambda), "S+", 1;
-  ampo += -qlist[0], "projUp", 1;
-  for(auto j : range1(N - 1))
-  {
-    ampo += plist[j] * std::exp(lambda), "S+", j, "S-", j + 1;
-    ampo += -plist[j], "projUp", j, "projDn", j + 1;
-    ampo += qlist[j] * std::exp(-lambda), "S-", j, "S+", j + 1;
-    ampo += -qlist[j], "projDn", j, "projUp", j + 1;
-  }
-  ampo += qlist[N] * std::exp(-lambda), "S-", N;
-  ampo += -qlist[N], "projDn", N;
-  ampo += plist[N] * std::exp(lambda), "S+", N;
-  ampo += -plist[N], "projUp", N;
-  auto H = toMPO(ampo);
+  // std::vector<Real> plist(N + 1, 0.6);
+  // std::vector<Real> qlist(N + 1, 0.4);
+  // auto ampo = AutoMPO(sites);
+  // ampo += plist[0] * std::exp(lambda), "S-", 1;
+  // ampo += -plist[0], "projDn", 1;
+  // ampo += qlist[0] * std::exp(-lambda), "S+", 1;
+  // ampo += -qlist[0], "projUp", 1;
+  // for(auto j : range1(N - 1))
+  // {
+  //   ampo += plist[j] * std::exp(lambda), "S+", j, "S-", j + 1;
+  //   ampo += -plist[j], "projUp", j, "projDn", j + 1;
+  //   ampo += qlist[j] * std::exp(-lambda), "S-", j, "S+", j + 1;
+  //   ampo += -qlist[j], "projDn", j, "projUp", j + 1;
+  // }
+  // ampo += qlist[N] * std::exp(-lambda), "S-", N;
+  // ampo += -qlist[N], "projDn", N;
+  // ampo += plist[N] * std::exp(lambda), "S+", N;
+  // ampo += -plist[N], "projUp", N;
+  // auto H = toMPO(ampo);
+
+  auto H = MPO_ASEP(sites, std::vector<Real>(N + 1, 0.6), std::vector<Real>(N + 1, 0.4), 0.0);
 
     // Set the initial wavefunction matrix product state
     // to be a Neel state.
