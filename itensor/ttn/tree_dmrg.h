@@ -253,10 +253,11 @@ namespace itensor {
 
 				if(subspace_expansion)//Do subspace expansion
 				{
-					subspace_expansion(psi,LocalOpT & PH,int b1,int b2, Real alpha);
-					orthPair(psi.ref(b1),psi.ref(b2),args)//Orthogonalize the pair of tensor, do we need to do it as psi.position will do it later
+					subspace_expansion(psi,PH,b1,b2,alpha);
+					//orthPair(psi.ref(b1),psi.ref(b2),args)//Orthogonalize the pair of tensor, do we need to do it as psi.position will do it later
 					//psi.position(b1);//Instead?
-					spec = psi.svdBond(b,Something,psi.parent(b),PH,args);// But change phi
+					auto WF = operator()(node_d.at(i)[0]) * operator()(node_d.at(i)[1]);
+					spec = psi.svdBond(b1,psi(b1)*psi(b2),b2,PH,args);// But change args to avoid truncation of null singular values
 				}
 		// PrintData(psi(b));
 		// PrintData(psi(psi.parent(b)));

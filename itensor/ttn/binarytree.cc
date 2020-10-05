@@ -381,12 +381,13 @@ namespace itensor {
         if (orth_pos_.at(node_d.at(i)[0]) != node_d.at(i)[1] ) {
           if(args.getBool("DoSVDBond",false)) {
             auto WF = operator()(node_d.at(i)[0]) * operator()(node_d.at(i)[1]);
-            svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);
+            svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);//svdBond already update the orthogonalisation memory
           } else {
             orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
+						orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
+						orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
           }
-					orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
-					orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
+
         }
       }
     }
