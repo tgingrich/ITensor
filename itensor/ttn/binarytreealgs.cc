@@ -34,12 +34,19 @@ using std::endl;
 void subspace_expansion(BinaryTree & psi,LocalOpT & PH,int b1,int b2, Real alpha)
 {
     //Build Pi
-
+    ITensor Pi = alpha*psi(b1)*;
+    // Use of combiner to mix indexes
+    auto [Comb,extra_ind] = combiner(ind1,ind2);
+    auto PiC= Pi*Comb;
     //Expand psi(b1)
-
-    //Build zero block with correct indexes
-
+    auto [ExtentedTensor,ind] = directSum(psi(b1),Pic,ind_b1,extra_ind);
+    psi.ref(b1)=ExtentedTensor;
+    //Build zero block with correct indexes that are the extra one, and the two other of psi(b2)
+    auto inds_b2 =uniqueInds(psi(b2), psi(b1));
+    ITensor zero = ITensor(unionInds(inds_b2,extra_ind));
     //Expand psi(b2)
+    auto [ExtentedTensor,ind] = directSum(psi(b2),zero,ind_b1,extra_ind);
+    psi.ref(b2)=ExtentedTensor;
 }
 
 bool
