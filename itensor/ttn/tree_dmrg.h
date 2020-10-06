@@ -222,18 +222,18 @@ namespace itensor {
 	    if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
             else if(numCenter == 1) phi = psi(b);
 	    TIMER_STOP(2);
-      PrintData(psi);
-      PrintData(phi);
-      if (b == 1 || b == 2) {
-        PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().R());
-      } else {
-        PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
-      }
+      // PrintData(psi);
+      // PrintData(phi);
+      // if (b == 1 || b == 2) {
+      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().R());
+      // } else {
+      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
+      // }
 	    TIMER_START(3);
             energy = arnoldi(PH,phi,args).real();
             phi.takeReal();
 	    TIMER_STOP(3);
-      PrintData(phi);
+
       printfln("%d %d %d", sw, b, energy);
 	    TIMER_START(4);
 	    //Restore tensor network form
@@ -248,8 +248,15 @@ namespace itensor {
 			psi.ref(b) = phi;
 			PH.haveBeenUpdated(b);
 	      }
-		// PrintData(psi(b));
-		// PrintData(psi(psi.parent(b)));
+      // PrintData(phi);
+      // PrintData(psi);
+      // PrintData(psi(b) * psi(psi.parent(b)));
+      auto psidag = dag(psi(b));
+      auto link = commonIndex(psi(b), psi(psi.parent(b)));
+      psidag.replaceInds({link}, {sim(link)});
+      // PrintData(psi(b));
+      // PrintData(psidag);
+      // PrintData(psi(b) * psidag);
 	    TIMER_STOP(4);
 
             if(!quiet)
