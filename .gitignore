@@ -21,6 +21,7 @@ sample/trg
 sample/trg-g
 sample/tree_dmrg
 sample/tree_dmrg-g
+sample/testmps
 sample/*.out
 this_dir.mk
 options.mk
