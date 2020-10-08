@@ -116,7 +116,7 @@ int main()
 
   println("Construction of the MPO and LocalMPO");
 //  LocalMPO_BT PH(H,args);
-//	
+//
 
   auto psi0 = BinaryTree(state);
   // PrintData(psi0);
@@ -135,11 +135,11 @@ int main()
 
   // inner calculates matrix elements of MPO's with respect to MPS's
   // inner(psi,H,psi) = <psi|H|psi>
-    
+
   printfln("Initial energy = %.5f", inner(psi0,H,psi0) );
 
   // Set the parameters controlling the accuracy of the DMRG
-  // calculation for each DMRG sweep. 
+  // calculation for each DMRG sweep.
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
@@ -157,7 +157,7 @@ int main()
   //
 
   println("Start DMRG");
-  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",});
+  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true});
   // auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
 
   //
@@ -168,5 +168,3 @@ int main()
 
   return 0;
 }
-
-

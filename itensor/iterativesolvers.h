@@ -18,27 +18,26 @@
 #include "itensor/util/iterate.h"
 #include "itensor/itensor.h"
 #include "itensor/tensor/algs.h"
-#include <Spectra/GenEigsSolver.h>
 
 
 namespace itensor {
 
 //
-// Use the Davidson algorithm to find the 
+// Use the Davidson algorithm to find the
 // eigenvector of the Hermitian matrix A with minimal eigenvalue.
 // (BigMatrixT objects must implement the methods product, size and diag.)
 // Returns the minimal eigenvalue lambda such that
 // A phi = lambda phi.
 //
 template <class BigMatrixT>
-Real 
-davidson(BigMatrixT const& A, 
+Real
+davidson(BigMatrixT const& A,
          ITensor& phi,
          Args const& args = Args::global());
 
 //
-// Use Davidson to find the N eigenvectors with smallest 
-// eigenvalues of the Hermitian matrix A, given a vector of N 
+// Use Davidson to find the N eigenvectors with smallest
+// eigenvalues of the Hermitian matrix A, given a vector of N
 // initial guesses (zero indexed).
 // (BigMatrixT objects must implement the methods product, size and diag.)
 // Returns a vector of the N smallest eigenvalues corresponding
@@ -46,7 +45,7 @@ davidson(BigMatrixT const& A,
 //
 template <class BigMatrixT>
 std::vector<Real>
-davidson(BigMatrixT const& A, 
+davidson(BigMatrixT const& A,
          std::vector<ITensor>& phi,
          Args const& args = Args::global());
 
@@ -86,7 +85,7 @@ applyExp(BigMatrixT const& A,
 
 template <class BigMatrixT>
 Real
-davidson(BigMatrixT const& A, 
+davidson(BigMatrixT const& A,
          ITensor& phi,
          Args const& args)
     {
@@ -99,7 +98,7 @@ davidson(BigMatrixT const& A,
 
 template <class BigMatrixT>
 std::vector<Real>
-davidson(BigMatrixT const& A, 
+davidson(BigMatrixT const& A,
          std::vector<ITensor>& phi,
          Args const& args)
     {
@@ -115,7 +114,7 @@ davidson(BigMatrixT const& A,
     for(auto j : range(nget))
         {
         auto nrm = norm(phi[j]);
-        while(nrm == 0.0) 
+        while(nrm == 0.0)
             {
             phi[j].randomize();
             nrm = norm(phi[j]);
@@ -141,7 +140,7 @@ davidson(BigMatrixT const& A,
     auto V = std::vector<ITensor>(actual_maxiter+2);
     auto AV = std::vector<ITensor>(actual_maxiter+2);
 
-    //Storage for Matrix that gets diagonalized 
+    //Storage for Matrix that gets diagonalized
     //set to NAN to ensure failure if we use uninitialized elements
     auto M = CMatrix(actual_maxiter+2,actual_maxiter+2);
     for(auto& el : M) el = Cplx(NAN,NAN);
@@ -180,7 +179,7 @@ TIMER_STOP(31);
         //Diagonalize dag(V)*A*V
         //and compute the residual q
 
-        auto ni = ii+1; 
+        auto ni = ii+1;
         auto& q = V[ni];
         auto& phi_t = phi.at(t);
         auto& lambda = eigs.at(t);
@@ -236,14 +235,14 @@ TIMER_STOP(31);
         //Check convergence
         qnorm = norm(q);
 
-        bool converged = (qnorm < errgoal_ && std::abs(lambda-last_lambda) < errgoal_) 
+        bool converged = (qnorm < errgoal_ && std::abs(lambda-last_lambda) < errgoal_)
                          || qnorm < std::max(Approx0,errgoal_ * 1E-3);
 
         last_lambda = lambda;
 
         if((qnorm < 1E-20) || (converged && ii >= miniter_) || (ii == actual_maxiter))
             {
-            if(t < (nget-1) && ii < actual_maxiter) 
+            if(t < (nget-1) && ii < actual_maxiter)
                 {
                 ++t;
                 last_lambda = 1000.;
@@ -263,7 +262,7 @@ TIMER_STOP(31);
                 goto done;
                 }
             }
-        
+
         if(debug_level_ >= 2 || (ii == 0 && debug_level_ >= 1))
             {
             printf("I %d q %.0E E",iter,qnorm);
@@ -359,7 +358,7 @@ TIMER_STOP(31);
         if(debug_level_ >= 3) println("Done with orthog step, tot_pass=",tot_pass);
 
         //Check V's are orthonormal
-        //Mat Vo(ni+1,ni+1,NAN); 
+        //Mat Vo(ni+1,ni+1,NAN);
         //for(int r = 1; r <= ni+1; ++r)
         //for(int c = r; c <= ni+1; ++c)
         //    {
@@ -575,7 +574,7 @@ gmresImpl(BigMatrixT const& A,
         //v[0].scaleTo(1.0);
 
         std::fill(s.begin(), s.end(), 0.0);
-        s[0] = beta; 
+        s[0] = beta;
 
         for(i = 0; i < m && j <= max_iter; i++, j++)
             {
@@ -725,12 +724,12 @@ findEig(Vector const& vr, Vector const& vi, std::string whichEig)
         }
       else
         {
-        error("Unsupported eigenvalue target, currently only support: LargestMagnitude, SmallestReal, LargestReal");        
+        error("Unsupported eigenvalue target, currently only support: LargestMagnitude, SmallestReal, LargestReal");
         }
       }
     return n;
     }
-  
+
 template <class BigMatrixT>
 std::vector<Complex>
 arnoldi(BigMatrixT& A,
@@ -794,7 +793,7 @@ arnoldi(BigMatrixT& A,
         Error("arnoldi: size of initial vector should match linear matrix size");
         }
 
-    //Storage for Matrix that gets diagonalized 
+    //Storage for Matrix that gets diagonalized
     Matrix HR(actual_maxiter+2,actual_maxiter+2),
            HI(actual_maxiter+2,actual_maxiter+2);
     //HR = 0;
@@ -884,7 +883,7 @@ arnoldi(BigMatrixT& A,
                 Href(irows,icols) = Complex(HrefR(irows,icols),HrefI(irows,icols));
 
             eigen(Href,YR,YI,D,DI);
-            n = findEig(D,DI,whicheig_); //continue to target the largest eig 
+            n = findEig(D,DI,whicheig_); //continue to target the largest eig
                                         //since we have 'deflated' the previous ones
             eigs.at(w) = Complex(D(n),DI(n));
 
@@ -1106,4 +1105,3 @@ applyExp(BigMatrixT const& H, ITensor& phi,
 } //namespace itensor
 
 #endif
-
