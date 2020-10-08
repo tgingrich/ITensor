@@ -251,12 +251,46 @@ namespace itensor {
       // PrintData(phi);
       // PrintData(psi);
       // PrintData(psi(b) * psi(psi.parent(b)));
-      auto psidag = dag(psi(b));
-      auto link = commonIndex(psi(b), psi(psi.parent(b)));
-      psidag.replaceInds({link}, {sim(link)});
-      // PrintData(psi(b));
-      // PrintData(psidag);
-      // PrintData(psi(b) * psidag);
+      // for(auto it : range1(length(psi)))
+      //   {
+      //   auto psidag = dag(psi(it));
+      //   auto link = commonIndex(psi(it), psi(psi.parent(it)));
+      //   psidag.replaceInds({link}, {sim(link)});
+      //   PrintData(psi(it));
+      //   PrintData(psidag);
+      //   PrintData(psi(it) * psidag);
+      //   }
+
+      MPO Nop(SpinHalf(length(psi),{"ConserveQNs",false}));
+      for(auto n : range1(length(Nop)))
+        {
+        Nop.ref(n).replaceInds({Nop(n).inds()[0], Nop(n).inds()[1]}, {PH.H()(n).inds()[0], PH.H()(n).inds()[1]});
+        }
+      auto xdag = prime(dag(psi));
+      xdag.replaceLinkInds(sim(linkInds(xdag)));
+      auto N_sites = length(psi);
+      auto height = intlog2(N_sites) - 1;
+      std::vector<ITensor> yAx(N_sites + 2);
+      for(auto n : range1(N_sites))
+        {
+        yAx[n] = Nop(n);
+        }
+      for(int i = height; i >= 0; --i)
+        {
+        for(auto n : range1(pow2(i)))
+          {
+          if(n + pow2(i) - 2 == b || n + pow2(i) - 2 == psi.parent(b))
+            {
+            yAx[n] = yAx[2 * n - 1] * yAx[2 * n];
+            }
+          else
+            {
+            yAx[n] = psi(n + pow2(i) - 2) * yAx[2 * n - 1] * yAx[2 * n] * xdag(n + pow2(i) - 2);
+            }
+          }
+        }
+      PrintData(yAx[1]);
+
 	    TIMER_STOP(4);
 
             if(!quiet)

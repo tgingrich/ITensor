@@ -1043,11 +1043,11 @@ call .position(j) or .orthogonalize() to set ortho center");
     auto height = intlog2(N_sites) - 1;
     std::vector<ITensor> psi2(N_sites / 2 + 2);
     for (auto n : range1(N_sites / 2)) {
-      psi2[n] = psi(n + N_sites / 2 - 2) * psidag(n + N_sites / 2 - 2);
+      psi2[n] = phi(n + N_sites / 2 - 2) * psidag(n + N_sites / 2 - 2);
     }
     for (int i = height - 1; i >= 0; --i) {
       for (auto n : range1(pow2(i))) {
-        psi2[n] = psi(n + pow2(i) - 2) * psi2[2 * n - 1] * psi2[2 * n] * psidag(n + pow2(i) - 2);
+        psi2[n] = phi(n + pow2(i) - 2) * psi2[2 * n - 1] * psi2[2 * n] * psidag(n + pow2(i) - 2);
       }
     }
     return eltC(psi2[1]);

@@ -25,7 +25,7 @@ void printVect(std::vector <int> const &a) {
 int main()
 {
 
-  int N = 8;
+  int N = 128;
   auto sites = SpinHalf(N,{"ConserveQNs",false});
 
   auto state = InitState(sites);
@@ -143,9 +143,9 @@ int main()
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
-  auto sweeps = Sweeps(5);
-  sweeps.maxdim() = 10,20,100,100,200;
-  // sweeps.maxdim() = 10,10,10,10,10,20,20,20,20,20,100,100,100,100,100,200,200,200,200,200;
+  auto sweeps = Sweeps(20);
+  // sweeps.maxdim() = 10,20,100,100,200;
+  sweeps.maxdim() = 10,10,10,10,10,20,20,20,20,20,100,100,100,100,100,200,200,200,200,200;
   sweeps.cutoff() = 1E-13;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
