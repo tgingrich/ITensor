@@ -16,6 +16,7 @@
 #include "itensor/ttn/binarytree.h"
 // #include "itensor/mps/mpo.h"
 #include "itensor/util/print_macro.h"
+#include "itensor/ttn/localmpo_binarytree.h"
 // #include "itensor/tensor/slicemat.h"
 
 namespace itensor {
@@ -31,22 +32,37 @@ using std::endl;
 // using std::string;
 // using std::move;
 
-void subspace_expansion(BinaryTree & psi,LocalOpT & PH,int b1,int b2, Real alpha)
+void subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha)
 {
     //Build Pi
-    ITensor Pi = alpha*psi(b1)*;
+    ITensor Pi = alpha*psi(b1);
+    auto neighbors=psi.othersLinks(b1,b2);
+    for(unsigned int i=0; i < neighbors.size(); ++i)
+    {
+        Pi*=PH(neighbors.at(i));
+    }
+    Pi.swapPrime(1,0);
+    auto ind_b1=commonIndex(psi(b1),psi(b2));
+    auto inds_b2 =uniqueInds(psi(b2), psi(b1));
+    auto original_link_tags = tags(ind_b1);
+    auto tocombine_inds=uniqueInds(Pi,psi(b1));
     // Use of combiner to mix indexes
-    auto [Comb,extra_ind] = combiner(ind1,ind2);
+    auto [Comb,extra_ind] = combiner(tocombine_inds);
     auto PiC= Pi*Comb;
     //Expand psi(b1)
-    auto [ExtentedTensor,ind] = directSum(psi(b1),Pic,ind_b1,extra_ind);
+    auto [ExtentedTensor,ind] = directSum(psi(b1),PiC,ind_b1,extra_ind);
+    ind.setTags(original_link_tags);
     psi.ref(b1)=ExtentedTensor;
     //Build zero block with correct indexes that are the extra one, and the two other of psi(b2)
-    auto inds_b2 =uniqueInds(psi(b2), psi(b1));
     ITensor zero = ITensor(unionInds(inds_b2,extra_ind));
+    println(zero);
+    zero.set(0,0,0,0.);// To allocate the storage
     //Expand psi(b2)
-    auto [ExtentedTensor,ind] = directSum(psi(b2),zero,ind_b1,extra_ind);
-    psi.ref(b2)=ExtentedTensor;
+    auto [ExtentedTensorBis,indBis] = directSum(psi(b2),zero,ind_b1,extra_ind);
+    indBis.setTags(original_link_tags);
+    psi.ref(b2)=ExtentedTensorBis;
+    println(psi(b1));
+    println(psi(b2));
 }
 
 bool

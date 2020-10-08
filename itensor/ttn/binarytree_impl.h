@@ -20,7 +20,7 @@ namespace itensor {
 
   template <typename BigMatrixT>
   Spectrum BinaryTree::
-  svdBond(int b1, ITensor const& AA,int b2, 
+  svdBond(int b1, ITensor const& AA,int b2,
 	  BigMatrixT const& PH, Args args)
   {
     //Check for out of range nodes
@@ -55,29 +55,29 @@ namespace itensor {
         ITensor D;
         res = svd(AA,A_[b1],D,A_[b2],args);
 
-        int dim = std::min((int)std::pow(site_dim_, pow2(height() - depth(b2))), (int)args.getInt("MaxDim", MAX_DIM));
-        if (commonIndex(A_[b1], D).dim() < dim) {
-          auto temp1 = A_[b1];
-          auto temp2 = D;
-          auto ind = Index(dim, "Link,U"); //TODO: Create an Index with QNs
-          A_[b1] = ITensor(IndexSet(uniqueInds(temp1, temp2), ind));
-          D = ITensor(IndexSet(uniqueInds(temp2, temp1), ind));
-          for(auto it : iterInds(temp1)) {
-            A_[b1].set(it[0].val, it[1].val, it[2].val, temp1.real(it));
-          }
-          for(auto it : iterInds(temp2)) {
-            D.set(it[1].val, it[0].val, temp2.real(it));
-          }
-
-          auto bnd = commonIndex(A_[b1], D);
-          ITensor A, B(bnd);
-          qr(A_[b1], A, B);
-          A_[b1] = A;
-          D *= B;
-          auto bnd_qr = commonIndex(A_[b1], D);
-          A_[b1].replaceInds({bnd_qr}, {bnd});
-          D.replaceInds({bnd_qr}, {bnd});
-        }
+        // int dim = std::min((int)std::pow(site_dim_, pow2(height() - depth(b2))), (int)args.getInt("MaxDim", MAX_DIM));
+        // if (commonIndex(A_[b1], D).dim() < dim) {
+        //   auto temp1 = A_[b1];
+        //   auto temp2 = D;
+        //   auto ind = Index(dim, "Link,U"); //TODO: Create an Index with QNs
+        //   A_[b1] = ITensor(IndexSet(uniqueInds(temp1, temp2), ind));
+        //   D = ITensor(IndexSet(uniqueInds(temp2, temp1), ind));
+        //   for(auto it : iterInds(temp1)) {
+        //     A_[b1].set(it[0].val, it[1].val, it[2].val, temp1.real(it));
+        //   }
+        //   for(auto it : iterInds(temp2)) {
+        //     D.set(it[1].val, it[0].val, temp2.real(it));
+        //   }
+				//
+        //   auto bnd = commonIndex(A_[b1], D);
+        //   ITensor A, B(bnd);
+        //   qr(A_[b1], A, B);
+        //   A_[b1] = A;
+        //   D *= B;
+        //   auto bnd_qr = commonIndex(A_[b1], D);
+        //   A_[b1].replaceInds({bnd_qr}, {bnd});
+        //   D.replaceInds({bnd_qr}, {bnd});
+        // }
 
         //Normalize the ortho center if requested
         if(args.getBool("DoNormalize",false))

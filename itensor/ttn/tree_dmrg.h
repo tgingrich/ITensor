@@ -28,6 +28,8 @@
 
 namespace itensor {
 
+	void subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha);
+
   template<class LocalOpT>
   Real
   TreeDMRGWorker(BinaryTree & psi,
@@ -132,177 +134,175 @@ namespace itensor {
 		 Sweeps const& sweeps,
 		 TreeDMRGObserver & obs,
 		 Args args)
-  {
-    if( args.defined("WriteM") )
-      {
-	if( args.defined("WriteDim") )
-	  {
-	    Global::warnDeprecated("Args WirteM and WriteDim are both defined. WriteM is deprecated in favor of WriteDim, WriteDim will be used.");
-	  }
-	else
-	  {
-	    Global::warnDeprecated("Arg WriteM is deprecated in favor of WriteDim.");
-	    args.add("WriteDim",args.getInt("WriteM"));
-	  }
-      }
+ {
+	 if( args.defined("WriteM") )
+	 {
+		 if( args.defined("WriteDim") )
+		 {
+			 Global::warnDeprecated("Args WirteM and WriteDim are both defined. WriteM is deprecated in favor of WriteDim, WriteDim will be used.");
+		 }
+		 else
+		 {
+			 Global::warnDeprecated("Arg WriteM is deprecated in favor of WriteDim.");
+			 args.add("WriteDim",args.getInt("WriteM"));
+		 }
+	 }
 
-    // Truncate blocks of degenerate singular values (or not)
-    args.add("RespectDegenerate",args.getBool("RespectDegenerate",true));
+	 // Truncate blocks of degenerate singular values (or not)
+	 args.add("RespectDegenerate",args.getBool("RespectDegenerate",true));
 
-    const bool silent = args.getBool("Silent",false);
-    if(silent)
-      {
-        args.add("Quiet",true);
-        args.add("PrintEigs",false);
-        args.add("NoMeasure",true);
-        args.add("DebugLevel",0);
-      }
-    const bool quiet = args.getBool("Quiet",false);
-    const int debug_level = args.getInt("DebugLevel",(quiet ? 0 : 1));
+	 const bool silent = args.getBool("Silent",false);
+	 if(silent)
+	 {
+		 args.add("Quiet",true);
+		 args.add("PrintEigs",false);
+		 args.add("NoMeasure",true);
+		 args.add("DebugLevel",0);
+	 }
+	 const bool quiet = args.getBool("Quiet",false);
+	 const int debug_level = args.getInt("DebugLevel",(quiet ? 0 : 1));
 
-    Real energy = NAN;
+	 Real energy = NAN;
 
-    const int numCenter = args.getInt("NumCenter",2);
-	//println("nc ",numCenter);
-    psi.setOrder(args); // Choose sweep order
+	 const int numCenter = args.getInt("NumCenter",2);
+	 //println("nc ",numCenter);
+	 psi.setOrder(args); // Choose sweep order
 
-    // psi.position(psi.startPoint(args));
+	 // psi.position(psi.startPoint(args));
 
-		const bool subspace_expansion=args.getBool("SubspaceExpansion",false);
-		Real alpha = 0.1; //TODO Get alpha from user parameters
-    args.add("DebugLevel",debug_level);
-    args.add("DoNormalize",true);
-	args.add("UseSVD",true);
+	 const bool subspace_exp=args.getBool("SubspaceExpansion",false);
+	 Real alpha = 0.1;
+	 args.add("DebugLevel",debug_level);
+	 args.add("DoNormalize",true);
+	 args.add("UseSVD",true);
 
+	 for(int sw = 1; sw <= sweeps.nsweep(); ++sw)
+	 {
+		 cpu_time sw_time;
+		 args.add("Sweep",sw);
+		 args.add("NSweep",sweeps.nsweep());
+		 args.add("Cutoff",sweeps.cutoff(sw));
+		 args.add("MinDim",sweeps.mindim(sw));
+		 args.add("MaxDim",sweeps.maxdim(sw));
+		 args.add("Noise",sweeps.noise(sw));
+		 args.add("MaxIter",sweeps.niter(sw));
 
+		 args.add("WhichEig","LargestReal");
 
-    for(int sw = 1; sw <= sweeps.nsweep(); ++sw)
-      {
-        cpu_time sw_time;
-        args.add("Sweep",sw);
-        args.add("NSweep",sweeps.nsweep());
-        args.add("Cutoff",sweeps.cutoff(sw));
-        args.add("MinDim",sweeps.mindim(sw));
-        args.add("MaxDim",sweeps.maxdim(sw));
-        args.add("Noise",sweeps.noise(sw));
-        args.add("MaxIter",sweeps.niter(sw));
-
-        args.add("WhichEig","LargestReal");
-
-        if(!PH.doWrite()
-           && args.defined("WriteDim")
-           && sweeps.maxdim(sw) >= args.getInt("WriteDim"))
-	  {
-            if(!quiet)
-	      {
-                println("\nTurning on write to disk, write_dir = ",
-                        args.getString("WriteDir","./"));
-	      }
-
-            psi.doWrite(true);
-            PH.doWrite(true,args);
-	  }
-	ITensor phi;
-	Spectrum spec;
+		 if(subspace_exp)
+		 {
+			 alpha = 0.1; //TODO Get alpha from user parameters
+		 }
 
 
-        for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
-	  {
-            if(!quiet)
-	      {
-                printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
-	      }
+		 if(!PH.doWrite()	 && args.defined("WriteDim") && sweeps.maxdim(sw) >= args.getInt("WriteDim"))
+		 {
+			 if(!quiet)
+			 {
+				 println("\nTurning on write to disk, write_dir = ",
+				 args.getString("WriteDir","./"));
+			 }
 
-	    TIMER_START(1);
-	    psi.position(b,args); //Orthogonalize with respect to b
+			 psi.doWrite(true);
+			 PH.doWrite(true,args);
+		 }
+		 ITensor phi;
+		 Spectrum spec;
 
-      PH.position(b,psi); // Compute the local environnement
-	    TIMER_STOP(1);
 
-	    TIMER_START(2);
-	    // The local vector to update
-	    if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
-            else if(numCenter == 1) phi = psi(b);
-	    TIMER_STOP(2);
-      PrintData(psi);
-      PrintData(phi);
-      if (b == 1 || b == 2) {
-        PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().R());
-      } else {
-        PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
-      }
-	    TIMER_START(3);
-            energy = arnoldi(PH,phi,args).real();
-            phi.takeReal();
-	    TIMER_STOP(3);
-      PrintData(phi);
-      printfln("%d %d %d", sw, b, energy);
-	    TIMER_START(4);
-	    //Restore tensor network form
-            if (numCenter == 2)
-	      {
-			spec = psi.svdBond(b,phi,psi.parent(b),PH,args);//TODO change to make direction depend of sweep direction
-			PH.haveBeenUpdated(b);
-			PH.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
-	      }
-	    else if(numCenter == 1)
-	      {
-			psi.ref(b) = phi;
-			PH.haveBeenUpdated(b);
-	      }
+		 for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
+		 {
+			 if(!quiet)
+			 {
+				 printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
+			 }
 
-				if(subspace_expansion)//Do subspace expansion
-				{
-					subspace_expansion(psi,PH,b1,b2,alpha);
-					//orthPair(psi.ref(b1),psi.ref(b2),args)//Orthogonalize the pair of tensor, do we need to do it as psi.position will do it later
-					//psi.position(b1);//Instead?
-					auto WF = operator()(node_d.at(i)[0]) * operator()(node_d.at(i)[1]);
-					spec = psi.svdBond(b1,psi(b1)*psi(b2),b2,PH,args);// But change args to avoid truncation of null singular values
-				}
-		// PrintData(psi(b));
-		// PrintData(psi(psi.parent(b)));
-	    TIMER_STOP(4);
+			 TIMER_START(1);
+			 psi.position(b,args); //Orthogonalize with respect to b
 
-            if(!quiet)
-	      {
-                printfln("    Truncated to Cutoff=%.1E, Min_dim=%d, Max_dim=%d",
-			 sweeps.cutoff(sw),
-			 sweeps.mindim(sw),
-			 sweeps.maxdim(sw) );
-                printfln("    Trunc. err=%.1E, States kept: %s",
-                         spec.truncerr(),
-                         showDim(linkIndex(psi,b)) );
-	      }
+			 PH.position(b,psi); // Compute the local environnement
+			 TIMER_STOP(1);
 
-            obs.lastSpectrum(spec);
-			// println(spec);
-            args.add("AtBond",b);
-            args.add("HalfSweep",ha);
-            args.add("Energy",energy);
-            args.add("Truncerr",spec.truncerr());
+			 TIMER_START(2);
+			 // The local vector to update
+			 if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
+			 else if(numCenter == 1) phi = psi(b);
+			 TIMER_STOP(2);
 
-            obs.measure(args);
+			 TIMER_START(3);
+			 energy = arnoldi(PH,phi,args).real();
+			 phi.takeReal();
+			 TIMER_STOP(3);
 
-	  } //for loop over b
+			 printfln("%d %d %d", sw, b, energy);
+			 TIMER_START(4);
+			 //Restore tensor network form
+			 if (numCenter == 2)
+			 {
+				 spec = psi.svdBond(b,phi,psi.parent(b),PH,args);//TODO change to make direction depend of sweep direction
+				 PH.haveBeenUpdated(b);
+				 PH.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
+			 }
+			 else if(numCenter == 1)
+			 {
+				 psi.ref(b) = phi;
+				 PH.haveBeenUpdated(b);
+			 }
+			 println(psi(b));
+			 if(subspace_exp && psi.parent(b) >= 0)//Do subspace expansion only if there is link to be expansed
+			 {
+				 subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
+				 Args argsSubspace=Args::global();
+				 argsSubspace.add("UseSVD",true);
+				 argsSubspace.add("MinDim",sweeps.maxdim(sw));//To not truncate too much as there is a lot of zero singular values
+				 argsSubspace.add("MaxDim",sweeps.maxdim(sw));
+				 spec = psi.svdBond(b,psi(b)*psi(psi.parent(b)),psi.parent(b),PH,argsSubspace);
+			 }
+			 println(psi(b));
+			 // PrintData(psi(b));
+			 // PrintData(psi(psi.parent(b)));
+			 TIMER_STOP(4);
 
-        if(!silent)
-	  {
-            auto sm = sw_time.sincemark();
-            printfln("    Sweep %d/%d CPU time = %s (Wall time = %s)",
-		     sw,sweeps.nsweep(),showtime(sm.time),showtime(sm.wall));
-#ifdef COLLECT_TIMES
-            println(timers());
-            timers().reset();
-#endif
-	  }
+			 if(!quiet)
+			 {
+				 printfln("    Truncated to Cutoff=%.1E, Min_dim=%d, Max_dim=%d",
+				 sweeps.cutoff(sw),
+				 sweeps.mindim(sw),
+				 sweeps.maxdim(sw) );
+				 printfln("    Trunc. err=%.1E, States kept: %s",
+				 spec.truncerr(),
+				 showDim(linkIndex(psi,b)) );
+			 }
 
-        if(obs.checkDone(args)) break;
+			 obs.lastSpectrum(spec);
+			 // println(spec);
+			 args.add("AtBond",b);
+			 args.add("HalfSweep",ha);
+			 args.add("Energy",energy);
+			 args.add("Truncerr",spec.truncerr());
 
-      } //for loop over sw
-    psi.normalize();
+			 obs.measure(args);
 
-    return energy;
-  }
+		 } //for loop over b
+
+		 if(!silent)
+		 {
+			 auto sm = sw_time.sincemark();
+			 printfln("    Sweep %d/%d CPU time = %s (Wall time = %s)",
+			 sw,sweeps.nsweep(),showtime(sm.time),showtime(sm.wall));
+			 #ifdef COLLECT_TIMES
+			 println(timers());
+			 timers().reset();
+			 #endif
+		 }
+
+		 if(obs.checkDone(args)) break;
+
+	 } //for loop over sw
+	 psi.normalize();
+
+	 return energy;
+ }
 
 } //namespace itensor
 
