@@ -143,7 +143,7 @@ int main()
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
-  auto sweeps = Sweeps(5);
+  auto sweeps = Sweeps(2);
   sweeps.maxdim() = 10,20,100,100,200;
   // sweeps.maxdim() = 10,10,10,10,10,20,20,20,20,20,100,100,100,100,100,200,200,200,200,200;
   sweeps.cutoff() = 1E-13;
@@ -157,7 +157,7 @@ int main()
   //
 
   println("Start DMRG");
-  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true});
+  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",false,"SubspaceExpansion",true});
   // auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
 
   //

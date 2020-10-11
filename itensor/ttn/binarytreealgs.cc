@@ -32,7 +32,7 @@ using std::endl;
 // using std::string;
 // using std::move;
 
-void subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha)
+long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha)
 {
     //Build Pi
     ITensor Pi = alpha*psi(b1);
@@ -51,18 +51,18 @@ void subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real al
     auto PiC= Pi*Comb;
     //Expand psi(b1)
     auto [ExtentedTensor,ind] = directSum(psi(b1),PiC,ind_b1,extra_ind);
-    ind.setTags(original_link_tags);
+    auto new_ind=ind;
+    new_ind.setTags(original_link_tags);
+    ExtentedTensor.replaceInds(IndexSet(ind),IndexSet(new_ind));
     psi.ref(b1)=ExtentedTensor;
     //Build zero block with correct indexes that are the extra one, and the two other of psi(b2)
     ITensor zero = ITensor(unionInds(inds_b2,extra_ind));
-    println(zero);
-    zero.set(0,0,0,0.);// To allocate the storage
+    zero.fill(0.);// To allocate the storage
     //Expand psi(b2)
-    auto [ExtentedTensorBis,indBis] = directSum(psi(b2),zero,ind_b1,extra_ind);
-    indBis.setTags(original_link_tags);
+    auto [ExtentedTensorBis,indBis] = directSum(psi(b2),zero,ind_b1,extra_ind);// Does not give the correct index at the end
+    ExtentedTensorBis.replaceInds(IndexSet(indBis),IndexSet(new_ind));
     psi.ref(b2)=ExtentedTensorBis;
-    println(psi(b1));
-    println(psi(b2));
+    return new_ind.dim();
 }
 
 bool
