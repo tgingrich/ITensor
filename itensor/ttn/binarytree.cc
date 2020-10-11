@@ -384,6 +384,7 @@ namespace itensor {
             svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);//svdBond already update the orthogonalisation memory
           } else {
             orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
+						// this->setOrthoLink(node_d.at(i)[0],node_d.at(i)[1]);
 						orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
 						orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
           }
@@ -1213,7 +1214,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     //        {
     //        Print(inds(L));
     //        }
-    // auto original_link_tags = tags(bnd);
+    auto original_link_tags = tags(bnd);
     // ITensor A,D,B(bnd);
     // auto spec = svd(L,A,D,B,{args,"LeftTags=",original_link_tags});
     // L = A;
@@ -1223,8 +1224,9 @@ call .position(j) or .orthogonalize() to set ortho center");
     L = A;
     R *= B;
     auto bnd_qr = commonIndex(L, R);
-    L.replaceInds({bnd_qr}, {bnd});
-    R.replaceInds({bnd_qr}, {bnd});
+
+    L.setTags(original_link_tags,{bnd_qr} );
+    R.setTags(original_link_tags,{bnd_qr});
   }
 
 } //namespace itensor

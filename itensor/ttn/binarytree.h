@@ -157,6 +157,13 @@ namespace itensor {
 
     void setorthoPos(int i, int val) { orth_pos_.at(i) = val;}
 
+		void setOrthoLink(int i, int j)
+		{
+			orth_pos_.at(i) = j;// We update the orthogonalisation memory
+			orth_pos_.at(j) = -1; // The next one is not any more orthogonal
+
+		}
+
     void setOrder(Args const& args = Args::global());
 
     void setOrder(std::vector<int> new_order);

@@ -28,7 +28,7 @@
 
 namespace itensor {
 
-	void subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha);
+	long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha);
 
   template<class LocalOpT>
   Real
@@ -251,16 +251,11 @@ namespace itensor {
 			 println(psi(b));
 			 if(subspace_exp && psi.parent(b) >= 0)//Do subspace expansion only if there is link to be expansed
 			 {
-				 subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
-				 Args argsSubspace=Args::global();
-				 argsSubspace.add("UseSVD",true);
-				 argsSubspace.add("MinDim",sweeps.maxdim(sw));//To not truncate too much as there is a lot of zero singular values
-				 argsSubspace.add("MaxDim",sweeps.maxdim(sw));
-				 spec = psi.svdBond(b,psi(b)*psi(psi.parent(b)),psi.parent(b),PH,argsSubspace);
+				 long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
+				 //spec = psi.svdBond(b,psi(b),psi.parent(b),PH,);
+				 orthPair(psi.ref(b),psi.ref(psi.parent(b)),{"MinDim",current_dim,"MaxDim",sweeps.maxdim(sw)});
+				 psi.setOrthoLink(b,psi.parent(b)); // Update orthogonalization
 			 }
-			 println(psi(b));
-			 // PrintData(psi(b));
-			 // PrintData(psi(psi.parent(b)));
 			 TIMER_STOP(4);
 
 			 if(!quiet)
