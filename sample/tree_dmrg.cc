@@ -22,7 +22,12 @@ void printVect(std::vector <int> const &a) {
   std::cout<< '\n';
 }
 
-int main(int argc, char** argv)
+int main()
+{
+
+for(double lc = -2.5; lc <= 2.5; lc += 0.02)
+{
+for(double lo = -2.5; lo <= 2.5; lo += 0.02)
 {
 
   int N = 8;
@@ -78,7 +83,7 @@ int main(int argc, char** argv)
   // }
   // auto H = toMPO(ampo);
 
-  Real lc = atof(argv[1]), lo = atof(argv[2]);
+  // Real lc = atof(argv[1]), lo = atof(argv[2]);
   printfln("lc %d lo %d", lc, lo);
   // std::vector<Real> plist(N);
   // std::vector<Real> qlist(N);
@@ -177,6 +182,8 @@ int main(int argc, char** argv)
   //
   printfln("\nGround State Energy = %.10f",energy);
   printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
+}
+}
 
   return 0;
 }
