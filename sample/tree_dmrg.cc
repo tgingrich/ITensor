@@ -94,8 +94,8 @@ for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
   // }
   // std::vector<Real> plist(N, 0.6);
   // std::vector<Real> qlist(N, 0.4);
-  std::vector<Real> plist({ 0.1, 0.2, 0.3, 0.4/*, 0.5, 0.6, 0.7, 0.8*/ });
-  std::vector<Real> qlist({ 1.1, 1.2, 1.3, 1.4/*, 1.5, 1.6, 1.7, 1.8*/ });
+  std::vector<Real> plist({ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 });
+  std::vector<Real> qlist({ 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 });
   auto ampo = AutoMPO(sites);
   for(auto j : range1(N - 1))
   {
