@@ -234,7 +234,7 @@ namespace itensor {
             phi.takeReal();
 	    TIMER_STOP(3);
 
-      printfln("%d %d %d", sw, b, energy);
+      // printfln("%d %d %d", sw, b, energy);
 	    TIMER_START(4);
 	    //Restore tensor network form
             if (numCenter == 2) 
@@ -261,35 +261,35 @@ namespace itensor {
       //   PrintData(psi(it) * psidag);
       //   }
 
-      MPO Nop(SpinHalf(length(psi),{"ConserveQNs",false}));
-      for(auto n : range1(length(Nop)))
-        {
-        Nop.ref(n).replaceInds({Nop(n).inds()[0], Nop(n).inds()[1]}, {PH.H()(n).inds()[0], PH.H()(n).inds()[1]});
-        }
-      auto xdag = prime(dag(psi));
-      xdag.replaceLinkInds(sim(linkInds(xdag)));
-      auto N_sites = length(psi);
-      auto height = intlog2(N_sites) - 1;
-      std::vector<ITensor> yAx(N_sites + 2);
-      for(auto n : range1(N_sites))
-        {
-        yAx[n] = Nop(n);
-        }
-      for(int i = height; i >= 0; --i)
-        {
-        for(auto n : range1(pow2(i)))
-          {
-          if(n + pow2(i) - 2 == b || n + pow2(i) - 2 == psi.parent(b))
-            {
-            yAx[n] = yAx[2 * n - 1] * yAx[2 * n];
-            }
-          else
-            {
-            yAx[n] = psi(n + pow2(i) - 2) * yAx[2 * n - 1] * yAx[2 * n] * xdag(n + pow2(i) - 2);
-            }
-          }
-        }
-      PrintData(yAx[1]);
+      // MPO Nop(SpinHalf(length(psi),{"ConserveQNs",false}));
+      // for(auto n : range1(length(Nop)))
+      //   {
+      //   Nop.ref(n).replaceInds({Nop(n).inds()[0], Nop(n).inds()[1]}, {PH.H()(n).inds()[0], PH.H()(n).inds()[1]});
+      //   }
+      // auto xdag = prime(dag(psi));
+      // xdag.replaceLinkInds(sim(linkInds(xdag)));
+      // auto N_sites = length(psi);
+      // auto height = intlog2(N_sites) - 1;
+      // std::vector<ITensor> yAx(N_sites + 2);
+      // for(auto n : range1(N_sites))
+      //   {
+      //   yAx[n] = Nop(n);
+      //   }
+      // for(int i = height; i >= 0; --i)
+      //   {
+      //   for(auto n : range1(pow2(i)))
+      //     {
+      //     if(n + pow2(i) - 2 == b || n + pow2(i) - 2 == psi.parent(b))
+      //       {
+      //       yAx[n] = yAx[2 * n - 1] * yAx[2 * n];
+      //       }
+      //     else
+      //       {
+      //       yAx[n] = psi(n + pow2(i) - 2) * yAx[2 * n - 1] * yAx[2 * n] * xdag(n + pow2(i) - 2);
+      //       }
+      //     }
+      //   }
+      // PrintData(yAx[1]);
 
 	    TIMER_STOP(4);
 

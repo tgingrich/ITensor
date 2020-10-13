@@ -23,6 +23,9 @@ sample/tree_dmrg
 sample/tree_dmrg-g
 sample/testmps
 sample/*.out
+sample/*.txt
+sample/*.sh
+sample/qsubmit.sh
 this_dir.mk
 options.mk
 .exrc
