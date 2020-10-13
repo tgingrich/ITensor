@@ -22,12 +22,12 @@ void printVect(std::vector <int> const &a) {
   std::cout<< '\n';
 }
 
-int main()
+int main(int argc, char** argv)
 {
 
-for(double lc = -2.5; lc <= 2.5; lc += 0.02)
+for(double lc = atof(argv[1]); lc <= atof(argv[2]); lc += atof(argv[3]))
 {
-for(double lo = -2.5; lo <= 2.5; lo += 0.02)
+for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
 {
 
   int N = 8;
