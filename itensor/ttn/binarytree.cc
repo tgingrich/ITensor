@@ -708,10 +708,16 @@ namespace itensor {
 
 
   BinaryTree&
-  operator*=(BinaryTree & x, Real a) { x.ref(0) *= a; return x; }
+  operator*=(BinaryTree & x, Real a) {
+		if(not isOrtho(x)) Error("BinaryTree must have well-defined ortho center to multiply;call .position(j) or .orthogonalize() to set ortho center");
+		x.ref(findCenter(x))*=a;
+		return x; }
 
   BinaryTree&
-  operator/=(BinaryTree & x, Real a) { x.ref(0) /= a; return x; }
+  operator/=(BinaryTree & x, Real a) {
+		if(not isOrtho(x)) Error("BinaryTree must have well-defined ortho center to divide;call .position(j) or .orthogonalize() to set ortho center");
+		x.ref(findCenter(x))/=a;
+		return x; }
 
   BinaryTree
   operator*(BinaryTree x, Real r) { x *= r; return x; }
@@ -720,10 +726,16 @@ namespace itensor {
   operator*(Real r, BinaryTree x) { x *= r; return x; }
 
   BinaryTree&
-  operator*=(BinaryTree & x, Cplx z) { x.ref(0) *= z; return x; }
+  operator*=(BinaryTree & x, Cplx z) {
+		if(not isOrtho(x)) Error("BinaryTree must have well-defined ortho center to multiply;call .position(j) or .orthogonalize() to set ortho center");
+		x.ref(findCenter(x))*=z;
+		return x; }
 
   BinaryTree&
-  operator/=(BinaryTree & x, Cplx z) { x.ref(0) /= z; return x; }
+  operator/=(BinaryTree & x, Cplx z) {
+		if(not isOrtho(x)) Error("BinaryTree must have well-defined ortho center to divide;call .position(j) or .orthogonalize() to set ortho center");
+		x.ref(findCenter(x))/=z;
+		return x; }
 
   BinaryTree
   operator*(BinaryTree x, Cplx z) { x *= z; return x; }
@@ -776,7 +788,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   {
     Real avgdim = 0.;
     auto N = size(x);
-    for( auto b : range1(N) )
+    for( auto b : range(N) )
       {
         avgdim += dim(linkIndex(x,b));
       }
@@ -790,7 +802,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   maxLinkDim(TreeType const& x)
   {
     int maxdim = 0;
-    for( auto b : range1(size(x)) )
+    for( auto b : range(size(x)) )
       {
         int mb = dim(linkIndex(x,b));
         maxdim = std::max(mb,maxdim);

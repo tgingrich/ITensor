@@ -4,59 +4,16 @@
 //
 #include "itensor/all.h"
 #include "itensor/util/print_macro.h"
-#include <Eigen/Core>
-#include <Spectra/SymEigsSolver.h>
 
 using namespace itensor;
-using namespace Spectra;
-
-class MyDiagonalTen
-{
-public:
-    int rows() { return 10; }
-    int cols() { return 10; }
-    void perform_op(const double *x_in, double *y_out)
-    {
-        for(int i = 0; i < rows(); i++)
-        {
-            y_out[i] = x_in[i] * (i + 1);
-        }
-    }
-};
 
 int main()
     {
-Real real = 0.2;
-double d = real;
-std::cout << d << std::endl;
-MyDiagonalTen op;
-    SymEigsSolver<double, LARGEST_ALGE, MyDiagonalTen> eigs(&op, 3, 6);
-    eigs.init();
-    eigs.compute();
-    if(eigs.info() == SUCCESSFUL)
-    {
-        Eigen::VectorXd evalues = eigs.eigenvalues();
-        std::cout << "Eigenvalues found:\n" << evalues << std::endl;
-    }
     //
     // Define our Index 
     // (the space we are working with)
     //
-auto i = Index(3);
-auto j = Index(5);
-auto k = Index(7);
-auto l = Index(9);
 
-auto T = randomITensor(i,j,k,l);
-
-auto [C,c] = combiner(i,k);
-
-//
-// Combine
-// 
-auto cT = C * T; //or T * C, which has same effect
-PrintData(T);
-PrintData(cT);
     auto s = Index(2,"s");
 
     //

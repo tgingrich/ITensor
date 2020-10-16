@@ -579,9 +579,9 @@ gmresImpl(BigMatrixT const& A,
         for(i = 0; i < m && j <= max_iter; i++, j++)
             {
             BigVectorT w = x;
-            v[i] = prime(v[i]);
+            // v[i] = prime(v[i]);
             A.product(v[i],w);
-            v[i] = noPrime(v[i]);
+            // v[i] = noPrime(v[i]);
 
             // Begin Arnoldi iteration
             // TODO: turn into a function?
@@ -627,9 +627,9 @@ gmresImpl(BigMatrixT const& A,
             } // end for loop
 
             gmres_details::update(x, i-1, H, s, v);
-            x = prime(x);
+            // x = prime(x);
             A.product(x, Ax);
-            x = noPrime(x);
+            // x = noPrime(x);
             r = b - Ax;
             beta = norm(r);
             resid = beta/normb;
@@ -656,9 +656,9 @@ gmres(BigMatrixT const& A,
     // Otherwise we would need to require that BigMatrixT
     // has a function isComplex()
     BigVectorT Ax = x;
-    x = prime(x);
+    // x = prime(x);
     A.product(x, Ax);
-    x = noPrime(x);
+    // x = noPrime(x);
     if(isComplex(b) || isComplex(Ax))
         {
         if(debug_level_ > 0)
@@ -773,9 +773,9 @@ arnoldi(BigMatrixT& A,
         if(norm(phi.front()) == 0) phi.front().randomize();
         phi.front() /= norm(phi.front());
         ITensor Aphi(phi.front());
-        phi.front() = prime(phi.front());
+        // phi.front() = prime(phi.front());
         A.product(phi.front(),Aphi);
-        phi.front() = noPrime(phi.front());
+        // phi.front() = noPrime(phi.front());
         //eigs.front() = BraKet(Aphi,phi.front());
         gmres_details::dot(Aphi,phi.front(),eigs.front());
         return eigs;
@@ -822,9 +822,9 @@ arnoldi(BigMatrixT& A,
         for(int it = 0; it <= actual_maxiter; ++it)
             {
             const int j = it;
-            V.at(j) = prime(V.at(j));
+            // V.at(j) = prime(V.at(j));
             A.product(V.at(j),V.at(j+1)); // V[j+1] = A*V[j]
-            V.at(j) = noPrime(V.at(j));
+            // V.at(j) = noPrime(V.at(j));
             // "Deflate" previous eigenpairs:
             for(size_t o = 0; o < w; ++o)
                 {
