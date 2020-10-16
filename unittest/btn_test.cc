@@ -68,14 +68,14 @@ for(auto j : range1(N))
 SECTION("QNCheck")
     {
     auto psiNeelQNs = BinaryTree(shNeelQNs);
-
+    psiNeelQNs.orthogonalize();
     CHECK(hasQNs(psiNeelQNs));
 
     CHECK(checkQNs(psiNeelQNs));
     CHECK_EQUAL(totalQN(psiNeelQNs),QN({"Sz",0}));
 
     auto psiFerroQNs = BinaryTree(shFerroQNs);
-
+    psiFerroQNs.orthogonalize();
     CHECK(checkQNs(psiFerroQNs));
     CHECK_EQUAL(totalQN(psiFerroQNs),QN({"Sz",8}));
     }
@@ -323,7 +323,7 @@ SECTION("Orthogonalize")
     CHECK_CLOSE(innerC(opsi,psi),1.0);
     CHECK(checkTags(opsi));
 
-    psi.orthogonalize({"MaxDim=",10,"Cutoff=",1E-16});
+    psi.orthogonalize({"MaxDim=",10,"Cutoff=",1E-16,"DoSVDBond",true});
 
     // CHECK(checkOrtho(psi));
     CHECK(maxLinkDim(psi)==10);
@@ -429,10 +429,10 @@ SECTION("prime")
       ampo += -h,"Sz",N;
       auto H = toMPO(ampo);
 
-      auto sweeps = Sweeps(5);
-      sweeps.maxdim() = 10,20,30;
+      auto sweeps = Sweeps(10);
+      sweeps.maxdim() = 10,20,30,40,50;
       sweeps.cutoff() = 1E-12;
-      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true});
+      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true,"SubspaceExpansion",true});
       auto energy = Energy/N;
       (void)psi;
 

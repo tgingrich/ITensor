@@ -187,7 +187,7 @@ namespace itensor {
 		 args.add("Noise",sweeps.noise(sw));
 		 args.add("MaxIter",sweeps.niter(sw));
 
-		 args.add("WhichEig","LargestReal");
+		 //args.add("WhichEig","LargestReal");
 
 		 if(subspace_exp)
 		 {
@@ -234,7 +234,7 @@ namespace itensor {
 			 phi.takeReal();
 			 TIMER_STOP(3);
 
-			 printfln("%d %d %d", sw, b, energy);
+			 //printfln("%d %d %d", sw, b, energy);
 			 TIMER_START(4);
 			 //Restore tensor network form
 			 if (numCenter == 2)
@@ -248,7 +248,7 @@ namespace itensor {
 				 psi.ref(b) = phi;
 				 PH.haveBeenUpdated(b);
 			 }
-			 println(psi(b));
+			 //println(psi(b));
 			 if(subspace_exp && psi.parent(b) >= 0)//Do subspace expansion only if there is link to be expansed
 			 {
 				 long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
