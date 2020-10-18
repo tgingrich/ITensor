@@ -239,7 +239,7 @@ namespace itensor {
 			 //Restore tensor network form
 			 if (numCenter == 2)
 			 {
-				 spec = psi.svdBond(b,phi,psi.parent(b),PH,args);//TODO change to make direction depend of sweep direction
+				 spec = psi.svdBond(ha==1?b:psi.parent(b),phi,ha==1?psi.parent(b):b,PH,args);//That change to make direction depend of sweep direction
 				 PH.haveBeenUpdated(b);
 				 PH.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
 			 }
@@ -253,8 +253,8 @@ namespace itensor {
 			 {
 				 long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
 				 //spec = psi.svdBond(b,psi(b),psi.parent(b),PH,);
-				 orthPair(psi.ref(b),psi.ref(psi.parent(b)),{"MinDim",current_dim,"MaxDim",sweeps.maxdim(sw)});
-				 psi.setOrthoLink(b,psi.parent(b)); // Update orthogonalization
+				 orthPair(psi.ref(ha==1?b:psi.parent(b)),psi.ref(ha==1?psi.parent(b):b),{"MinDim",current_dim,"MaxDim",sweeps.maxdim(sw),"DoSVDBond"});
+				 psi.setOrthoLink(ha==1?b:psi.parent(b),ha==1?psi.parent(b):b); // Update orthogonalization
 			 }
 			 TIMER_STOP(4);
 

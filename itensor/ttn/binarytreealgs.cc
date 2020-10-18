@@ -35,33 +35,49 @@ using std::endl;
 long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha)
 {
     //Build Pi
-    ITensor Pi = alpha*psi(b1);
+    ITensor Pi = alpha*dag(prime(psi(b1)));
     auto neighbors=psi.othersLinks(b1,b2);
     for(unsigned int i=0; i < neighbors.size(); ++i)
     {
         Pi*=PH(neighbors.at(i));
     }
-    Pi.swapPrime(1,0);
     auto ind_b1=commonIndex(psi(b1),psi(b2));
     auto inds_b2 =uniqueInds(psi(b2), psi(b1));
     auto original_link_tags = tags(ind_b1);
     auto tocombine_inds=uniqueInds(Pi,psi(b1));
     // Use of combiner to mix indexes
     auto [Comb,extra_ind] = combiner(tocombine_inds);
-    auto PiC= Pi*Comb;
+    auto PiC= dag(Pi*Comb);
     //Expand psi(b1)
-    auto [ExtentedTensor,ind] = directSum(psi(b1),PiC,ind_b1,extra_ind);
+    // println(ind_b1);
+    // println(extra_ind);
+    // println("Pic",PiC,div(PiC));
+    // println("psi(b1)",psi(b1),div(psi(b1)));
+    auto [ExtentedTensor,ind] = directSum(psi(b1),PiC,ind_b1,dag(extra_ind));
     auto new_ind=ind;
     new_ind.setTags(original_link_tags);
     ExtentedTensor.replaceInds(IndexSet(ind),IndexSet(new_ind));
     psi.ref(b1)=ExtentedTensor;
+    
     //Build zero block with correct indexes that are the extra one, and the two other of psi(b2)
-    ITensor zero = ITensor(unionInds(inds_b2,extra_ind));
-    zero.fill(0.);// To allocate the storage
+    ITensor zero;
+    if(hasQNs(psi(b2)))
+    {
+        zero = ITensor(div(psi(b2)),unionInds(inds_b2,extra_ind)); // We need to allocate the zero tensor at the same divergence
+    }
+    else
+    {
+        zero = ITensor(unionInds(inds_b2,extra_ind));
+    }
+    zero.fill(0.);
+    // println("zero",zero,div(zero));
+    // println("psi(b2)",psi(b2),div(psi(b2)));
+
     //Expand psi(b2)
-    auto [ExtentedTensorBis,indBis] = directSum(psi(b2),zero,ind_b1,extra_ind);// Does not give the correct index at the end
-    ExtentedTensorBis.replaceInds(IndexSet(indBis),IndexSet(new_ind));
+    auto [ExtentedTensorBis,indBis] = directSum(psi(b2),zero,dag(ind_b1),extra_ind);
+    ExtentedTensorBis.replaceInds(IndexSet(indBis),IndexSet(dag(new_ind)));
     psi.ref(b2)=ExtentedTensorBis;
+    // println("ExtentedTensorBis",ExtentedTensorBis,div(ExtentedTensorBis));
     return new_ind.dim();
 }
 
@@ -81,7 +97,7 @@ checkQNs(BinaryTree const& psi)
 
     //Check that all IQTensors have zero div
     //except possibly the ortho. center
-    for(int i = 0; i <= N; ++i)
+    for(int i = 0; i < N; ++i)
         {
         if(psi.orthoPos(i) == -1) continue;
         if(!psi(i))
@@ -99,7 +115,7 @@ checkQNs(BinaryTree const& psi)
         }
 
     //Check all arrows
-    for(int i = 1; i <= N; ++i)
+    for(int i = 1; i < N; ++i)
         {
             if (psi.orthoPos(i) == -1) continue; //We are at the orthogonality center
             if(psi.orthoPos(i) == psi.parent(i))
