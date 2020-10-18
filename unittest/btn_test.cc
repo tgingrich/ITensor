@@ -448,8 +448,13 @@ SECTION("prime")
       int N = 8;
       auto sites = SpinHalf(N,{"ConserveSz=",false,
                                "ConserveParity=",true});
-      auto psi0 = randomBinaryTree(InitState(sites,"Up"));
-
+       auto state = InitState(sites);
+       for(auto i : range1(N)) // Note: sites are labelled from 1
+         {
+           if(i%2 == 1) state.set(i,"Up");
+           else         state.set(i,"Dn");
+         }
+       auto psi0 = BinaryTree(state);
       auto h = 0.5; // Critical point
 
       auto ampo = AutoMPO(sites);
@@ -464,7 +469,7 @@ SECTION("prime")
       auto sweeps = Sweeps(5);
       sweeps.maxdim() = 10,20,30;
       sweeps.cutoff() = 1E-12;
-      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true});
+      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true,"SubspaceExpansion",true});
       auto energy = Energy/N;
       (void)psi;
 

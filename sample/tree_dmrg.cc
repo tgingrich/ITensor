@@ -5,28 +5,11 @@
 
 using namespace itensor;
 
-void printVect(std::vector <int[2]> const &a) {
-  std::cout << "The vector elements are : ";
-
-  for(unsigned int i=0; i < a.size(); i++)
-    std::cout <<'('<< a.at(i)[0]<<";" <<a.at(i)[1]<<')' << ' ';
-  std::cout<< '\n';
-}
-
-void printVect(std::vector <int> const &a) {
-  std::cout << "The vector elements are : ";
-
-  for(unsigned int i=0; i < a.size(); i++)
-    std::cout <<a.at(i)<<' ';
-
-  std::cout<< '\n';
-}
-
 int main()
 {
 
   int N = 8;
-  auto sites = SpinHalf(N,{"ConserveQNs",false});
+  auto sites = SpinHalf(N,{"ConserveQNs",true});
 
   auto state = InitState(sites);
   for(auto i : range1(N)) // Note: sites are labelled from 1
@@ -35,14 +18,14 @@ int main()
       else         state.set(i,"Dn");
     }
 
-  // auto ampo = AutoMPO(sites);
-  // for(auto j : range1(N-1))
-  //   {
-  //     ampo += 0.5,"S+",j,"S-",j+1;
-  //     ampo += 0.5,"S-",j,"S+",j+1;
-  //     ampo +=     "Sz",j,"Sz",j+1;
-  //   }
-  // auto H = toMPO(ampo);
+  auto ampo = AutoMPO(sites);
+  for(auto j : range1(N-1))
+    {
+      ampo += 0.5,"S+",j,"S-",j+1;
+      ampo += 0.5,"S-",j,"S+",j+1;
+      ampo +=     "Sz",j,"Sz",j+1;
+    }
+  auto H = toMPO(ampo);
 
   // Real lambda = 0.0;
   // // std::vector<Real> plist(N + 1);
@@ -98,7 +81,7 @@ int main()
   // ampo += -qlist[N - 1], "projDn", N, "projUp", 1;
   // auto H = toMPO(ampo);
 
-  auto H = MPO_ASEP(sites, std::vector<Real>(N + 1, 0.6), std::vector<Real>(N + 1, 0.4), 0.0);
+  //auto H = MPO_ASEP(sites, std::vector<Real>(N + 1, 0.6), std::vector<Real>(N + 1, 0.4), 0.0);
   // auto H = MPO_ASEP(sites, std::vector<Real>(N, 0.6), std::vector<Real>(N, 0.4), 0.0);
   // auto H = MPO_ASEP(sites, { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 }, { 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 }, 0.0001);
   // auto H = MPO_ASEP(sites, { 0.1, 0.2, 0.3, 0.4 }, { 1.1, 1.2, 1.3, 1.4 }, 0.0);
@@ -157,7 +140,7 @@ int main()
   //
 
   println("Start DMRG");
-  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",false,"SubspaceExpansion",true});
+  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",false,"SubspaceExpansion",true,"WhichEig","LargestReal","DoSVDBond"});
   // auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
 
   //
@@ -165,6 +148,6 @@ int main()
   //
   printfln("\nGround State Energy = %.10f",energy);
   printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
-
+  println(psi);
   return 0;
 }
