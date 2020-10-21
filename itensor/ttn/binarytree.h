@@ -165,6 +165,8 @@ namespace itensor {
 
     int startPoint(Args const& args = Args::global()) const;
 
+    int endPoint(Args const& args = Args::global()) const;
+
     explicit operator bool() const { return (not A_.empty()); }
 
     bool
