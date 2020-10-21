@@ -1,6 +1,7 @@
 #include "itensor/all.h"
 #include "itensor/ttn/binarytree.h"
 #include "itensor/ttn/tree_dmrg.h"
+#include "itensor/ttn/tree_tdvp.h"
 #include "itensor/util/print_macro.h"
 
 using namespace itensor;
