@@ -410,12 +410,25 @@ namespace itensor {
   startPoint(Args const& args) const {
     auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
 		const int numCenter = args.getInt("NumCenter",1);
-		if (chosenOrder == "Default" ) {
+		if (chosenOrder == "Default" || chosenOrder == "PreOrder") {
 			if(numCenter != 1)
       	return 1;
 			return 0;
     } else {
       return N_ / 2;
+    }
+  }
+
+  int BinaryTree::
+  endPoint(Args const& args) const {
+    auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
+    const int numCenter = args.getInt("NumCenter",1);
+    if (chosenOrder == "PostOrder") {
+      if(numCenter != 1)
+        return 2;
+      return 0;
+    } else {
+      return N_ - 1;
     }
   }
 

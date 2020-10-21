@@ -108,13 +108,16 @@ namespace itensor {
     else
       args.add("Truncate",args.getBool("Truncate",false));
 
-    const int N = length(psi);
+    // const int N = length(psi);
     Real energy = NAN;
 
-    psi.position(1); //TODO 
+    // psi.position(1);
+
+    psi.setOrder(args); // Choose sweep order
 
     args.add("DebugLevel",debug_level);
     args.add("DoNormalize",true);
+    args.add("UseSVD",true);
 
     for(int sw = 1; sw <= sweeps.nsweep(); ++sw)
       {
@@ -136,23 +139,25 @@ namespace itensor {
                         args.getString("WriteDir","./"));
 	      }
   
-            //psi.doWrite(true);
+            psi.doWrite(true);
             H.doWrite(true,args);
 	  }
 
         // 0, 1 and 2-site wavefunctions
         ITensor phi0,phi1;
         Spectrum spec;
-        for(int b = 1, ha = 1; ha <= 2; sweepnext(b,ha,N,{"NumCenter=",numCenter})) //TODO
+        for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) //TODO
 	  {
             if(!quiet)
-	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,(N-1));
+	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
+
+        psi.position(b,args); //Orthogonalize with respect to b
   
             H.numCenter(numCenter);
             H.position(b,psi);
 
             if(numCenter == 2)
-	      phi1 = psi(b)*psi(b+1);//TODO
+	      phi1 = psi(b)*psi(psi.parent(b));
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
@@ -162,28 +167,34 @@ namespace itensor {
 	      phi1 /= norm(phi1);
    
             if(numCenter == 2)
-	      spec = psi.svdBond(b,phi1,(ha==1 ? Fromleft : Fromright),H,args); //TODO
+            {
+	      spec = psi.svdBond(b,phi1,psi.parent(b),PH,args);
+        H.haveBeenUpdated(b);
+        H.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
+            }
             else if(numCenter == 1)
+            {
 	      psi.ref(b) = phi1;
+        H.haveBeenUpdated(b);
+            }
 
 	    // Calculate energy
             ITensor H_phi1;
             H.product(phi1,H_phi1);
             energy = real(eltC(dag(phi1)*H_phi1));
  
-            if((ha == 1 && b+numCenter-1 != N) || (ha == 2 && b != 1))//TODO
+            if(b != psi.endPoint(args))
 	      {
-                auto b1 = (ha == 1 ? b+1 : b); //TODO
+                // auto b1 = (ha == 1 ? b+1 : b);
  
                 if(numCenter == 2)
 		  {
-                    phi0 = psi(b1);
+                    phi0 = psi(b);
 		  }
                 else if(numCenter == 1)
 		  {
                     Index l;
-                    if(ha == 1) l = commonIndex(psi(b),psi(b+1));//TODO
-                    else        l = commonIndex(psi(b-1),psi(b));//TODO
+                    l = commonIndex(psi(b),psi(psi.parent(b)));
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
                     psi.ref(b) = U;
@@ -191,7 +202,7 @@ namespace itensor {
 		  }
  
                 H.numCenter(numCenter-1);
-                H.position(b1,psi);
+                H.position(b,psi);
  
                 applyExp(H,phi0,-t/2,args);
  
@@ -200,12 +211,11 @@ namespace itensor {
                 
                 if(numCenter == 2)
 		  {
-                    psi.ref(b1) = phi0;
+                    psi.ref(b) = phi0;
 		  }
                 if(numCenter == 1)
 		  {
-                    if(ha == 1) psi.ref(b+1) *= phi0;//TODO
-                    else        psi.ref(b-1) *= phi0;//TODO
+                    psi.ref(psi.parent(b)) *= phi0;
 		  }
  
                 // Calculate energy
@@ -249,7 +259,7 @@ namespace itensor {
   
     if(args.getBool("DoNormalize",true))
       {
-        if(numCenter==1) psi.position(1);//TODO
+        psi.position(psi.startPoint(args));
         psi.normalize();
       }
 
