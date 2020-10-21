@@ -26,10 +26,10 @@ void printVect(std::vector <int> const &a) {
 int main(int argc, char** argv)
 {
 
-for(double lc = atof(argv[1]); lc <= atof(argv[2]); lc += atof(argv[3]))
-{
-for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
-{
+// for(double lc = atof(argv[1]); lc <= atof(argv[2]); lc += atof(argv[3]))
+// {
+// for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
+// {
 
   int N = 8;
   auto sites = SpinHalf(N,{"ConserveQNs",false});
@@ -84,7 +84,7 @@ for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
   // }
   // auto H = toMPO(ampo);
 
-  // Real lc = atof(argv[1]), lo = atof(argv[2]);
+  Real lc = atof(argv[1]), lo = atof(argv[2]);
   printfln("lc %d lo %d", lc, lo);
   // std::vector<Real> plist(N);
   // std::vector<Real> qlist(N);
@@ -175,16 +175,22 @@ for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
   //
 
   println("Start DMRG");
-  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",});
+  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",});
   // auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
 
   //
   // Print the final energy reported by DMRG
   //
-  printfln("\nGround State Energy = %.10f",energy);
-  printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
-}
-}
+  printfln("\nGround State Energy = %.10f",energy1);
+  printfln("\nUsing inner = %.10f", inner(psi1,H,psi1) );
+
+  println("Start TDVP");
+  auto [energy2,psi2] = tree_tdvp(H,psi1,1.0e-4,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",});
+
+  printfln("\nEnergy of Evolved State = %.10f",energy2);
+  printfln("\nUsing inner = %.10f", inner(psi2,H,psi2) );
+// }
+// }
 
   return 0;
 }

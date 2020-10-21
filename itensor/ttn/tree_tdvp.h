@@ -12,7 +12,7 @@ namespace itensor {
 
   template <class LocalOpT>
   Real
-  TDVPWorker(BinaryTree & psi,
+  TreeTDVPWorker(BinaryTree & psi,
 	     LocalOpT& PH,
 	     Cplx t,
 	     const Sweeps& sweeps,
@@ -20,7 +20,7 @@ namespace itensor {
 
   template <class LocalOpT>
   Real
-  TDVPWorker(BinaryTree & psi,
+  TreeTDVPWorker(BinaryTree & psi,
 	     LocalOpT& PH,
 	     Cplx t,
 	     const Sweeps& sweeps,
@@ -36,53 +36,65 @@ namespace itensor {
   //TDVP with an MPO
   //
   Real inline
-  tdvp(BinaryTree & psi, 
+  tree_tdvp(BinaryTree & psi, 
        MPO const& H,
        Cplx t, 
        const Sweeps& sweeps,
        const Args& args = Args::global())
   {
-    LocalMPO PH(H,args);
-    Real energy = TDVPWorker(psi,PH,t,sweeps,args);
+    LocalMPO_BT PH(H,args);
+    Real energy = TreeTDVPWorker(psi,PH,t,sweeps,args);
     return energy;
+  }
+
+  std::tuple<Real,BinaryTree> inline
+  tree_tdvp(MPO const& H,
+      BinaryTree const& psi0,
+      Cplx t,
+      Sweeps const& sweeps,
+      Args const& args = Args::global())
+  {
+    auto psi = psi0;
+    auto energy = tree_tdvp(psi,H,t,sweeps,args);
+    return std::tuple<Real,BinaryTree>(energy,psi);
   }
 
   //
   //TDVP with an MPO and custom TreeDMRGObserver
   //
   Real inline
-  tdvp(BinaryTree & psi, 
+  tree_tdvp(BinaryTree & psi, 
        MPO const& H, 
        Cplx t,
        const Sweeps& sweeps, 
        TreeDMRGObserver & obs,
        const Args& args = Args::global())
   {
-    LocalMPO PH(H,args);
-    Real energy = TDVPWorker(psi,PH,t,sweeps,obs,args);
+    LocalMPO_BT PH(H,args);
+    Real energy = TreeTDVPWorker(psi,PH,t,sweeps,obs,args);
     return energy;
   }
 
   //
-  // TDVPWorker
+  // TreeTDVPWorker
   //
 
   template <class LocalOpT>
   Real
-  TDVPWorker(BinaryTree & psi,
+  TreeTDVPWorker(BinaryTree & psi,
 	     LocalOpT& PH,
 	     Cplx t,
 	     Sweeps const& sweeps,
 	     Args const& args)
   {
     TreeDMRGObserver obs(psi,args);
-    Real energy = TDVPWorker(psi,PH,t,sweeps,obs,args);
+    Real energy = TreeTDVPWorker(psi,PH,t,sweeps,obs,args);
     return energy;
   }
 
   template <class LocalOpT>
   Real
-  TDVPWorker(BinaryTree & psi,
+  TreeTDVPWorker(BinaryTree & psi,
 	     LocalOpT& H,
 	     Cplx t,
 	     Sweeps const& sweeps,
@@ -168,7 +180,7 @@ namespace itensor {
    
             if(numCenter == 2)
             {
-	      spec = psi.svdBond(b,phi1,psi.parent(b),PH,args);
+	      spec = psi.svdBond(b,phi1,psi.parent(b),H,args);
         H.haveBeenUpdated(b);
         H.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
             }
