@@ -17,6 +17,11 @@ int main()
       if(i%2 == 1) state.set(i,"Up");
       else         state.set(i,"Dn");
     }
+    for(auto i : range1(N/2)) // Note: sites are labelled from 1
+      {
+        state.set(i,"Up");
+      }
+
 
   auto ampo = AutoMPO(sites);
   for(auto j : range1(N-1))
@@ -107,7 +112,7 @@ int main()
 
   // auto psidag = prime(dag(psi0));
   // std::vector<std::vector<ITensor>> MPO(psi0.height() + 2);
-
+  println(totalQN(psi0));
   println("Construction of the BinaryTree");
 //  PH.position(0,psi0);
 //  PH.haveBeenUpdated(2);
@@ -149,5 +154,6 @@ int main()
   printfln("\nGround State Energy = %.10f",energy);
   printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
   println(psi);
+  println(totalQN(psi));
   return 0;
 }
