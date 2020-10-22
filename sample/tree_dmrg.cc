@@ -32,6 +32,13 @@ int main()
     }
   auto H = toMPO(ampo);
 
+  auto anop = AutoMPO(sites);
+  for(auto j : range1(N))
+    {
+      anop +=     "Sz",j;
+    }
+  auto Nop = toMPO(anop);
+
   // Real lambda = 0.0;
   // // std::vector<Real> plist(N + 1);
   // // std::vector<Real> qlist(N + 1);
@@ -112,7 +119,7 @@ int main()
 
   // auto psidag = prime(dag(psi0));
   // std::vector<std::vector<ITensor>> MPO(psi0.height() + 2);
-  println(totalQN(psi0));
+  //println(totalQN(psi0));
   println("Construction of the BinaryTree");
 //  PH.position(0,psi0);
 //  PH.haveBeenUpdated(2);
@@ -125,6 +132,7 @@ int main()
   // inner(psi,H,psi) = <psi|H|psi>
 
   printfln("Initial energy = %.5f", inner(psi0,H,psi0) );
+  printfln("Initial spin = %.5f", inner(psi0,Nop,psi0) );
 
   // Set the parameters controlling the accuracy of the DMRG
   // calculation for each DMRG sweep.
@@ -145,7 +153,9 @@ int main()
   //
 
   println("Start DMRG");
-  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",false,"SubspaceExpansion",true,"WhichEig","LargestReal","DoSVDBond"});
+  auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"DoSVDBond"});
+//auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"WhichEig","LargestReal","DoSVDBond"});
+
   // auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
 
   //
@@ -153,7 +163,8 @@ int main()
   //
   printfln("\nGround State Energy = %.10f",energy);
   printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
-  println(psi);
-  println(totalQN(psi));
+  printfln("Final spin = %.5f", inner(psi,Nop,psi) );
+  //println(psi);
+  //println(totalQN(psi));
   return 0;
 }
