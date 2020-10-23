@@ -1235,6 +1235,10 @@ call .position(j) or .orthogonalize() to set ortho center");
     L = A;
     R *= B;
     auto bnd_qr = commonIndex(L, R);
+    // PrintData(L);
+    // PrintData(R);
+    // PrintData(bnd_qr);
+    // PrintData(bnd);
     L.replaceInds({bnd_qr}, {bnd});
     R.replaceInds({bnd_qr}, {bnd});
   }

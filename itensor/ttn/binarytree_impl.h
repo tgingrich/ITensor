@@ -63,10 +63,10 @@ namespace itensor {
           A_[b1] = ITensor(IndexSet(uniqueInds(temp1, temp2), ind));
           D = ITensor(IndexSet(uniqueInds(temp2, temp1), ind));
           for(auto it : iterInds(temp1)) {
-            A_[b1].set(it[0].val, it[1].val, it[2].val, temp1.real(it));
+            A_[b1].set(it[0].val, it[1].val, it[2].val, temp1.cplx(it));
           }
           for(auto it : iterInds(temp2)) {
-            D.set(it[1].val, it[0].val, temp2.real(it));
+            D.set(it[1].val, it[0].val, temp2.cplx(it));
           }
 
           auto bnd = commonIndex(A_[b1], D);
