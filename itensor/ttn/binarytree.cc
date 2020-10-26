@@ -1262,6 +1262,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     R.replaceInds({bnd_qr}, {bnd});
     // L.setTags(original_link_tags,{bnd_qr} );
     // R.setTags(original_link_tags,{bnd_qr});
+	}
   }
 
 } //namespace itensor

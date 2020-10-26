@@ -45,39 +45,39 @@ int main(int argc, char** argv)
     }
   auto Nop = toMPO(anop);
 
-  Real lc = atof(argv[1]), lo = atof(argv[2]);
-  printfln("lc %d lo %d", lc, lo);
-  // std::vector<Real> plist(N + 1);
-  // std::vector<Real> qlist(N + 1);
-  // for(auto j : range(N + 1))
+  // Real lc = atof(argv[1]), lo = atof(argv[2]);
+  // printfln("lc %d lo %d", lc, lo);
+  // // std::vector<Real> plist(N + 1);
+  // // std::vector<Real> qlist(N + 1);
+  // // for(auto j : range(N + 1))
+  // // {
+  // //   plist[j] = (Real)std::rand() / RAND_MAX;
+  // //   qlist[j] = (Real)std::rand() / RAND_MAX;
+  // // }
+  // std::vector<Real> plist(N + 1, 0.1);
+  // std::vector<Real> qlist(N + 1, 0.9);
+  // plist[0] = plist[N] = qlist[0] = qlist[N] = 0.5;
+  // auto ampo = AutoMPO(sites);
+  // ampo += plist[0] * std::exp(lc), "S-", 1;
+  // ampo += -plist[0], "projDn", 1;
+  // ampo += qlist[0] * std::exp(-lc), "S+", 1;
+  // ampo += -qlist[0], "projUp", 1;
+  // for(auto j : range1(N - 1))
   // {
-  //   plist[j] = (Real)std::rand() / RAND_MAX;
-  //   qlist[j] = (Real)std::rand() / RAND_MAX;
+  //   ampo += plist[j] * std::exp(lc), "S+", j, "S-", j + 1;
+  //   ampo += -plist[j], "projUp", j, "projDn", j + 1;
+  //   ampo += qlist[j] * std::exp(-lc), "S-", j, "S+", j + 1;
+  //   ampo += -qlist[j], "projDn", j, "projUp", j + 1;
   // }
-  std::vector<Real> plist(N + 1, 0.1);
-  std::vector<Real> qlist(N + 1, 0.9);
-  plist[0] = plist[N] = qlist[0] = qlist[N] = 0.5;
-  auto ampo = AutoMPO(sites);
-  ampo += plist[0] * std::exp(lc), "S-", 1;
-  ampo += -plist[0], "projDn", 1;
-  ampo += qlist[0] * std::exp(-lc), "S+", 1;
-  ampo += -qlist[0], "projUp", 1;
-  for(auto j : range1(N - 1))
-  {
-    ampo += plist[j] * std::exp(lc), "S+", j, "S-", j + 1;
-    ampo += -plist[j], "projUp", j, "projDn", j + 1;
-    ampo += qlist[j] * std::exp(-lc), "S-", j, "S+", j + 1;
-    ampo += -qlist[j], "projDn", j, "projUp", j + 1;
-  }
-  ampo += qlist[N] * std::exp(-lc), "S-", N;
-  ampo += -qlist[N], "projDn", N;
-  ampo += plist[N] * std::exp(lc), "S+", N;
-  ampo += -plist[N], "projUp", N;
-  for(auto j : range1(N))
-  {
-    ampo += -lo, "projDn", j;
-  }
-  auto H = toMPO(ampo);
+  // ampo += qlist[N] * std::exp(-lc), "S-", N;
+  // ampo += -qlist[N], "projDn", N;
+  // ampo += plist[N] * std::exp(lc), "S+", N;
+  // ampo += -plist[N], "projUp", N;
+  // for(auto j : range1(N))
+  // {
+  //   ampo += -lo, "projDn", j;
+  // }
+  // auto H = toMPO(ampo);
 
   // Real lc = atof(argv[1]), lo = atof(argv[2]);
   // printfln("lc %d lo %d", lc, lo);
@@ -182,24 +182,26 @@ int main(int argc, char** argv)
   printfln("\nFinal norm = %.5f", inner(psi1,psi1) );
   printfln("\nGround State Energy = %.10f",energy1);
   printfln("\nUsing inner = %.10f", inner(psi1,H,psi1) );
-  //println(psi);
-  //println(totalQN(psi));
+  printfln("Final spin = %.5f", inner(psi1,Nop,psi1) );
+  // println(psi1);
+  println(totalQN(psi1));
 
-  auto sweeps1 = Sweeps(2);
-  sweeps1.maxdim() = 16,16;
-  sweeps1.cutoff() = 1E-13;
-  sweeps1.niter() = 10;
-  sweeps1.noise() = 0.0;
+  // auto sweeps1 = Sweeps(2);
+  // sweeps1.maxdim() = 16,16;
+  // sweeps1.cutoff() = 1E-13;
+  // sweeps1.niter() = 10;
+  // sweeps1.noise() = 0.0;
   
-  println("\nStart TDVP");
-  using namespace std::complex_literals;
-  auto [energy2,psi2] = tree_tdvp(H,psi1,1.0e-4i,sweeps1,{"NumCenter",2,"Order","PostOrder","Quiet",});
+  // println("\nStart TDVP");
+  // using namespace std::complex_literals;
+  // auto [energy2,psi2] = tree_tdvp(H,psi1,1.0e-4i,sweeps1,{"NumCenter",2,"Order","PostOrder","Quiet",});
 
-  printfln("\nFinal norm = %.5f", innerC(psi2,psi2) );
-  printfln("\nEnergy of Evolved State = %.10f",energy2);
-  printfln("\nUsing inner = %.10f", innerC(psi2,H,psi2) );
-  //println(psi);
-  //println(totalQN(psi));
+  // printfln("\nFinal norm = %.5f", innerC(psi2,psi2) );
+  // printfln("\nEnergy of Evolved State = %.10f",energy2);
+  // printfln("\nUsing inner = %.10f", innerC(psi2,H,psi2) );
+  // printfln("Final spin = %.5f", inner(psi2,Nop,psi2) );
+  // println(psi2);
+  // println(totalQN(psi2));
 // }
 // }
 
