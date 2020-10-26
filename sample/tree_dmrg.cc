@@ -6,23 +6,6 @@
 
 using namespace itensor;
 
-void printVect(std::vector <int[2]> const &a) {
-  std::cout << "The vector elements are : ";
-
-  for(unsigned int i=0; i < a.size(); i++)
-    std::cout <<'('<< a.at(i)[0]<<";" <<a.at(i)[1]<<')' << ' ';
-  std::cout<< '\n';
-}
-
-void printVect(std::vector <int> const &a) {
-  std::cout << "The vector elements are : ";
-
-  for(unsigned int i=0; i < a.size(); i++)
-    std::cout <<a.at(i)<<' ';
-
-  std::cout<< '\n';
-}
-
 int main(int argc, char** argv)
 {
 
@@ -32,7 +15,7 @@ int main(int argc, char** argv)
 // {
 
   int N = 8;
-  auto sites = SpinHalf(N,{"ConserveQNs",false});
+  auto sites = SpinHalf(N,{"ConserveQNs",true});
 
   auto state = InitState(sites);
   for(auto i : range1(N)) // Note: sites are labelled from 1
@@ -40,15 +23,27 @@ int main(int argc, char** argv)
       if(i%2 == 1) state.set(i,"Up");
       else         state.set(i,"Dn");
     }
+    for(auto i : range1(N/2)) // Note: sites are labelled from 1
+      {
+        state.set(i,"Up");
+      }
 
-  // auto ampo = AutoMPO(sites);
-  // for(auto j : range1(N-1))
-  //   {
-  //     ampo += 0.5,"S+",j,"S-",j+1;
-  //     ampo += 0.5,"S-",j,"S+",j+1;
-  //     ampo +=     "Sz",j,"Sz",j+1;
-  //   }
-  // auto H = toMPO(ampo);
+
+  auto ampo = AutoMPO(sites);
+  for(auto j : range1(N-1))
+    {
+      ampo += 0.5,"S+",j,"S-",j+1;
+      ampo += 0.5,"S-",j,"S+",j+1;
+      ampo +=     "Sz",j,"Sz",j+1;
+    }
+  auto H = toMPO(ampo);
+
+  auto anop = AutoMPO(sites);
+  for(auto j : range1(N))
+    {
+      anop +=     "Sz",j;
+    }
+  auto Nop = toMPO(anop);
 
   Real lc = atof(argv[1]), lo = atof(argv[2]);
   printfln("lc %d lo %d", lc, lo);
@@ -134,7 +129,7 @@ int main(int argc, char** argv)
 
   println("Construction of the MPO and LocalMPO");
 //  LocalMPO_BT PH(H,args);
-//	
+//
 
   auto psi0 = BinaryTree(state);
   // PrintData(psi0);
@@ -142,7 +137,7 @@ int main(int argc, char** argv)
 
   // auto psidag = prime(dag(psi0));
   // std::vector<std::vector<ITensor>> MPO(psi0.height() + 2);
-
+  //println(totalQN(psi0));
   println("Construction of the BinaryTree");
 //  PH.position(0,psi0);
 //  PH.haveBeenUpdated(2);
@@ -153,11 +148,12 @@ int main(int argc, char** argv)
 
   // inner calculates matrix elements of MPO's with respect to MPS's
   // inner(psi,H,psi) = <psi|H|psi>
-    
+
   printfln("Initial energy = %.5f", inner(psi0,H,psi0) );
+  printfln("Initial spin = %.5f", inner(psi0,Nop,psi0) );
 
   // Set the parameters controlling the accuracy of the DMRG
-  // calculation for each DMRG sweep. 
+  // calculation for each DMRG sweep.
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
@@ -175,8 +171,10 @@ int main(int argc, char** argv)
   //
 
   println("Start DMRG");
-  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",});
-  // auto [energy,psi] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
+  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"DoSVDBond"});
+  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"WhichEig","LargestReal","DoSVDBond"});
+
+  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
 
   //
   // Print the final energy reported by DMRG
@@ -184,6 +182,8 @@ int main(int argc, char** argv)
   printfln("\nFinal norm = %.5f", inner(psi1,psi1) );
   printfln("\nGround State Energy = %.10f",energy1);
   printfln("\nUsing inner = %.10f", inner(psi1,H,psi1) );
+  //println(psi);
+  //println(totalQN(psi));
 
   auto sweeps1 = Sweeps(2);
   sweeps1.maxdim() = 16,16;
@@ -198,10 +198,10 @@ int main(int argc, char** argv)
   printfln("\nFinal norm = %.5f", innerC(psi2,psi2) );
   printfln("\nEnergy of Evolved State = %.10f",energy2);
   printfln("\nUsing inner = %.10f", innerC(psi2,H,psi2) );
+  //println(psi);
+  //println(totalQN(psi));
 // }
 // }
 
   return 0;
 }
-
-

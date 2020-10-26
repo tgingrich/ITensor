@@ -23,21 +23,21 @@
 namespace itensor {
 
   //
-  // The LocalMPO_BT class projects an MPO 
+  // The LocalMPO_BT class projects an MPO
   // into the reduced Hilbert space of
   // some number of sites of an BinaryTree.
   // (The default is 2 sites.)
   //
   //   .----...---                ----...--.
-  //   |  |     |      |      |     |      | 
+  //   |  |     |      |      |     |      |
   //   W1-W2-..Wj-1 - Wj - Wj+1 -- Wj+2..-WN
-  //   |  |     |      |      |     |      | 
+  //   |  |     |      |      |     |      |
   //   '----...---                ----...--'
   //
-  // 
+  //
   //  Here the W's are the site tensors
   //  of the MPO "Op" and the method position(j,psi)
-  //  has been called using the BinaryTree 'psi' as a basis 
+  //  has been called using the BinaryTree 'psi' as a basis
   //  for the projection.
   //
   //  This results in an unprojected region of
@@ -57,14 +57,14 @@ namespace itensor {
     //
     //Regular case where H is an MPO for a finite system
     //
-    LocalMPO_BT(MPO const& H, 
+    LocalMPO_BT(MPO const& H,
 		Args const& args = Args::global());
 
     //
     //Use an MPS instead of an MPO. Equivalent to using an MPO
     //of the outer product |Psi><Psi| but much more efficient.
-    // 
-    LocalMPO_BT(MPS const& Psi, 
+    //
+    LocalMPO_BT(MPS const& Psi,
 		Args const& args = Args::global());
 
     //
@@ -78,12 +78,21 @@ namespace itensor {
     expect(const ITensor& phi) const { return lop_.expect(phi); }
 
     ITensor
-    deltaRho(const ITensor& AA, 
+    deltaRho(const ITensor& AA,
              const ITensor& comb, Direction dir) const
     { return lop_.deltaRho(AA,comb,dir); }
 
     ITensor
     diag() const { return lop_.diag(); }
+
+		// Read-only access to i'th Contracted tensor
+		ITensor const&
+		operator()(int i) const
+		{
+			if(i < 0) i = PH_.size()+i+1;
+			if(i >= int(PH_.size())) Error("Attempt to access tensor out of the tree");
+			return PH_.at(i);
+		}
 
     //
     // position(b,psi) uses the BinaryTree psi
@@ -105,26 +114,26 @@ namespace itensor {
     }
 
     const MPO&
-    H() const 
-    { 
+    H() const
+    {
       if(Op_ == 0)
 	Error("LocalMPO_BT is null or contains an BinaryTree");
       return *Op_;
     }
 
     LocalOpTree const&
-    lop() const 
-        { 
+    lop() const
+        {
         return lop_;
         }
 
     int
     numCenter() const { return nc_; }
     void
-    numCenter(int val) 
-    { 
+    numCenter(int val)
+    {
       if(val < 0 || val > 2) Error("numCenter must be set 0 or 1 or 2");
-      nc_ = val; 
+      nc_ = val;
       lop_.numCenter(val);
     }
 
@@ -133,12 +142,12 @@ namespace itensor {
 
     explicit operator bool() const { return Op_ != 0 || Psi_ != 0; }
 
-    std::vector<int> 
+    std::vector<int>
     Lim() const{ return Hlim_;}
 
     void
     haveBeenUpdated(int b)
-    { 	
+    {
       Hlim_.at(b)=-1;
       /*			for (auto & elem : Hlim_)*/
       /*			{if (elem == b) elem=-1;}*/
@@ -148,8 +157,8 @@ namespace itensor {
     doWrite() const { return false; }
     void
     doWrite(bool val,
-            Args const& args = Args::global()) 
-    { 
+            Args const& args = Args::global())
+    {
       Error("doWrite is not supported by LocalMPO_BT");
     }
 
@@ -186,13 +195,13 @@ namespace itensor {
   { }
 
   inline LocalMPO_BT::
-  LocalMPO_BT(const MPO& H, 
+  LocalMPO_BT(const MPO& H,
 	      const Args& args)
     : Op_(&H),
       PH_(2*H.length()-1),
       Hlim_(2*H.length()-1,-2),
       Psi_(0)
-  { 
+  {
     if(args.defined("NumCenter"))
       numCenter(args.getInt("NumCenter"));
     for(auto i: range1(H.length()))
@@ -203,13 +212,13 @@ namespace itensor {
   }
 
   inline LocalMPO_BT::
-  LocalMPO_BT(const MPS& Psi, 
+  LocalMPO_BT(const MPS& Psi,
 	      const Args& args)
     : Op_(0),
       PH_(Psi.length()-1),
       Hlim_(Psi.length()-1,-2),
       Psi_(&Psi)
-  { 
+  {
     if(args.defined("NumCenter"))
       numCenter(args.getInt("NumCenter"));
     for(auto i: range1(Psi.length()))
@@ -221,7 +230,7 @@ namespace itensor {
 
 
   void inline LocalMPO_BT::
-  product(ITensor const& phi, 
+  product(ITensor const& phi,
 	  ITensor& phip) const
   {
     if(Op_ != 0 || Psi_ != 0)
@@ -238,7 +247,7 @@ namespace itensor {
   position(int b, BinaryTree const& psi)
   {
     if(!(*this)) Error("LocalMPO_BT is null");
-		
+
     makeHloc(psi,b);
 
     if(nc_ == 2 && b == 0 )
@@ -263,7 +272,7 @@ namespace itensor {
 	      }
 	    else
 	      {
-		lop_.update(PH_.at(2*b+2), PH_.at(psi.sibling(b)),PH_.at(2*b+1),PH_.at(psi.parent(psi.parent(b)))); 
+		lop_.update(PH_.at(2*b+2), PH_.at(psi.sibling(b)),PH_.at(2*b+1),PH_.at(psi.parent(psi.parent(b))));
 	      }
 	  }
         else if(nc_ == 1)
@@ -294,21 +303,21 @@ namespace itensor {
 	  {
 	    //println(d);
 	    auto node_d = psi.node_list(k,d); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
-	    for(unsigned int i=0; i < node_d.size(); i++) 
+	    for(unsigned int i=0; i < node_d.size(); i++)
 	      {
 		auto node=node_d.at(i)[0];
 		auto direction=node_d.at(i)[1];
 
 		if ((d==1 && node == psi.parent(k) )&& nc_ ==2 ) continue; // If numCenter is two we avoid one unneeded contraction
-				
+
 		if (Hlim_.at(node) != direction) // That check if the contracted point out in the correct direction. If not then contract, if yes do nothing, this point save computer time, as it does not recompute product already computed
 		  {
 		    auto to_contract=psi.othersLinks(node, direction);
-						
+
 		    //println("Contraction: ",node," ",direction);
 
 		    PH_.at(node)=psi(node);
-					
+
 		    for (auto & conc : to_contract)
 		      {
 			PH_.at(node)*=PH_.at(conc);
@@ -317,7 +326,7 @@ namespace itensor {
 		    PH_.at(node)*=dag(prime(psi(node)));
 		    //println(inds(PH_.at(node)));
 
-		    //We update the current status of contraction 
+		    //We update the current status of contraction
 		    Hlim_.at(node) = direction;// This node have now open indices towards direction
 		    Hlim_.at(direction) = -1; // This is the next one to be updated
 

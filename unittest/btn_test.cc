@@ -68,14 +68,14 @@ for(auto j : range1(N))
 SECTION("QNCheck")
     {
     auto psiNeelQNs = BinaryTree(shNeelQNs);
-
+    psiNeelQNs.orthogonalize();
     CHECK(hasQNs(psiNeelQNs));
 
     CHECK(checkQNs(psiNeelQNs));
     CHECK_EQUAL(totalQN(psiNeelQNs),QN({"Sz",0}));
 
     auto psiFerroQNs = BinaryTree(shFerroQNs);
-
+    psiFerroQNs.orthogonalize();
     CHECK(checkQNs(psiFerroQNs));
     CHECK_EQUAL(totalQN(psiFerroQNs),QN({"Sz",8}));
     }
@@ -323,7 +323,7 @@ SECTION("Orthogonalize")
     CHECK_CLOSE(innerC(opsi,psi),1.0);
     CHECK(checkTags(opsi));
 
-    psi.orthogonalize({"MaxDim=",10,"Cutoff=",1E-16});
+    psi.orthogonalize({"MaxDim=",10,"Cutoff=",1E-16,"DoSVDBond",true});
 
     // CHECK(checkOrtho(psi));
     CHECK(maxLinkDim(psi)==10);
@@ -414,7 +414,7 @@ SECTION("prime")
 
     SECTION("Tree DMRG")
       {
-      int N = 32;
+      int N = 8;
       auto sites = SpinHalf(N,{"ConserveQNs=",false});
       auto psi0 = randomBinaryTree(InitState(sites,"Up"));
 
@@ -429,10 +429,10 @@ SECTION("prime")
       ampo += -h,"Sz",N;
       auto H = toMPO(ampo);
 
-      auto sweeps = Sweeps(5);
-      sweeps.maxdim() = 10,20,30;
+      auto sweeps = Sweeps(10);
+      sweeps.maxdim() = 10,20,30,40,50;
       sweeps.cutoff() = 1E-12;
-      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true});
+      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true,"SubspaceExpansion",true});
       auto energy = Energy/N;
       (void)psi;
 
@@ -445,11 +445,16 @@ SECTION("prime")
 
     SECTION("Tree DMRG with QNs")
       {
-      int N = 32;
+      int N = 8;
       auto sites = SpinHalf(N,{"ConserveSz=",false,
                                "ConserveParity=",true});
-      auto psi0 = randomBinaryTree(InitState(sites,"Up"));
-
+       auto state = InitState(sites);
+       for(auto i : range1(N)) // Note: sites are labelled from 1
+         {
+           if(i%2 == 1) state.set(i,"Up");
+           else         state.set(i,"Dn");
+         }
+       auto psi0 = BinaryTree(state);
       auto h = 0.5; // Critical point
 
       auto ampo = AutoMPO(sites);
@@ -464,7 +469,7 @@ SECTION("prime")
       auto sweeps = Sweeps(5);
       sweeps.maxdim() = 10,20,30;
       sweeps.cutoff() = 1E-12;
-      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true});
+      auto [Energy,psi] = tree_dmrg(H,psi0,sweeps,{"Order","PostOrder","Silent",true,"SubspaceExpansion",true});
       auto energy = Energy/N;
       (void)psi;
 

@@ -381,12 +381,14 @@ namespace itensor {
         if (orth_pos_.at(node_d.at(i)[0]) != node_d.at(i)[1] ) {
           if(args.getBool("DoSVDBond",false)) {
             auto WF = operator()(node_d.at(i)[0]) * operator()(node_d.at(i)[1]);
-            svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);
+            svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);//svdBond already update the orthogonalisation memory
           } else {
             orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
-            orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
-            orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
+						// this->setOrthoLink(node_d.at(i)[0],node_d.at(i)[1]);
+						orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
+						orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
           }
+
         }
       }
     }
@@ -719,10 +721,16 @@ namespace itensor {
 
 
   BinaryTree&
-  operator*=(BinaryTree & x, Real a) { x.ref(0) *= a; return x; }
+  operator*=(BinaryTree & x, Real a) {
+		if(not isOrtho(x)) Error("BinaryTree must have well-defined ortho center to multiply;call .position(j) or .orthogonalize() to set ortho center");
+		x.ref(findCenter(x))*=a;
+		return x; }
 
   BinaryTree&
-  operator/=(BinaryTree & x, Real a) { x.ref(0) /= a; return x; }
+  operator/=(BinaryTree & x, Real a) {
+		if(not isOrtho(x)) Error("BinaryTree must have well-defined ortho center to divide;call .position(j) or .orthogonalize() to set ortho center");
+		x.ref(findCenter(x))/=a;
+		return x; }
 
   BinaryTree
   operator*(BinaryTree x, Real r) { x *= r; return x; }
@@ -731,10 +739,16 @@ namespace itensor {
   operator*(Real r, BinaryTree x) { x *= r; return x; }
 
   BinaryTree&
-  operator*=(BinaryTree & x, Cplx z) { x.ref(0) *= z; return x; }
+  operator*=(BinaryTree & x, Cplx z) {
+		if(not isOrtho(x)) Error("BinaryTree must have well-defined ortho center to multiply;call .position(j) or .orthogonalize() to set ortho center");
+		x.ref(findCenter(x))*=z;
+		return x; }
 
   BinaryTree&
-  operator/=(BinaryTree & x, Cplx z) { x.ref(0) /= z; return x; }
+  operator/=(BinaryTree & x, Cplx z) {
+		if(not isOrtho(x)) Error("BinaryTree must have well-defined ortho center to divide;call .position(j) or .orthogonalize() to set ortho center");
+		x.ref(findCenter(x))/=z;
+		return x; }
 
   BinaryTree
   operator*(BinaryTree x, Cplx z) { x *= z; return x; }
@@ -787,7 +801,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   {
     Real avgdim = 0.;
     auto N = size(x);
-    for( auto b : range1(N) )
+    for( auto b : range(N) )
       {
         avgdim += dim(linkIndex(x,b));
       }
@@ -801,7 +815,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   maxLinkDim(TreeType const& x)
   {
     int maxdim = 0;
-    for( auto b : range1(size(x)) )
+    for( auto b : range(size(x)) )
       {
         int mb = dim(linkIndex(x,b));
         maxdim = std::max(mb,maxdim);
@@ -1225,22 +1239,29 @@ call .position(j) or .orthogonalize() to set ortho center");
     //        {
     //        Print(inds(L));
     //        }
-    // auto original_link_tags = tags(bnd);
-    // ITensor A,D,B(bnd);
-    // auto spec = svd(L,A,D,B,{args,"LeftTags=",original_link_tags});
-    // L = A;
-    // R *= (D*B);
+    auto original_link_tags = tags(bnd);
+		if(args.getBool("DoSVDBond",false)) {
+    ITensor A,D,B(bnd);
+    auto spec = svd(L,A,D,B,{args,"LeftTags=",original_link_tags});
+    L = A;
+    R *= (D*B);
+	}
+	else
+	{
     ITensor A,B(bnd);
     qr(L, A, B);
     L = A;
     R *= B;
     auto bnd_qr = commonIndex(L, R);
+
     // PrintData(L);
     // PrintData(R);
     // PrintData(bnd_qr);
     // PrintData(bnd);
     L.replaceInds({bnd_qr}, {bnd});
     R.replaceInds({bnd_qr}, {bnd});
+    // L.setTags(original_link_tags,{bnd_qr} );
+    // R.setTags(original_link_tags,{bnd_qr});
   }
 
 } //namespace itensor
