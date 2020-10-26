@@ -300,6 +300,7 @@ namespace itensor {
       if(subspace_exp && psi.parent(b) >= 0)//Do subspace expansion only if there is link to be expansed
       {
         long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
+        args.add("MinDim",current_dim);
         //spec = psi.svdBond(b,psi(b),psi.parent(b),PH,);
         orthPair(psi.ref(ha==1?b:psi.parent(b)),psi.ref(ha==1?psi.parent(b):b),args);
         psi.setOrthoLink(ha==1?b:psi.parent(b),ha==1?psi.parent(b):b); // Update orthogonalization
