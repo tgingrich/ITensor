@@ -276,6 +276,8 @@ swapSiteInds()
         {
         auto s = itensor::siteInds(A,n);
         A_[n].swapInds({s(1)},{s(2)});
+        A_[n].setDir(n == 1 || n == N ? 2 : 3, s(2).dir());
+        A_[n].setDir(n == 1 || n == N ? 3 : 4, s(1).dir());
         }
     return A;
     }

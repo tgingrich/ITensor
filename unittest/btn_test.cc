@@ -75,7 +75,9 @@ SECTION("QNCheck")
     CHECK_EQUAL(totalQN(psiNeelQNs),QN({"Sz",0}));
 
     auto psiFerroQNs = BinaryTree(shFerroQNs);
+    // PrintData(psiFerroQNs);
     psiFerroQNs.orthogonalize();
+    // PrintData(psiFerroQNs);
     CHECK(checkQNs(psiFerroQNs));
     CHECK_EQUAL(totalQN(psiFerroQNs),QN({"Sz",8}));
     }

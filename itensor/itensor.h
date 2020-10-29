@@ -472,6 +472,9 @@ class ITensor
     noprime(VarArgs&&... vargs)
         { Error(".noprime() is deprecated, use .noPrime() instead"); return *this; }
 
+    void
+    setDir(size_type I, Arrow ndir) { is_(I).setDir(ndir); }
+
     }; // class ITensor
 
 //

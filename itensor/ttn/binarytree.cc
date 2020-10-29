@@ -1258,10 +1258,10 @@ call .position(j) or .orthogonalize() to set ortho center");
     // PrintData(R);
     // PrintData(bnd_qr);
     // PrintData(bnd);
-    L.replaceInds({bnd_qr}, {bnd});
-    R.replaceInds({bnd_qr}, {bnd});
-    // L.setTags(original_link_tags,{bnd_qr} );
-    // R.setTags(original_link_tags,{bnd_qr});
+    // L.replaceInds({bnd_qr}, {bnd});
+    // R.replaceInds({bnd_qr}, {bnd});
+    L.setTags(original_link_tags,{bnd_qr} );
+    R.setTags(original_link_tags,{bnd_qr});
 	}
   }
 
