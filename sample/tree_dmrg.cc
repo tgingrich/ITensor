@@ -59,20 +59,20 @@ int main(int argc, char** argv)
   std::vector<Real> qlist(N + 1, 0.9);
   plist[0] = plist[N] = qlist[0] = qlist[N] = 0.5;
   auto ampo = AutoMPO(sites);
-  ampo += plist[0] * std::exp(lc), "S-", 1;
+  ampo += plist[0] * std::exp(lc), "S+", 1;
   ampo += -plist[0], "projDn", 1;
-  ampo += qlist[0] * std::exp(-lc), "S+", 1;
+  ampo += qlist[0] * std::exp(-lc), "S-", 1;
   ampo += -qlist[0], "projUp", 1;
   for(auto j : range1(N - 1))
   {
-    ampo += plist[j] * std::exp(lc), "S+", j, "S-", j + 1;
+    ampo += plist[j] * std::exp(lc), "S-", j, "S+", j + 1;
     ampo += -plist[j], "projUp", j, "projDn", j + 1;
-    ampo += qlist[j] * std::exp(-lc), "S-", j, "S+", j + 1;
+    ampo += qlist[j] * std::exp(-lc), "S+", j, "S-", j + 1;
     ampo += -qlist[j], "projDn", j, "projUp", j + 1;
   }
-  ampo += qlist[N] * std::exp(-lc), "S-", N;
+  ampo += qlist[N] * std::exp(-lc), "S+", N;
   ampo += -qlist[N], "projDn", N;
-  ampo += plist[N] * std::exp(lc), "S+", N;
+  ampo += plist[N] * std::exp(lc), "S-", N;
   ampo += -plist[N], "projUp", N;
   for(auto j : range1(N))
   {
@@ -96,14 +96,14 @@ int main(int argc, char** argv)
   // auto ampo = AutoMPO(sites);
   // for(auto j : range1(N - 1))
   // {
-  //   ampo += plist[j - 1] * std::exp(lc), "S+", j, "S-", j + 1;
+  //   ampo += plist[j - 1] * std::exp(lc), "S-", j, "S+", j + 1;
   //   ampo += -plist[j - 1], "projUp", j, "projDn", j + 1;
-  //   ampo += qlist[j - 1] * std::exp(-lc), "S-", j, "S+", j + 1;
+  //   ampo += qlist[j - 1] * std::exp(-lc), "S+", j, "S-", j + 1;
   //   ampo += -qlist[j - 1], "projDn", j, "projUp", j + 1;
   // }
-  // ampo += plist[N - 1] * std::exp(lc), "S+", N, "S-", 1;
+  // ampo += plist[N - 1] * std::exp(lc), "S-", N, "S+", 1;
   // ampo += -plist[N - 1], "projUp", N, "projDn", 1;
-  // ampo += qlist[N - 1] * std::exp(-lc), "S-", N, "S+", 1;
+  // ampo += qlist[N - 1] * std::exp(-lc), "S+", N, "S-", 1;
   // ampo += -qlist[N - 1], "projDn", N, "projUp", 1;
   // for(auto j : range1(N))
   // {
