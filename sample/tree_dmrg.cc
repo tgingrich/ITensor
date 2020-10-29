@@ -29,15 +29,15 @@ int main(int argc, char** argv)
       }
 
 
-  // auto ampo = AutoMPO(sites);
-  // for(auto j : range1(N-1))
-  //   {
-  //     ampo += 0.5,"S+",j,"S-",j+1;
-  //     ampo += 0.5,"S-",j,"S+",j+1;
-  //     ampo +=     "Sz",j,"Sz",j+1;
-  //   }
-  // auto H = toMPO(ampo);
-  // H.swapSiteInds();
+  auto ampo = AutoMPO(sites);
+  for(auto j : range1(N-1))
+    {
+      ampo += 0.5,"S+",j,"S-",j+1;
+      ampo += 0.5,"S-",j,"S+",j+1;
+      ampo +=     "Sz",j,"Sz",j+1;
+    }
+  auto H = toMPO(ampo);
+  H.swapSiteInds();
 
   auto anop = AutoMPO(sites);
   for(auto j : range1(N))
@@ -46,39 +46,39 @@ int main(int argc, char** argv)
     }
   auto Nop = toMPO(anop);
 
-  Real lc = atof(argv[1]), lo = atof(argv[2]);
-  printfln("lc %d lo %d", lc, lo);
-  // std::vector<Real> plist(N + 1);
-  // std::vector<Real> qlist(N + 1);
-  // for(auto j : range(N + 1))
+  // Real lc = atof(argv[1]), lo = atof(argv[2]);
+  // printfln("lc %d lo %d", lc, lo);
+  // // std::vector<Real> plist(N + 1);
+  // // std::vector<Real> qlist(N + 1);
+  // // for(auto j : range(N + 1))
+  // // {
+  // //   plist[j] = (Real)std::rand() / RAND_MAX;
+  // //   qlist[j] = (Real)std::rand() / RAND_MAX;
+  // // }
+  // std::vector<Real> plist(N + 1, 0.1);
+  // std::vector<Real> qlist(N + 1, 0.9);
+  // plist[0] = plist[N] = qlist[0] = qlist[N] = 0.5;
+  // auto ampo = AutoMPO(sites);
+  // ampo += plist[0] * std::exp(lc), "S+", 1;
+  // ampo += -plist[0], "projDn", 1;
+  // ampo += qlist[0] * std::exp(-lc), "S-", 1;
+  // ampo += -qlist[0], "projUp", 1;
+  // for(auto j : range1(N - 1))
   // {
-  //   plist[j] = (Real)std::rand() / RAND_MAX;
-  //   qlist[j] = (Real)std::rand() / RAND_MAX;
+  //   ampo += plist[j] * std::exp(lc), "S-", j, "S+", j + 1;
+  //   ampo += -plist[j], "projUp", j, "projDn", j + 1;
+  //   ampo += qlist[j] * std::exp(-lc), "S+", j, "S-", j + 1;
+  //   ampo += -qlist[j], "projDn", j, "projUp", j + 1;
   // }
-  std::vector<Real> plist(N + 1, 0.1);
-  std::vector<Real> qlist(N + 1, 0.9);
-  plist[0] = plist[N] = qlist[0] = qlist[N] = 0.5;
-  auto ampo = AutoMPO(sites);
-  ampo += plist[0] * std::exp(lc), "S+", 1;
-  ampo += -plist[0], "projDn", 1;
-  ampo += qlist[0] * std::exp(-lc), "S-", 1;
-  ampo += -qlist[0], "projUp", 1;
-  for(auto j : range1(N - 1))
-  {
-    ampo += plist[j] * std::exp(lc), "S-", j, "S+", j + 1;
-    ampo += -plist[j], "projUp", j, "projDn", j + 1;
-    ampo += qlist[j] * std::exp(-lc), "S+", j, "S-", j + 1;
-    ampo += -qlist[j], "projDn", j, "projUp", j + 1;
-  }
-  ampo += qlist[N] * std::exp(-lc), "S+", N;
-  ampo += -qlist[N], "projDn", N;
-  ampo += plist[N] * std::exp(lc), "S-", N;
-  ampo += -plist[N], "projUp", N;
-  for(auto j : range1(N))
-  {
-    ampo += -lo, "projDn", j;
-  }
-  auto H = toMPO(ampo);
+  // ampo += qlist[N] * std::exp(-lc), "S+", N;
+  // ampo += -qlist[N], "projDn", N;
+  // ampo += plist[N] * std::exp(lc), "S-", N;
+  // ampo += -plist[N], "projUp", N;
+  // for(auto j : range1(N))
+  // {
+  //   ampo += -lo, "projDn", j;
+  // }
+  // auto H = toMPO(ampo);
 
   // Real lc = atof(argv[1]), lo = atof(argv[2]);
   // printfln("lc %d lo %d", lc, lo);
@@ -164,6 +164,7 @@ int main(int argc, char** argv)
   sweeps.cutoff() = 1E-13;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
+  sweeps.alpha() = 0.1,0.1,0.1,0.1;
   //sweeps.noise() = 1E-7,1E-8,0.0; // The noise feature does not work for now
   println(sweeps);
 

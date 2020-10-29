@@ -31,12 +31,12 @@ class SweepSetter;
 //
 // sweep_table_name
 //      {
-//      maxdim   mindim  cutoff  niter  noise
-//      20       20      1E-8    4      1E-8
-//      40       20      1E-8    3      1E-9
-//      80       20      1E-10   2      1E-10
-//      160      20      1E-12   2      0
-//      240      20      1E-12   2      0
+//      maxdim   mindim  cutoff  niter  noise   alpha
+//      20       20      1E-8    4      1E-8    0.5
+//      40       20      1E-8    3      1E-9    0.4
+//      80       20      1E-10   2      1E-10   0.3
+//      160      20      1E-12   2      0       0.2
+//      240      20      1E-12   2      0       0.1
 //      }
 //
 class Sweeps
@@ -51,7 +51,8 @@ class Sweeps
            int mindim = 1, 
            int maxdim = 500, 
            Real cutoff = 1E-8,
-           Real noise = 0.);
+           Real noise = 0.,
+           Real alpha = 0.1);
 
     Sweeps(Args const& args);
 
@@ -111,6 +112,14 @@ class Sweeps
     SweepSetter<Real> 
     noise();
 
+    Real 
+    alpha(int sw) const { return alpha_.at(sw); }
+    void 
+    setalpha(int sw, Real val) { alpha_.at(sw) = val; }
+
+    SweepSetter<Real> 
+    alpha();
+
     int 
     niter(int sw) const { return niter_.at(sw); }
     void 
@@ -140,7 +149,8 @@ class Sweeps
                      mindim_,
                      niter_;
     std::vector<Real> cutoff_,
-                      noise_;
+                      noise_,
+                      alpha_;
     int nsweep_;
     };
 
@@ -313,13 +323,15 @@ Sweeps(int nsw,
        int min_dim, 
        int max_dim, 
        Real cut,
-       Real noise)
+       Real noise,
+       Real alpha)
   : nsweep_(nsw)
     {
     init({"MinDim",min_dim,
           "MaxDim",max_dim,
           "Cutoff",cut,
-          "Noise",noise});
+          "Noise",noise,
+          "Alpha",alpha});
     }
 
 inline Sweeps::
@@ -355,6 +367,9 @@ cutoff() { return SweepSetter<Real>(cutoff_); }
 
 SweepSetter<Real> inline Sweeps::
 noise() { return SweepSetter<Real>(noise_); }
+
+SweepSetter<Real> inline Sweeps::
+alpha() { return SweepSetter<Real>(alpha_); }
 
 SweepSetter<int> inline Sweeps::
 niter() { return SweepSetter<int>(niter_); }
@@ -401,6 +416,7 @@ init(Args args)
     auto max_dim = args.getInt("MaxDim");
     auto cutoff = args.getReal("Cutoff");
     auto noise = args.getReal("Noise",0.);
+    auto alpha = args.getReal("Alpha",0.1);
     auto niter = args.getInt("Niter",2);
 
     mindim_ = std::vector<int>(nsweep_+1,min_dim);
@@ -408,6 +424,7 @@ init(Args args)
     cutoff_ = std::vector<Real>(nsweep_+1,cutoff);
     niter_ = std::vector<int>(nsweep_+1,niter);
     noise_ = std::vector<Real>(nsweep_+1,noise);
+    alpha_ = std::vector<Real>(nsweep_+1,alpha);
     } //Sweeps::init
 
 void inline Sweeps::
@@ -423,13 +440,14 @@ tableInit(InputGroup& table)
     cutoff_ = std::vector<Real>(nsweep_+1,0);
     niter_ = std::vector<int>(nsweep_+1,0);
     noise_ = std::vector<Real>(nsweep_+1,0);
+    alpha_ = std::vector<Real>(nsweep_+1,0);
 
     //printfln("Got nsweep_=%d",nsweep_);
     table.SkipLine(); //SkipLine so we can have a table key
     int n_last = nsweep_;
     for(int i = 1; i <= nsweep_; i++)
         {
-        table.file() >> maxdim_[i] >> mindim_[i] >> cutoff_[i] >> niter_[i] >> noise_[i];
+        table.file() >> maxdim_[i] >> mindim_[i] >> cutoff_[i] >> niter_[i] >> noise_[i] >> alpha_[i];
         //printfln("Line %d: %d %d %.2E %d %.2E",i,maxdim_[i],mindim_[i],cutoff_[i],niter_[i],noise_[i]);
         if(maxdim_[i] == 0)
           {
@@ -447,6 +465,7 @@ tableInit(InputGroup& table)
        cutoff_[i] = cutoff_[n_last];
        niter_[i] = niter_[n_last];
        noise_[i] = noise_[n_last];
+       alpha_[i] = alpha_[n_last];
        }
 
     } //Sweeps::tableInit
@@ -459,6 +478,7 @@ write(std::ostream& s) const
     itensor::write(s,cutoff_);
     itensor::write(s,niter_);
     itensor::write(s,noise_);
+    itensor::write(s,alpha_);
     itensor::write(s,nsweep_);
     }
 
@@ -470,6 +490,7 @@ read(std::istream& s)
     itensor::read(s,cutoff_);
     itensor::read(s,niter_);
     itensor::read(s,noise_);
+    itensor::read(s,alpha_);
     itensor::read(s,nsweep_);
     }
 
@@ -479,8 +500,8 @@ operator<<(std::ostream& s, const Sweeps& swps)
     s << "Sweeps:\n";
     for(int sw = 1; sw <= swps.nsweep(); ++sw)
         {
-        s << format("%d  MaxDim=%d, MinDim=%d, Cutoff=%.1E, Niter=%d, Noise=%.1E\n",
-              sw,swps.maxdim(sw),swps.mindim(sw),swps.cutoff(sw),swps.niter(sw),swps.noise(sw));
+        s << format("%d  MaxDim=%d, MinDim=%d, Cutoff=%.1E, Niter=%d, Noise=%.1E, Alpha=%.1E\n",
+              sw,swps.maxdim(sw),swps.mindim(sw),swps.cutoff(sw),swps.niter(sw),swps.noise(sw),swps.alpha(sw));
         }
     return s;
     }
