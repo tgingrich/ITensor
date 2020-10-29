@@ -191,7 +191,7 @@ namespace itensor {
 
         if(subspace_exp)
         {
-          alpha = 0.1; //TODO Get alpha from user parameters
+          alpha = sweeps.alpha(sw);
         }
 
         if(!PH.doWrite()
