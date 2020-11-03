@@ -255,7 +255,7 @@ namespace itensor {
       psi.ref(b) = phi;
       PH.haveBeenUpdated(b);
         }
-      PrintData(phi);
+      // PrintData(phi);
       // PrintData(psi);
       // PrintData(psi(b) * psi(psi.parent(b)));
       // for(auto it : range1(length(psi)))

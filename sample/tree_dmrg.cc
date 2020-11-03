@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 // {
 
   int N = 8;
-  auto sites = SpinHalf(N,{"ConserveQNs",true});
+  auto sites = SpinHalf(N,{"ConserveQNs",false});
 
   auto state = InitState(sites);
   for(auto i : range1(N)) // Note: sites are labelled from 1
@@ -116,10 +116,10 @@ int main(int argc, char** argv)
   // auto H = MPO_ASEP(sites, { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 }, { 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 }, 0.0001);
   // auto H = MPO_ASEP(sites, { 0.1, 0.2, 0.3, 0.4 }, { 1.1, 1.2, 1.3, 1.4 }, 0.0);
 
-  // auto Hfull = H(1) * H(2) * H(3)/* * H(4) * H(5) * H(6) * H(7) * H(8)*/;
+  // auto Hfull = H(1) * H(2) * H(3) * H(4) * H(5) * H(6) * H(7) * H(8);
   // auto inds = Hfull.inds();
-  // auto C = std::get<0>(combiner(inds[0], inds[2], inds[4]/*, inds[6], inds[8], inds[10], inds[12], inds[14]*/));
-  // auto Cp = std::get<0>(combiner(inds[1], inds[3], inds[5]/*, inds[7], inds[9], inds[11], inds[13], inds[15]*/));
+  // auto C = std::get<0>(combiner(inds[0], inds[2], inds[4], inds[6], inds[8], inds[10], inds[12], inds[14]));
+  // auto Cp = std::get<0>(combiner(inds[1], inds[3], inds[5], inds[7], inds[9], inds[11], inds[13], inds[15]));
   // auto Hfullmat = C * Hfull * Cp;
   // PrintData(Hfullmat);
   // Matrix M(pow2(N), pow2(N));
@@ -158,13 +158,13 @@ int main(int argc, char** argv)
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
-  auto sweeps = Sweeps(4);
-  sweeps.maxdim() = 5,10,15,16;
+  auto sweeps = Sweeps(8);
+  sweeps.maxdim() = 5,10,15,16,16,16,16,16;
   // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
   sweeps.cutoff() = 1E-13;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
-  sweeps.alpha() = 0.1,0.1,0.1,0.1;
+  sweeps.alpha() = 0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1;
   //sweeps.noise() = 1E-7,1E-8,0.0; // The noise feature does not work for now
   println(sweeps);
 
@@ -186,7 +186,7 @@ int main(int argc, char** argv)
   printfln("\nUsing inner = %.10f", inner(psi1,H,psi1) );
   printfln("Final spin = %.5f", inner(psi1,Nop,psi1) );
   // println(psi1);
-  println(totalQN(psi1));
+  // println(totalQN(psi1));
 
   // auto sweeps1 = Sweeps(2);
   // sweeps1.maxdim() = 16,16;
