@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 // for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
 // {
 
-  int N = 8;
+  int N = 64;
   auto sites = SpinHalf(N,{"ConserveQNs",true});
 
   auto state = InitState(sites);
@@ -23,11 +23,6 @@ int main(int argc, char** argv)
       if(i%2 == 1) state.set(i,"Up");
       else         state.set(i,"Dn");
     }
-    for(auto i : range1(N/2)) // Note: sites are labelled from 1
-      {
-        state.set(i,"Up");
-      }
-
 
   // auto ampo = AutoMPO(sites);
   // for(auto j : range1(N-1))
@@ -82,17 +77,17 @@ int main(int argc, char** argv)
 
   Real lc = atof(argv[1]), lo = atof(argv[2]);
   printfln("lc %d lo %d", lc, lo);
-  // std::vector<Real> plist(N);
-  // std::vector<Real> qlist(N);
-  // for(auto j : range(N))
-  // {
-  //   plist[j] = (Real)std::rand() / RAND_MAX;
-  //   qlist[j] = (Real)std::rand() / RAND_MAX;
-  // }
+  std::vector<Real> plist(N);
+  std::vector<Real> qlist(N);
+  for(auto j : range(N))
+  {
+    plist[j] = (Real)std::rand() / RAND_MAX;
+    qlist[j] = (Real)std::rand() / RAND_MAX;
+  }
   // std::vector<Real> plist(N, 0.6);
   // std::vector<Real> qlist(N, 0.4);
-  std::vector<Real> plist({ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 });
-  std::vector<Real> qlist({ 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 });
+  // std::vector<Real> plist({ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 });
+  // std::vector<Real> qlist({ 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 });
   auto ampo = AutoMPO(sites);
   for(auto j : range1(N - 1))
   {
@@ -133,6 +128,7 @@ int main(int argc, char** argv)
 //
 
   auto psi0 = BinaryTree(state);
+  PrintData(psi0);
   // PrintData(psi0);
   // auto psi0 = randomBinaryTree(sites, 100);
 
@@ -158,13 +154,14 @@ int main(int argc, char** argv)
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
-  auto sweeps = Sweeps(8);
-  sweeps.maxdim() = 5,10,15,16,16,16,16,16;
-  // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+  auto sweeps = Sweeps(30);
+  // sweeps.maxdim() = 5,10,15,16,16,16,16,16;
+  sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
   sweeps.cutoff() = 1E-13;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
-  sweeps.alpha() = 0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1;
+  // sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01;
+  sweeps.alpha() = 0.5,0.5,0.5,0.5,0.5,0.2,0.2,0.2,0.2,0.2,0.1,0.1,0.1,0.1,0.1,0.05,0.05,0.05,0.05,0.05,0.02,0.02,0.02,0.02,0.02,0.01,0.01,0.01,0.01,0.01;
   //sweeps.noise() = 1E-7,1E-8,0.0; // The noise feature does not work for now
   println(sweeps);
 
