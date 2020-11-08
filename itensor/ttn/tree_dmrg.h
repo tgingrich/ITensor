@@ -171,7 +171,7 @@ namespace itensor {
     // psi.position(psi.startPoint(args));
 
     const bool subspace_exp=args.getBool("SubspaceExpansion",false);
-    Real alpha = 0.1;
+    Real alpha = 0.0;
     args.add("DebugLevel",debug_level);
     args.add("DoNormalize",true);
     args.add("UseSVD",true);
@@ -301,7 +301,6 @@ namespace itensor {
       {
         long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
         args.add("MinDim",current_dim);
-        //spec = psi.svdBond(b,psi(b),psi.parent(b),PH,);
         orthPair(psi.ref(ha==1?b:psi.parent(b)),psi.ref(ha==1?psi.parent(b):b),args);
         psi.setOrthoLink(ha==1?b:psi.parent(b),ha==1?psi.parent(b):b); // Update orthogonalization
       }

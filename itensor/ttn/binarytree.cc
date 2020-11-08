@@ -1071,10 +1071,12 @@ call .position(j) or .orthogonalize() to set ortho center");
     std::vector<ITensor> psi2(N_sites / 2 + 2);
     for (auto n : range1(N_sites / 2)) {
       psi2[n] = phi(n + N_sites / 2 - 2) * psidag(n + N_sites / 2 - 2);
+      PrintData(psi2[n]);
     }
     for (int i = height - 1; i >= 0; --i) {
       for (auto n : range1(pow2(i))) {
         psi2[n] = phi(n + pow2(i) - 2) * psi2[2 * n - 1] * psi2[2 * n] * psidag(n + pow2(i) - 2);
+        PrintData(psi2[n]);
       }
     }
     return eltC(psi2[1]);
