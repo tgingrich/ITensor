@@ -165,7 +165,7 @@ namespace itensor {
 	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
 
         psi.position(b,args); //Orthogonalize with respect to b
-            
+
             H.numCenter(numCenter);
             H.position(b,psi);
 
