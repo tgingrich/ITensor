@@ -80,7 +80,7 @@ measure(Args const& args)
 
     if(!silent && printeigs)
         {
-        if(b == (args.getBool("Reverse",false) ? psi_.startPoint(args) : psi_.endPoint(args)))
+        if(b == 1)
             {
             println();
             auto center_eigs = last_spec_.eigsKept();
