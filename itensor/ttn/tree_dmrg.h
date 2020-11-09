@@ -221,14 +221,21 @@ namespace itensor {
       TIMER_START(1);
       psi.position(b,args); //Orthogonalize with respect to b
 
+      println("done 1");
+
         PH.position(b,psi); // Compute the local environnement
       TIMER_STOP(1);
+
+      println("done 2");
 
       TIMER_START(2);
       // The local vector to update
       if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
             else if(numCenter == 1) phi = psi(b);
       TIMER_STOP(2);
+
+      println("done 3");
+
       // PrintData(psi);
       // PrintData(phi);
       // if (b == 1 || b == 2) {
@@ -241,7 +248,8 @@ namespace itensor {
             phi.takeReal();
       TIMER_STOP(3);
 
-      // printfln("%d %d %d", sw, b, energy);
+      println("done 4");
+
       TIMER_START(4);
       //Restore tensor network form
             if (numCenter == 2) 
@@ -255,6 +263,9 @@ namespace itensor {
       psi.ref(b) = phi;
       PH.haveBeenUpdated(b);
         }
+
+        println("done 5");
+
       // PrintData(phi);
       // PrintData(psi);
       // PrintData(psi(b) * psi(psi.parent(b)));
@@ -306,6 +317,8 @@ namespace itensor {
       }
       TIMER_STOP(4);
 
+      println("done 6");
+
             if(!quiet)
         { 
                 printfln("    Truncated to Cutoff=%.1E, Min_dim=%d, Max_dim=%d",
@@ -325,6 +338,8 @@ namespace itensor {
             args.add("Truncerr",spec.truncerr()); 
 
             obs.measure(args);
+
+            printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b
 

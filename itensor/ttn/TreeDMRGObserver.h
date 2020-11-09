@@ -68,7 +68,7 @@ namespace itensor {
   }
 
 void inline TreeDMRGObserver::
-measure(Args const& args) //TODO Adpat the position of the measure depending of the order
+measure(Args const& args)
     {
     //auto N = length(psi_);
 	//auto ha = args.getInt("HalfSweep",0);
@@ -80,7 +80,7 @@ measure(Args const& args) //TODO Adpat the position of the measure depending of 
 
     if(!silent && printeigs)
         {
-        if(b == 1)
+        if(b == (args.getBool("Reverse",false) ? psi_.startPoint(args) : psi_.endPoint(args)))
             {
             println();
             auto center_eigs = last_spec_.eigsKept();
@@ -114,7 +114,7 @@ measure(Args const& args) //TODO Adpat the position of the measure depending of 
     max_te = std::max(max_te,last_spec_.truncerr());
     if(!silent)
         {
-        if(b == 1) 
+        if(b == (args.getBool("Reverse",false) ? psi_.startPoint(args) : psi_.endPoint(args))) 
             {
             if(!printeigs) println();
             auto swstr = (nsweep>0) ? format("%d/%d",sw,nsweep) 
