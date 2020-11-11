@@ -267,7 +267,7 @@ namespace itensor {
 
             obs.measure(args);
 
-            println(innerC(psi,psi));
+            // println(innerC(psi,psi));
 
 	  } //for loop over b
 
