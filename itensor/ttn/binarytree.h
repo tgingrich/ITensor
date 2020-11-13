@@ -449,6 +449,9 @@ namespace itensor {
     BinaryTree&
     orthogonalize(Args args = Args::global());
 
+    // BinaryTree&
+    // takeReal();
+
   }; //class BinaryTree
 
   BinaryTree&
@@ -771,14 +774,6 @@ namespace itensor {
   sweepnext(int &b, int &ha, BinaryTreeType &Tree)
   {
     auto args = Args("NumCenter=",1);
-    Tree.sweepnext(b,ha,args);
-  }
-
-  template <class BinaryTreeType>
-  void inline
-  sweepnext2(int &b, int &ha, BinaryTreeType &Tree)
-  {
-    auto args = Args("NumCenter=",2);
     Tree.sweepnext(b,ha,args);
   }
 

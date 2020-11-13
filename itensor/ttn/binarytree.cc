@@ -588,6 +588,17 @@ namespace itensor {
     }
   }
 
+  // BinaryTree& BinaryTree::
+  // takeReal()
+  // {
+  //   for(auto i : range(N_))
+  //   {
+  //     ref(i).takeReal();
+  //   }
+  //   normalize();
+  //   return *this;
+  // }
+
   void BinaryTree::setOrder(std::vector<int> new_order) // Among the condition an order should contain at least a position with -1 to signal the end of the travel
   {
     bool find_negative=false;
