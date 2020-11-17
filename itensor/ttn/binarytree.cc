@@ -1253,29 +1253,10 @@ call .position(j) or .orthogonalize() to set ortho center");
     //        Print(inds(L));
     //        }
     auto original_link_tags = tags(bnd);
-		if(args.getBool("DoSVDBond",false)) {
     ITensor A,D,B(bnd);
     auto spec = svd(L,A,D,B,{args,"LeftTags=",original_link_tags});
     L = A;
     R *= (D*B);
-	}
-	else
-	{
-    ITensor A,B(bnd);
-    qr(L, A, B);
-    L = A;
-    R *= B;
-    auto bnd_qr = commonIndex(L, R);
-
-    // PrintData(L);
-    // PrintData(R);
-    // PrintData(bnd_qr);
-    // PrintData(bnd);
-    // L.replaceInds({bnd_qr}, {bnd});
-    // R.replaceInds({bnd_qr}, {bnd});
-    L.setTags(original_link_tags,{bnd_qr} );
-    R.setTags(original_link_tags,{bnd_qr});
-	}
   }
 
 } //namespace itensor

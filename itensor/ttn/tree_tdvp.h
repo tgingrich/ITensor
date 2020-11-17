@@ -174,6 +174,8 @@ namespace itensor {
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
+      auto Hlop = H.lop();
+
             applyExp(H,phi1,t/2,args);
 
             if(args.getBool("DoNormalize",true))
@@ -226,6 +228,8 @@ namespace itensor {
  
                 H.numCenter(numCenter-1);
                 H.position(b1,psi);
+
+                Hlop = H.lop();
  
                 applyExp(H,phi0,-t/2,args);
  

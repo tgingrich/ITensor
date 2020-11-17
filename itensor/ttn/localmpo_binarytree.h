@@ -189,8 +189,8 @@ namespace itensor {
   inline LocalMPO_BT::
   LocalMPO_BT()
     : Op_(0),
-      Hlim_(0),
-      nc_(0),
+      Hlim_(-1),
+      nc_(2),
       Psi_(0)
   { }
 
@@ -209,6 +209,7 @@ namespace itensor {
 	PH_[H.length()-2+i] = Op_->A(i);
       }
       nc_ = args.getInt("NumCenter",2);
+      lop_ = LocalOpTree(args);
   }
 
   inline LocalMPO_BT::
@@ -226,6 +227,7 @@ namespace itensor {
 	PH_[Psi.length()-2+i] = Psi_->A(i)*dag(prime(Psi_->A(i)));
       }
       nc_ = args.getInt("NumCenter",2);
+      lop_ = LocalOpTree(args);
   }
 
 
@@ -256,36 +258,47 @@ namespace itensor {
       }
 
 #ifdef DEBUG
-    if(nc_ != 2 && nc_ != 1 )
+    if(nc_ != 2 && nc_ != 1 && nc_ != 0)
       {
-        Error("LocalMPO_BT only supports 1 and 2 center sites currently");
+        Error("LocalMPO_BT only supports 0 and 1 and 2 center sites currently");
       }
 #endif
 
     if(Op_ != 0) //normal MPO case //TODO Update LocalOpTree to not be dependent of the structure of the tree
       {
-        if(nc_ == 2)
-	  {
-	    if( psi.parent(b) == 0)//The if the top node is inclued this is a particular case
-	      {
-		lop_.update(PH_.at(2*b+2), PH_.at(2*b+1), PH_.at(psi.sibling(b)));
-	      }
-	    else
-	      {
-		lop_.update(PH_.at(2*b+2), PH_.at(psi.sibling(b)),PH_.at(2*b+1),PH_.at(psi.parent(psi.parent(b))));
-	      }
-	  }
-        else if(nc_ == 1)
-	  {
-	    if (b == 0)  // If we updated the top node
-	      {
-		lop_.update(PH_.at(2*b+2), PH_.at(2*b+1));
-	      }
-	    else
-	      {
-            	lop_.update(PH_.at(2*b+2), PH_.at(2*b+1), PH_.at(psi.parent(b)));
-	      }
-	  }
+      if(nc_ == 2)
+        {
+        if(psi.parent(b) == 0)//The if the top node is inclued this is a particular case
+  	      {
+  		    lop_.update(PH_.at(2*b+2), PH_.at(2*b+1), PH_.at(psi.sibling(b)));
+  	      }
+        else
+          {
+		      lop_.update(PH_.at(2*b+2), PH_.at(psi.sibling(b)),PH_.at(2*b+1),PH_.at(psi.parent(psi.parent(b))));
+          }
+        }
+      else if(nc_ == 1)
+        {
+        if (b == 0)  // If we updated the top node
+          {
+		      lop_.update(PH_.at(2), PH_.at(1));
+          }
+        else
+          {
+          lop_.update(PH_.at(2*b+2), PH_.at(2*b+1), PH_.at(psi.parent(b)));
+          }
+        }
+      else if(nc_ == 0)
+        {
+        if (b == 0)  // If we updated the top node
+          {
+          lop_.updateOp(PH_.at(0));
+          }
+        else
+          {
+          lop_.updateOp(PH_.at(b), PH_.at(psi.parent(b)));
+          }
+        }
       }
   }
 
@@ -299,8 +312,9 @@ namespace itensor {
 	auto dist_to_zero=psi.depth(k);
 	auto max_dist=psi.height()+dist_to_zero;
 	//By decreasing distance, we check if the tensor are contracted, if not we contracted them
-	for(int d =max_dist; d > 0; d--) //Max distance is zero as we do not want to contract into the node k
+	for(int d =max_dist; d >= 0; d--) //Max distance is zero as we do not want to contract into the node k
 	  {
+    if(nc_ != 0 && d == 0) break;
 	    //println(d);
 	    auto node_d = psi.node_list(k,d); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
 	    for(unsigned int i=0; i < node_d.size(); i++)
@@ -333,6 +347,10 @@ namespace itensor {
 		  }
 	      }
 	  }
+      // if (nc_ == 0)
+      //   {
+      //   PH_.at(k) = Op_
+      //   }
       }
   }
 

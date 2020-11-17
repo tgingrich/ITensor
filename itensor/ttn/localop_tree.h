@@ -58,24 +58,6 @@ class LocalOpTree
 
     LocalOpTree(Args const& args = Args::global());
 
-    LocalOpTree(ITensor const& Op1,
-            Args const& args = Args::global());
-
-    LocalOpTree(ITensor const& Op1, 
-            ITensor const& Op2,
-            Args const& args = Args::global());
-  
-    LocalOpTree(ITensor const& Op1, 
-            ITensor const& L, 
-            ITensor const& R,
-            Args const& args = Args::global());
-
-    LocalOpTree(ITensor const& Op1, 
-            ITensor const& Op2, 
-            ITensor const& L, 
-            ITensor const& R,
-            Args const& args = Args::global());
-
     //
     // Sparse Matrix Methods
     //
@@ -182,78 +164,6 @@ LocalOpTree(Args const& args)
     size_(-1)
     {
     nc_ = args.getInt("NumCenter",2);
-    }
-
-inline LocalOpTree::
-LocalOpTree(const ITensor& Op1,
-        const Args& args)
-    : 
-    Op1_(nullptr),
-    Op2_(nullptr),
-    L_(nullptr),
-    R_(nullptr),
-    size_(-1)
-    {
-    nc_ = args.getInt("NumCenter",2);
-    if(nc_ == 1)	
-      updateOp(Op1);
-    else
-      Error("In LocalOpTree(ITensor), NumCenter cannot be set other than 1");
-    }
-
-inline LocalOpTree::
-LocalOpTree(const ITensor& Op1, const ITensor& Op2,
-        const Args& args)
-    : 
-    Op1_(nullptr),
-    Op2_(nullptr),
-    L_(nullptr),
-    R_(nullptr),
-    size_(-1)
-    {
-    nc_ = args.getInt("NumCenter",2);
-    if(nc_ == 2)
-      updateOp(Op1,Op2);
-    else if(nc_ == 0)
-      update(Op1,Op2);// L, R
-    else
-      Error("In LocalOpTree(ITensor,ITensor), NumCenter cannot be set other than 2 or 0");
-    }
-
-inline LocalOpTree::
-LocalOpTree(const ITensor& Op1,
-        const ITensor& L, const ITensor& R,
-        const Args& args)
-    : 
-    Op1_(nullptr),
-    Op2_(nullptr),
-    L_(nullptr),
-    R_(nullptr),
-    size_(-1)
-    {
-    nc_ = args.getInt("NumCenter",2);
-    if(nc_ == 1)
-      update(Op1,L,R);
-    else
-      Error("In LocalOpTree(ITensor,ITensor,ITensor), NumCenter cannot be set other than 1");
-    }
-
-inline LocalOpTree::
-LocalOpTree(const ITensor& Op1, const ITensor& Op2, 
-        const ITensor& L, const ITensor& R,
-        const Args& args)
-    : 
-    Op1_(nullptr),
-    Op2_(nullptr),
-    L_(nullptr),
-    R_(nullptr),
-    size_(-1)
-    {
-    nc_ = args.getInt("NumCenter",2);
-    if(nc_ == 2)
-      update(Op1,Op2,L,R);
-    else
-      Error("In LocalOpTree(ITensor,ITensor,ITensor,ITensor), NumCenter cannot be set other than 2");
     }
 
 void inline LocalOpTree::

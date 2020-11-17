@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 // for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
 // {
 
-  int N = 128;
+  int N = 8;
   auto sites = SpinHalf(N,{"ConserveQNs",false});
 
   auto state = InitState(sites);
@@ -151,14 +151,14 @@ int main(int argc, char** argv)
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
-  auto sweeps = Sweeps(30);
-  // sweeps.maxdim() = 5,10,15,16,16,16,16,16;
-  sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+  auto sweeps = Sweeps(6);
+  sweeps.maxdim() = 5,10,15,16,16,16,16,16;
+  // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
   sweeps.cutoff() = 1E-13;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
-  // sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01;
-  sweeps.alpha() = 0.1,0.1,0.1,0.1,0.1,0.05,0.05,0.05,0.05,0.05,0.02,0.02,0.02,0.02,0.02,0.01,0.01,0.01,0.01,0.01,0.005,0.005,0.005,0.005,0.005,0.002,0.002,0.002,0.002,0.002;
+  sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01;
+  // sweeps.alpha() = 0.1,0.1,0.1,0.1,0.1,0.05,0.05,0.05,0.05,0.05,0.02,0.02,0.02,0.02,0.02,0.01,0.01,0.01,0.01,0.01,0.005,0.005,0.005,0.005,0.005,0.002,0.002,0.002,0.002,0.002;
   //sweeps.noise() = 1E-7,1E-8,0.0; // The noise feature does not work for now
   println(sweeps);
 
@@ -168,7 +168,7 @@ int main(int argc, char** argv)
 
   println("Start DMRG");
   // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"DoSVDBond"});
-  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"WhichEig","LargestReal","DoSVDBond"});
+  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"WhichEig","LargestReal"});
 
   // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
 
@@ -192,7 +192,7 @@ int main(int argc, char** argv)
   
   println("\nStart TDVP");
   using namespace std::complex_literals;
-  auto [energy2,psi2] = tree_tdvp(H,psi1,5.0e-4i,sweeps1,{"NumCenter",2,"Order","PostOrder","Quiet",});
+  auto [energy2,psi2] = tree_tdvp(H,psi1,5.0e-4i,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",});
   // psi2.takeReal();
 
   printfln("\nFinal norm = %.5f", real(innerC(psi2,psi2)) );
