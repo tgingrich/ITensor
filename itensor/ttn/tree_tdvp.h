@@ -184,14 +184,6 @@ namespace itensor {
 	      spec = psi.svdBond(ha==1?b:psi.parent(b),phi1,ha==1?psi.parent(b):b,H,args);
         H.haveBeenUpdated(b);
         H.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
-            }
-            else if(numCenter == 1)
-            {
-	      if(ha == 1) psi.ref(b) = phi1;
-        else        psi.ref(psi.parent(b)) = phi1;
-        H.haveBeenUpdated(b);
-            }
-
         if(subspace_exp && psi.parent(b) >= 0)//Do subspace expansion only if there is link to be expansed
         {
           long current_dim=subspace_expansion(psi,H,b,psi.parent(b),alpha);// We choose to put the zero into the parent
@@ -199,6 +191,13 @@ namespace itensor {
           orthPair(psi.ref(ha==1?b:psi.parent(b)),psi.ref(ha==1?psi.parent(b):b),args);
           psi.setOrthoLink(ha==1?b:psi.parent(b),ha==1?psi.parent(b):b); // Update orthogonalization
         }
+            }
+            else if(numCenter == 1)
+            {
+	      if(ha == 1) psi.ref(b) = phi1;
+        else        psi.ref(psi.parent(b)) = phi1;
+        H.haveBeenUpdated(b);
+            }
 
 	    // Calculate energy
             ITensor H_phi1;

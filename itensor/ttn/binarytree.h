@@ -449,9 +449,6 @@ namespace itensor {
     BinaryTree&
     orthogonalize(Args args = Args::global());
 
-    // BinaryTree&
-    // takeReal();
-
   }; //class BinaryTree
 
   BinaryTree&

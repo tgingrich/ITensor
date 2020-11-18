@@ -193,7 +193,7 @@ int main(int argc, char** argv)
   
   println("\nStart TDVP");
   using namespace std::complex_literals;
-  auto [energy2,psi2] = tree_tdvp(H,psi1,5.0e-4i,sweeps1,{"NumCenter",2,"Order","PostOrder","Quiet",});
+  auto [energy2,psi2] = tree_tdvp(H,psi1,5.0e-4i,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",});
   // psi2.takeReal();
 
   printfln("\nFinal norm = %.5f", real(innerC(psi2,psi2)) );
