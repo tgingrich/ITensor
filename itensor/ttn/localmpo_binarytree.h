@@ -189,7 +189,6 @@ namespace itensor {
   inline LocalMPO_BT::
   LocalMPO_BT()
     : Op_(0),
-      Hlim_(-1),
       nc_(2),
       Psi_(0)
   { }
@@ -198,8 +197,8 @@ namespace itensor {
   LocalMPO_BT(const MPO& H,
 	      const Args& args)
     : Op_(&H),
-      PH_(2*H.length()-1),
-      Hlim_(2*H.length()-1,-2),
+      PH_(2*H.length()),
+      Hlim_(2*H.length(),-2),
       Psi_(0)
   {
     if(args.defined("NumCenter"))
@@ -209,15 +208,14 @@ namespace itensor {
 	PH_[H.length()-2+i] = Op_->A(i);
       }
       nc_ = args.getInt("NumCenter",2);
-      lop_ = LocalOpTree(args);
   }
 
   inline LocalMPO_BT::
   LocalMPO_BT(const MPS& Psi,
 	      const Args& args)
     : Op_(0),
-      PH_(Psi.length()-1),
-      Hlim_(Psi.length()-1,-2),
+      PH_(Psi.length()),
+      Hlim_(Psi.length(),-2),
       Psi_(&Psi)
   {
     if(args.defined("NumCenter"))
@@ -227,7 +225,6 @@ namespace itensor {
 	PH_[Psi.length()-2+i] = Psi_->A(i)*dag(prime(Psi_->A(i)));
       }
       nc_ = args.getInt("NumCenter",2);
-      lop_ = LocalOpTree(args);
   }
 
 
@@ -270,7 +267,7 @@ namespace itensor {
         {
         if(psi.parent(b) == 0)//The if the top node is inclued this is a particular case
   	      {
-  		    lop_.update(PH_.at(2*b+2), PH_.at(2*b+1), PH_.at(psi.sibling(b)));
+  		    lop_.update(PH_.at(2*b+2), PH_.at(2*b+1), PH_.at(psi.sibling(b)), PH_.back());
   	      }
         else
           {
@@ -281,7 +278,7 @@ namespace itensor {
         {
         if (b == 0)  // If we updated the top node
           {
-		      lop_.update(PH_.at(2), PH_.at(1));
+		      lop_.update(PH_.at(2), PH_.at(1), PH_.back());
           }
         else
           {
@@ -292,11 +289,11 @@ namespace itensor {
         {
         if (b == 0)  // If we updated the top node
           {
-          lop_.updateOp(PH_.at(0));
+          lop_.update(PH_.at(0), PH_.back());
           }
         else
           {
-          lop_.updateOp(PH_.at(b), PH_.at(psi.parent(b)));
+          lop_.update(PH_.at(b), PH_.at(psi.parent(b)));
           }
         }
       }
@@ -338,8 +335,6 @@ namespace itensor {
 		      }
 
 		    PH_.at(node)*=dag(prime(psi(node)));
-		    //println(inds(PH_.at(node)));
-
 		    //We update the current status of contraction
 		    Hlim_.at(node) = direction;// This node have now open indices towards direction
 		    Hlim_.at(direction) = -1; // This is the next one to be updated
@@ -347,10 +342,6 @@ namespace itensor {
 		  }
 	      }
 	  }
-      // if (nc_ == 0)
-      //   {
-      //   PH_.at(k) = Op_
-      //   }
       }
   }
 

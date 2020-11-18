@@ -237,6 +237,7 @@ namespace itensor {
       // } else {
       //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
       // }
+
       TIMER_START(3);
             energy = arnoldi(PH,phi,args).real();
             phi.takeReal();

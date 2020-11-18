@@ -1,11 +1,12 @@
 #include "itensor/all.h"
+#include "itensor/mps/tdvp.h"
 #include "itensor/util/print_macro.h"
 using namespace itensor;
 
 int 
 main()
     {
-    int N = 64;
+    int N = 8;
 
     //
     // Initialize the site degrees of freedom
@@ -95,10 +96,10 @@ main()
     // Here less than 5 cutoff values are provided, for example,
     // so all remaining sweeps will use the last one given (= 1E-10).
     //
-    auto sweeps = Sweeps(30);
-    // sweeps.maxdim() = 10,20,100,100,200;
-    sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
-    sweeps.cutoff() = 1E-10;
+    auto sweeps = Sweeps(6);
+    sweeps.maxdim() = 5,10,15,16,16,16,16,16;
+    // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+    sweeps.cutoff() = 1E-13;
     sweeps.niter() = 10;
     sweeps.noise() = 1E-7,1E-8,0.0;
     println(sweeps);
@@ -113,6 +114,19 @@ main()
     //
     printfln("\nGround State Energy = %.10f",energy);
     printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
+
+    auto sweeps1 = Sweeps(2);
+    sweeps1.maxdim() = 16,16;
+    sweeps1.cutoff() = 1E-13;
+    sweeps1.niter() = 100;
+    sweeps1.noise() = 0.0;
+    println(sweeps1);
+
+    println("\nStart TDVP");
+    using namespace std::complex_literals;
+    auto energy2 = tdvp(psi,H,5.0e-4i,sweeps1,{"NumCenter",1,"Quiet",});
+
+    printfln("\nEnergy of Evolved State = %.10f",energy2);
 
     return 0;
     }

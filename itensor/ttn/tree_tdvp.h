@@ -174,8 +174,6 @@ namespace itensor {
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
-      auto Hlop = H.lop();
-
             applyExp(H,phi1,t/2,args);
 
             if(args.getBool("DoNormalize",true))
@@ -209,7 +207,7 @@ namespace itensor {
  
             if((ha == 1 && b != psi.endPoint(args)) || (ha == 2 && b != psi.startPoint(args)))
 	      {
-                auto b1 = (ha == 1 ? psi.parent(b) : b);
+                auto b1 = (numCenter == 2 && ha == 1 ? psi.parent(b) : b);
  
                 if(numCenter == 2)
 		  {
@@ -228,8 +226,6 @@ namespace itensor {
  
                 H.numCenter(numCenter-1);
                 H.position(b1,psi);
-
-                Hlop = H.lop();
  
                 applyExp(H,phi0,-t/2,args);
  
@@ -244,6 +240,8 @@ namespace itensor {
 		  {
                     psi.ref(b1) *= phi0;
 		  }
+
+                if (numCenter == 1) H.haveBeenUpdated(b);
  
                 // Calculate energy
                 ITensor H_phi0;
@@ -270,6 +268,8 @@ namespace itensor {
             args.add("Truncerr",spec.truncerr()); 
 
             obs.measure(args);
+
+            // printfln("%d %d %d", sw, b, energy);
 
 	  } //for loop over b
 
