@@ -128,7 +128,6 @@ int main(int argc, char** argv)
   auto psi0 = BinaryTree(state);
   // auto psi0 = randomBinaryTree(sites, 16);
   // PrintData(psi0);
-  // auto psi0 = randomBinaryTree(sites, 100);
 
   // auto psidag = prime(dag(psi0));
   // std::vector<std::vector<ITensor>> MPO(psi0.height() + 2);

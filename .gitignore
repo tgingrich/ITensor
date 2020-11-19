@@ -22,6 +22,9 @@ sample/trg-g
 sample/tree_dmrg
 sample/tree_dmrg-g
 sample/testmps
+sample/testmps=g
+sample/bosehubbard
+sample/bosehubbard-g
 sample/*.out
 sample/*.txt
 sample/*.sh
