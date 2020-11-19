@@ -170,7 +170,7 @@ namespace itensor {
 
     // psi.position(psi.startPoint(args));
 
-    const bool subspace_exp=args.getBool("SubspaceExpansion",false);
+    const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
     args.add("DebugLevel",debug_level);
     args.add("DoNormalize",true);
@@ -186,8 +186,6 @@ namespace itensor {
         args.add("MaxDim",sweeps.maxdim(sw));
         args.add("Noise",sweeps.noise(sw));
         args.add("MaxIter",sweeps.niter(sw));
-
-        // args.add("WhichEig","LargestReal");
 
         if(subspace_exp)
         {

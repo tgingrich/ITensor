@@ -660,6 +660,7 @@ namespace itensor {
     }
 
     psi.randomize(args);
+    psi.orthogonalize();
     psi /= std::sqrt(inner(psi, psi));
     return psi;
   }

@@ -110,10 +110,10 @@ namespace itensor {
         args.add("Quiet",true);
         args.add("PrintEigs",false);
         args.add("NoMeasure",true);
-        args.add("DebugLevel",0);
+        args.add("DebugLevel",-1);
       }
     const bool quiet = args.getBool("Quiet",false);
-    const int debug_level = args.getInt("DebugLevel",(quiet ? 0 : 1));
+    const int debug_level = args.getInt("DebugLevel",(quiet ? -1 : 0));
     const int numCenter = args.getInt("NumCenter",2);
     args.add("Truncate",args.getBool("Truncate",numCenter == 2));
 
@@ -121,7 +121,7 @@ namespace itensor {
 
     psi.setOrder(args); // Choose sweep order
 
-    const bool subspace_exp=args.getBool("SubspaceExpansion",false);
+    const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
     args.add("DebugLevel",debug_level);
     args.add("DoNormalize",true);
