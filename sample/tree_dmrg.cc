@@ -155,7 +155,7 @@ int main(int argc, char** argv)
   sweeps.maxdim() = 16,16,16,16,16,16,16,16;
   // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
   sweeps.cutoff() = 1E-13;
-  sweeps.niter() = 100;
+  sweeps.niter() = 10;
   sweeps.noise() = 0.0;
   sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01;
   // sweeps.alpha() = 0.1,0.1,0.1,0.1,0.1,0.05,0.05,0.05,0.05,0.05,0.02,0.02,0.02,0.02,0.02,0.01,0.01,0.01,0.01,0.01,0.005,0.005,0.005,0.005,0.005,0.002,0.002,0.002,0.002,0.002;
@@ -192,7 +192,6 @@ int main(int argc, char** argv)
   println(sweeps1);
   
   println("\nStart TDVP");
-  using namespace std::complex_literals;
   auto [energy2,psi2] = tree_tdvp(H,psi1,0.1,sweeps1,{"NumCenter",2,"Order","PostOrder","Quiet",});
   // psi2.takeReal();
 

@@ -237,8 +237,9 @@ namespace itensor {
       // }
 
       TIMER_START(3);
-            energy = arnoldi(PH,phi,args).real();
-            phi.takeReal();
+            energy = davidson(PH,phi,args);
+            // energy = arnoldi(PH,phi,args).real();
+            // phi.takeReal();
       TIMER_STOP(3);
 
       TIMER_START(4);
