@@ -17,26 +17,23 @@ int main()
   Real gamma = J / (6 * h);
   Real t0 = (1 - Uf / Ui) / gamma;
   Real dt = 2.0E-3*h/J;
-  auto sites = Boson(L,{"ConserveQNs",false});
+  auto sites = Boson(L,{"MaxOcc",4,"ConserveQNs",true});
 
   auto state = InitState(sites);
   for(auto i : range1(L))
     {
     state.set(i,"1");
     }
-
   auto psi0 = BinaryTree(state);
-
-  using namespace std::complex_literals;
 
   auto ampo = AutoMPO(sites);
   for(auto j : range1(L-1))
     {
-    ampo += -J*std::exp(1i*phi/L),"A",j,"Adag",j+1;
-    ampo += -J*std::exp(-1i*phi/L),"Adag",j,"A",j+1;
+    ampo += -J*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
+    ampo += -J*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
     }
-  ampo += -J * std::exp(1i*phi/L),"A",L,"Adag",1;
-  ampo += -J * std::exp(-1i*phi/L),"Adag",L,"A",1;
+  ampo += -J*std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
+  ampo += -J*std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
   for(auto j : range1(L))
     {
     ampo += Ui/2,"N",j,"N",j;
@@ -47,11 +44,11 @@ int main()
   auto acur = AutoMPO(sites);
   for(auto j : range1(L-1))
     {
-    acur += 1i*J/(h*L)*std::exp(1i*phi/L),"A",j,"Adag",j+1;
-    acur += -1i*J/(h*L)*std::exp(-1i*phi/L),"Adag",j,"A",j+1;
+    acur += Cplx_i*J/(h*L)*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
+    acur += -Cplx_i*J/(h*L)*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
     }
-  acur += 1i*J/(h*L)*std::exp(1i*phi/L),"A",L,"Adag",1;
-  acur += -1i*J/(h*L)*std::exp(-1i*phi/L),"Adag",L,"A",1;
+  acur += Cplx_i*J/(h*L)*std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
+  acur += -Cplx_i*J/(h*L)*std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
   auto I = toMPO(acur);
 
   // PrintData(psi0);
@@ -69,7 +66,7 @@ int main()
   sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01,0.005,0.005;
   println(sweeps);
 
-  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",}));
+  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"PostOrder","InOrder","Quiet",}));
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi1,psi1)));
   printfln("\nGround state current = %.10f", std::real(innerC(psi1,I,psi1)));
@@ -89,11 +86,11 @@ int main()
       ampo = AutoMPO(sites);
       for(auto j : range1(L-1))
         {
-        ampo += -J*std::exp(1i*phi/L),"A",j,"Adag",j+1;
-        ampo += -J*std::exp(-1i*phi/L),"Adag",j,"A",j+1;
+        ampo += -J*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
+        ampo += -J*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
         }
-      ampo += -J * std::exp(1i*phi/L),"A",L,"Adag",1;
-      ampo += -J * std::exp(-1i*phi/L),"Adag",L,"A",1;
+      ampo += -J * std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
+      ampo += -J * std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
       for(auto j : range1(L))
         {
         ampo += U/2,"N",j,"N",j;
@@ -102,7 +99,7 @@ int main()
       H = toMPO(ampo);
       }
 
-    psi1 = std::get<1>(tree_tdvp(H,psi1,1i*dt,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",}));
+    psi1 = std::get<1>(tree_tdvp(H,psi1,Cplx_i*dt,sweeps1,{"NumCenter",1,"Default","PostOrder","Quiet",}));
 
     printfln("Current measurement %d %d %d", t, U, std::real(innerC(psi1,I,psi1)));
     }

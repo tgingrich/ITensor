@@ -126,6 +126,7 @@ namespace itensor {
     args.add("DebugLevel",debug_level);
     args.add("DoNormalize",true);
     args.add("UseSVD",true);
+    args.add("InclRoot",false);
 
     for(int sw = 1; sw <= sweeps.nsweep(); ++sw)
       {
