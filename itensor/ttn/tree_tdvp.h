@@ -162,6 +162,7 @@ namespace itensor {
         // 0, 1 and 2-site wavefunctions
         ITensor phi0,phi1;
         Spectrum spec;
+
         for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args))
 	  {
             if(!quiet)
@@ -206,9 +207,10 @@ namespace itensor {
             H.product(phi1,H_phi1);
             energy = real(eltC(dag(phi1)*H_phi1));
  
-            if((ha == 1 && b != psi.endPoint(args)) || (ha == 2 && b != psi.startPoint(args)))
+            if((numCenter == 1 && b != 0) || (numCenter == 2 && b != 1 && b != 2))
 	      {
-                auto b1 = (numCenter == 2 ? psi.parent(b) : b);
+                // auto b1 = (numCenter == 2 ? psi.parent(b) : b);
+                auto b1 = psi.parent(b);
  
                 if(numCenter == 2)
 		  {
@@ -286,7 +288,7 @@ namespace itensor {
   
     if(args.getBool("DoNormalize",true))
       {
-        if(numCenter==1) psi.position(psi.startPoint());
+        if(numCenter==1) psi.position(0);
         psi.normalize();
       }
 

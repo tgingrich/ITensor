@@ -409,23 +409,31 @@ namespace itensor {
   }
 
   int BinaryTree::
-  startPoint(Args const& args) const {
+  startPoint(Args const& args) const
+  {
     auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-		if (chosenOrder == "Default" || chosenOrder == "PreOrder") {
-			return 1;
-    } else {
+    if (chosenOrder == "Default" || chosenOrder == "PreOrder")
+      {
+      return 1;
+      }
+    else
+      {
       return N_ / 2;
-    }
+      }
   }
 
   int BinaryTree::
-  endPoint(Args const& args) const {
+  endPoint(Args const& args) const
+  {
     auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    if (chosenOrder == "PostOrder") {
+    if (chosenOrder == "PostOrder")
+      {
       return 2;
-    } else {
+      }
+    else
+      {
       return N_ - 1;
-    }
+      }
   }
 
   //
@@ -437,8 +445,6 @@ namespace itensor {
   // We have the choices: Default, PostOrder, PreOrder, InOrder
   {
     auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    const int numCenter = args.getInt("NumCenter",2);
-    const bool inclRoot = args.getBool("InclRoot",true) && numCenter == 1;
     if (chosenOrder == "Default" ) {
       for(int i =0; i < N_; ++i) {
         order_[i] = i+1;
@@ -525,12 +531,6 @@ namespace itensor {
         reverse_order_[data[i + 1]] = data[i];
       }
       order_[data[N_ - 1]] = -1;
-      if(!inclRoot) {
-        for(int i = 0; i < N_; ++i) {
-          if(!order_[i]) order_[i] = order_[0];
-          if(!reverse_order_[i]) reverse_order_[i] = reverse_order_[0];
-        }
-      }
 
     } else {
       Error("setOrder: the required order is not part of Default,PostOrder,PreOrder,InOrder");
@@ -561,13 +561,12 @@ namespace itensor {
 
   void BinaryTree::sweepnext(int &b, int &ha,Args const& args)
   {
-    const bool reverse = args.getBool("Reverse",false);// By default we do not sweep back
     const int numCenter = args.getInt("NumCenter",2);
-    const bool inclRoot = args.getBool("InclRoot",true) && numCenter == 1;
+    const bool reverse = args.getBool("Reverse",false);// By default we do not sweep back
 
     auto b1 = (ha % 2== 1 ? order_.at(b) : reverse_order_.at(b));
     // odd ha means foward order and even one means reverse order
-    if(b1 < 0 || (b1 == 0 && !inclRoot)) // At the end, either we stop or we return in the reverse direction
+    if(b1 < 0 || (numCenter == 2 && b1 == 0)) // At the end, either we stop or we return in the reverse direction
       {
 	if (reverse)
 	  {

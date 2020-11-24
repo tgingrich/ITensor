@@ -202,9 +202,9 @@ namespace itensor {
             psi.doWrite(true);
             PH.doWrite(true,args);
     }
-  ITensor phi;
-  Spectrum spec;
 
+        ITensor phi;
+        Spectrum spec;
 
         for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
     {
