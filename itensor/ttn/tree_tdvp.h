@@ -1,5 +1,5 @@
-#ifndef __ITENSOR_TDVP_H
-#define __ITENSOR_TDVP_H
+#ifndef __ITENSOR_TREE_TDVP_H
+#define __ITENSOR_TREE_TDVP_H
 
 #include "itensor/iterativesolvers.h"
 #include "itensor/mps/localmposet.h"
@@ -209,8 +209,7 @@ namespace itensor {
  
             if((numCenter == 1 && b != 0) || (numCenter == 2 && b != 1 && b != 2))
 	      {
-                // auto b1 = (numCenter == 2 ? psi.parent(b) : b);
-                auto b1 = psi.parent(b);
+                auto b1 = (numCenter == 2 ? psi.parent(b) : b);
  
                 if(numCenter == 2)
 		  {
@@ -243,7 +242,7 @@ namespace itensor {
                     psi.ref(psi.parent(b)) *= phi0;
 		  }
 
-                if (numCenter == 1) H.haveBeenUpdated(b1);
+                if (numCenter == 1) H.haveBeenUpdated(b);
  
                 // Calculate energy
                 ITensor H_phi0;

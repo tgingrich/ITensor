@@ -1,7 +1,4 @@
 #include "itensor/all.h"
-#include "itensor/ttn/binarytree.h"
-#include "itensor/ttn/tree_dmrg.h"
-#include "itensor/ttn/tree_tdvp.h"
 #include "itensor/util/print_macro.h"
 
 using namespace itensor;
@@ -192,7 +189,7 @@ int main(int argc, char** argv)
   println(sweeps1);
   
   println("\nStart TDVP");
-  auto [energy2,psi2] = tree_tdvp(H,psi1,0.1,sweeps1,{"NumCenter",2,"Order","PostOrder","Quiet",});
+  auto [energy2,psi2] = tree_tdvp(H,psi1,0.1,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",});
   // psi2.takeReal();
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi2,psi2)) );

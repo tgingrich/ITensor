@@ -467,6 +467,10 @@ position(int b, MPS const& psi)
         else if(nc_ == 0)
             lop_.update(L(),R());
         }
+
+    PrintData(lop_.R().inds());
+    PrintData(lop_.L().inds());
+    println(nc_);
     }
 
 int inline LocalMPO::

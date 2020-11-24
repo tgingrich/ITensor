@@ -1,5 +1,4 @@
 #include "itensor/all.h"
-#include "itensor/mps/tdvp.h"
 #include "itensor/util/print_macro.h"
 using namespace itensor;
 
@@ -126,7 +125,7 @@ main()
 
     println("\nStart TDVP");
     using namespace std::complex_literals;
-    auto energy2 = tdvp(psi,H,0.1,sweeps1,{"NumCenter",2,"Quiet",});
+    auto energy2 = tdvp(psi,H,0.1,sweeps1,{"NumCenter",1,"Quiet",});
 
     printfln("\nEnergy of Evolved State = %.10f",energy2);
 
