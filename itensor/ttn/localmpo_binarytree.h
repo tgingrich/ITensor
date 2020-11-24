@@ -295,10 +295,6 @@ namespace itensor {
           }
         }
       }
-
-      PrintData(lop_.R().inds());
-      PrintData(lop_.L().inds());
-      println(nc_);
   }
 
 

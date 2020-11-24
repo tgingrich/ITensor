@@ -218,10 +218,10 @@ namespace itensor {
                 else if(numCenter == 1)
 		  {
                     Index l;
-                    l = commonIndex(psi(b),psi(psi.parent(b)));
+                    l = commonIndex(psi(b1),psi(psi.parent(b1)));
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
-                    psi.ref(b) = U;
+                    psi.ref(b1) = U;
                     phi0 = S*V;
 		  }
  
@@ -239,10 +239,10 @@ namespace itensor {
 		  }
                 if(numCenter == 1)
 		  {
-                    psi.ref(psi.parent(b)) *= phi0;
+                    psi.ref(psi.parent(b1)) *= phi0;
 		  }
 
-                if (numCenter == 1) H.haveBeenUpdated(b);
+                if (numCenter == 1) H.haveBeenUpdated(b1);
  
                 // Calculate energy
                 ITensor H_phi0;

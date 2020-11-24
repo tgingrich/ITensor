@@ -412,9 +412,17 @@ namespace itensor {
   startPoint(Args const& args) const
   {
     auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    if (chosenOrder == "Default" || chosenOrder == "PreOrder")
+    auto numCenter = args.getInt("NumCenter",2);
+    if(chosenOrder == "Default" || chosenOrder == "PreOrder")
       {
-      return 1;
+      if(numCenter == 1)
+        {
+        return 0;
+        }
+      else
+        {
+        return 1;
+        }
       }
     else
       {
@@ -426,9 +434,17 @@ namespace itensor {
   endPoint(Args const& args) const
   {
     auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    if (chosenOrder == "PostOrder")
+    auto numCenter = args.getInt("NumCenter",2);
+    if(chosenOrder == "PostOrder")
       {
-      return 2;
+      if(numCenter == 1)
+        {
+        return 0;
+        }
+      else
+        {
+        return 2;
+        }
       }
     else
       {
@@ -565,8 +581,12 @@ namespace itensor {
     const bool reverse = args.getBool("Reverse",false);// By default we do not sweep back
 
     auto b1 = (ha % 2== 1 ? order_.at(b) : reverse_order_.at(b));
+    if(numCenter == 2 && b1 == 0)
+      {
+      b1 = (ha % 2== 1 ? order_.at(b1) : reverse_order_.at(b1));
+      }
     // odd ha means foward order and even one means reverse order
-    if(b1 < 0 || (numCenter == 2 && b1 == 0)) // At the end, either we stop or we return in the reverse direction
+    if(b1 < 0) // At the end, either we stop or we return in the reverse direction
       {
 	if (reverse)
 	  {

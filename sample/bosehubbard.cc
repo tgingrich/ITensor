@@ -5,7 +5,7 @@ using namespace itensor;
 
 int main()
 {
-  int L = 8;
+  int L = 32;
   Real J = 1.0;
   Real Ui = 2 * J;
   Real Uf = 7 * J;
@@ -96,7 +96,7 @@ int main()
       H = toMPO(ampo);
       }
 
-    psi1 = std::get<1>(tree_tdvp(H,psi1,Cplx_i*dt,sweeps1,{"NumCenter",2,"Order","PostOrder","Quiet",}));
+    psi1 = std::get<1>(tree_tdvp(H,psi1,Cplx_i*dt,sweeps1,{"NumCenter",2,"Order","Default","Quiet",}));
 
     printfln("Current measurement %d %d %d", t, U, std::real(innerC(psi1,I,psi1)));
     }
