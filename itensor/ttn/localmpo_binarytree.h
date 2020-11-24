@@ -207,7 +207,6 @@ namespace itensor {
       {
 	PH_[H.length()-2+i] = Op_->A(i);
       }
-      nc_ = args.getInt("NumCenter",2);
   }
 
   inline LocalMPO_BT::
@@ -224,7 +223,6 @@ namespace itensor {
       {
 	PH_[Psi.length()-2+i] = Psi_->A(i)*dag(prime(Psi_->A(i)));
       }
-      nc_ = args.getInt("NumCenter",2);
   }
 
 
@@ -267,22 +265,22 @@ namespace itensor {
         {
         if(psi.parent(b) == 0)//The if the top node is inclued this is a particular case
   	      {
-  		    lop_.update(PH_.at(2*b+2), PH_.at(2*b+1), PH_.at(psi.sibling(b)), PH_.back());
+  		    lop_.update(PH_.at(2*b+1), PH_.at(2*b+2), PH_.at(psi.sibling(b)), PH_.back());
   	      }
         else
           {
-		      lop_.update(PH_.at(2*b+2), PH_.at(psi.sibling(b)),PH_.at(2*b+1),PH_.at(psi.parent(psi.parent(b))));
+		      lop_.update(PH_.at(2*b+1), PH_.at(2*b+2), PH_.at(psi.sibling(b)), PH_.at(psi.parent(psi.parent(b))));
           }
         }
       else if(nc_ == 1)
         {
         if (b == 0)  // If we updated the top node
           {
-		      lop_.update(PH_.at(2), PH_.at(1), PH_.back());
+		      lop_.update(PH_.at(1), PH_.at(2), PH_.back());
           }
         else
           {
-          lop_.update(PH_.at(2*b+2), PH_.at(2*b+1), PH_.at(psi.parent(b)));
+          lop_.update(PH_.at(2*b+1), PH_.at(2*b+2), PH_.at(psi.parent(b)));
           }
         }
       else if(nc_ == 0)

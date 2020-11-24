@@ -19,11 +19,11 @@ LIBGFLAGS=-L'$(ITENSOR_LIBDIR)' $(ITENSOR_LIBGFLAGS)
 
 #Targets -----------------
 
-build: dmrg dmrg_table dmrgj1j2 exthubbard trg mixedspin hubbard_2d tree_dmrg testmps bosehubbard
+build: dmrg dmrg_table dmrgj1j2 exthubbard trg mixedspin hubbard_2d tree_dmrg testmps bosehubbard 1dflashratchet
 
-debug: dmrg-g dmrg_table-g dmrgj1j2-g exthubbard-g trg-g mixedspin-g hubbard_2d-g tree_dmrg-g testmps-g bosehubbard-g
+debug: dmrg-g dmrg_table-g dmrgj1j2-g exthubbard-g trg-g mixedspin-g hubbard_2d-g tree_dmrg-g testmps-g bosehubbard-g 1dflashratchet-g
 
-all: dmrg dmrg_table dmrgj1j2 exthubbard trg mixedspin hubbard_2d tree_dmrg testmps bosehubbard
+all: dmrg dmrg_table dmrgj1j2 exthubbard trg mixedspin hubbard_2d tree_dmrg testmps bosehubbard 1dflashratchet
 
 dmrg: dmrg.o $(ITENSOR_LIBS) $(TENSOR_HEADERS)
 	$(CCCOM) $(CCFLAGS) dmrg.o -o dmrg $(LIBFLAGS)
@@ -85,6 +85,12 @@ bosehubbard: bosehubbard.o $(ITENSOR_LIBS) $(TENSOR_HEADERS)
 bosehubbard-g: mkdebugdir .debug_objs/bosehubbard.o $(ITENSOR_GLIBS) $(TENSOR_HEADERS)
 	$(CCCOM) $(CCGFLAGS) .debug_objs/bosehubbard.o -o bosehubbard-g $(LIBGFLAGS)
 
+1dflashratchet: 1dflashratchet.o $(ITENSOR_LIBS) $(TENSOR_HEADERS)
+	$(CCCOM) $(CCFLAGS) 1dflashratchet.o -o 1dflashratchet $(LIBFLAGS)
+
+1dflashratchet-g: mkdebugdir .debug_objs/1dflashratchet.o $(ITENSOR_GLIBS) $(TENSOR_HEADERS)
+	$(CCCOM) $(CCGFLAGS) .debug_objs/1dflashratchet.o -o 1dflashratchet-g $(LIBGFLAGS)
+
 mkdebugdir:
 	mkdir -p .debug_objs
 
@@ -92,4 +98,4 @@ clean:
 	@rm -fr *.o .debug_objs dmrg dmrg-g \
 	dmrg_table dmrg_table-g dmrgj1j2 dmrgj1j2-g exthubbard exthubbard-g \
     mixedspin mixedspin-g trg trg-g hubbard_2d hubbard_2d-g tree_dmrg tree_dmrg-g \
-    testmp testmp-g bosehubbard bosehubbard-g
+    testmp testmp-g bosehubbard bosehubbard-g 1dflashratchet 1dflashratchet-g
