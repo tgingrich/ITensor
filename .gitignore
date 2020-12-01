@@ -25,6 +25,8 @@ sample/testmps
 sample/testmps=g
 sample/bosehubbard
 sample/bosehubbard-g
+sample/1dflashratchet
+sample/1dflashratchet-g
 sample/*.out
 sample/*.txt
 sample/*.sh
