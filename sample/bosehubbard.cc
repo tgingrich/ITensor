@@ -11,7 +11,7 @@ int main()
   Real Uf = 7 * J;
   Real phi = 0.7 * M_PI;
   Real h = 1.0;
-  Real gamma = J / (6 * h);
+  Real gamma = J / (14 * h);
   Real t0 = (1 - Uf / Ui) / gamma;
   Real dt = 2.0E-3*h/J;
   auto sites = Boson(L,{"MaxOcc",4,"ConserveQNs",true});
@@ -96,7 +96,7 @@ int main()
       H = toMPO(ampo);
       }
 
-    psi1 = std::get<1>(tree_tdvp(H,psi1,Cplx_i*dt,sweeps1,{"NumCenter",2,"Order","Default","Quiet",}));
+    psi1 = std::get<1>(tree_tdvp(H,psi1,Cplx_i*dt,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",}));
 
     printfln("Current measurement %d %d %d", t, U, std::real(innerC(psi1,I,psi1)));
     }
