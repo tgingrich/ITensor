@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	std::ifstream ifs;
 	ifs.open(argv[1]);
 	std::string type, val;
-	Real len = 0.0, strength = 0.0, ratio = 0.0, di = 0.0;
+	Real len = 0.0, strength = 0.0, ratio = 0.0, di = 0.0, nstages = 0.0;
 	int bins = 0;
 	int idx = 0;
 	while(ifs >> type >> val)
@@ -32,7 +32,9 @@ int main(int argc, char** argv)
 			case 3:
 				ratio = std::stod(val);
 			case 4:
-				di = std::stod(val);;
+				di = std::stod(val);
+			case 5:
+				nstages = std::stod(val);
 			}
 		}
 	auto h = len / bins;
@@ -126,7 +128,7 @@ int main(int argc, char** argv)
 
 	println("\nStart DMRG");
 
-	auto psi2m = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
+	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
 
 	// auto psi2mfull = psi2m(0)*psi2m(1)*psi2m(2)*psi2m(3)*psi2m(4)*psi2m(5)*psi2m(6)*psi2m(7)*psi2m(8)*psi2m(9)*psi2m(10)*psi2m(11)*psi2m(12)*psi2m(13)*psi2m(14);
 	// auto inds2m = psi2mfull.inds();
@@ -134,7 +136,7 @@ int main(int argc, char** argv)
 	// auto psi2mfullmat = C2m*psi2mfull;
 	// PrintData(psi2mfullmat);
 
-	auto psi2p = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
+	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
 
 	// auto psi2pfull = psi2p(0)*psi2p(1)*psi2p(2)*psi2p(3)*psi2p(4)*psi2p(5)*psi2p(6)*psi2p(7)*psi2p(8)*psi2p(9)*psi2p(10)*psi2p(11)*psi2p(12)*psi2p(13)*psi2p(14);
 	// auto inds2p = psi2pfull.inds();
@@ -143,6 +145,38 @@ int main(int argc, char** argv)
 	// PrintData(psi2pfullmat);
 
 	// auto [energym,psim] = tree_dmrg(Cm,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"});
+
+	auto period = 1/freq;
+	auto deltat = period/nstages;
+
+	auto sweeps1 = Sweeps(1);
+	sweeps1.maxdim() = 300;
+	sweeps1.cutoff() = 1E-13;
+	sweeps1.niter() = 100;
+	sweeps1.noise() = 0.0;
+	println(sweeps1);
+
+	for(auto i : range1(10))
+		{
+		auto psim0 = psim;
+		auto psip0 = psip;
+		for(Real t = 0.0; t < period; t += deltat)
+			{
+			if(t < period/2)
+				{
+				psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+				psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+				}
+			else
+				{
+				psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+				psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+				}
+			}
+		printfln("\n%d: exp(v-) = %f, exp(v+) = %f",i,inner(psim0,psim),inner(psip0,psip));
+		psim.normalize();
+		psip.normalize();
+		}
 
 	auto finish = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = finish - start;

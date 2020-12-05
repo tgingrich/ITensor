@@ -6,7 +6,7 @@ using namespace itensor;
 int main()
 {
   int L = 32;
-  Real J = 1.0;
+  Real J = 02.0;
   Real Ui = 2 * J;
   Real Uf = 7 * J;
   Real phi = 0.7 * M_PI;
