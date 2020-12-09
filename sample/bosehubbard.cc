@@ -6,14 +6,15 @@ using namespace itensor;
 int main()
 {
   int L = 32;
-  Real J = 02.0;
-  Real Ui = 2 * J;
-  Real Uf = 7 * J;
-  Real phi = 0.7 * M_PI;
+  Real J = 1.0;
+  Real Ui = 2*J;
+  Real Uf = 7*J;
+  Real phi = 0.7*M_PI;
   Real h = 1.0;
-  Real gamma = J / (14 * h);
-  Real t0 = (1 - Uf / Ui) / gamma;
+  Real gamma = J/(6*h);
+  Real t0 = (1-Uf/Ui)/gamma;
   Real dt = 2.0E-3*h/J;
+  Real c = 2.0;
   auto sites = Boson(L,{"MaxOcc",4,"ConserveQNs",true});
 
   auto state = InitState(sites);
@@ -26,11 +27,11 @@ int main()
   auto ampo = AutoMPO(sites);
   for(auto j : range1(L-1))
     {
-    ampo += -J*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
-    ampo += -J*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
+    ampo += -c*J*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
+    ampo += -c*J*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
     }
-  ampo += -J*std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
-  ampo += -J*std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
+  ampo += -c*J*std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
+  ampo += -c*J*std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
   for(auto j : range1(L))
     {
     ampo += Ui/2,"N",j,"N",j;
@@ -41,11 +42,11 @@ int main()
   auto acur = AutoMPO(sites);
   for(auto j : range1(L-1))
     {
-    acur += Cplx_i*J/(h*L)*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
-    acur += -Cplx_i*J/(h*L)*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
+    acur += Cplx_i*c*J/(h*L)*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
+    acur += -Cplx_i*c*J/(h*L)*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
     }
-  acur += Cplx_i*J/(h*L)*std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
-  acur += -Cplx_i*J/(h*L)*std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
+  acur += Cplx_i*c*J/(h*L)*std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
+  acur += -Cplx_i*c*J/(h*L)*std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
   auto I = toMPO(acur);
 
   // PrintData(psi0);
@@ -83,11 +84,11 @@ int main()
       ampo = AutoMPO(sites);
       for(auto j : range1(L-1))
         {
-        ampo += -J*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
-        ampo += -J*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
+        ampo += -c*J*std::exp(Cplx_i*phi/L),"A",j,"Adag",j+1;
+        ampo += -c*J*std::exp(-Cplx_i*phi/L),"Adag",j,"A",j+1;
         }
-      ampo += -J * std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
-      ampo += -J * std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
+      ampo += -c*J*std::exp(Cplx_i*phi/L),"A",L,"Adag",1;
+      ampo += -c*J*std::exp(-Cplx_i*phi/L),"Adag",L,"A",1;
       for(auto j : range1(L))
         {
         ampo += U/2,"N",j,"N",j;

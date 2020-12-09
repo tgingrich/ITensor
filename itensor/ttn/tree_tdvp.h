@@ -178,7 +178,9 @@ namespace itensor {
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
+            printfln("%d %d %d", sw, b, norm(phi1));
             applyExp(H,phi1,t/2,args);
+            printfln("%d %d %d", sw, b, norm(phi1));
 
             if(args.getBool("DoNormalize",true))
 	      phi1 /= norm(phi1);
@@ -227,8 +229,10 @@ namespace itensor {
  
                 H.numCenter(numCenter-1);
                 H.position(b1,psi);
- 
+                
+                printfln("%d %d %d", sw, b, norm(phi0));
                 applyExp(H,phi0,-t/2,args);
+                printfln("%d %d %d", sw, b, norm(phi0));
  
                 if(args.getBool("DoNormalize",true))
 		  phi0 /= norm(phi0);
@@ -271,6 +275,7 @@ namespace itensor {
             obs.measure(args);
 
             // printfln("%d %d %d", sw, b, energy);
+            // printfln("%d %d %d", norm(phi0), norm(phi1), norm(psi));
 
 	  } //for loop over b
 
