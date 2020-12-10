@@ -124,6 +124,7 @@ int main(int argc, char** argv)
 
 	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
 	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
+	// auto psim = psi0, psip = psi0;
 
 	auto period = 1/freq;
 	auto deltat = period/nstages;
@@ -133,20 +134,42 @@ int main(int argc, char** argv)
 	sweeps1.cutoff() = 1E-13;
 	sweeps1.niter() = 100;
 	sweeps1.noise() = 0.0;
+	sweeps1.alpha() = 0.001;
+	println();
 	println(sweeps1);
 
-	for(auto i : range1(10))
+	println("\nStart TDVP");
+
+	for(auto i : range1(50))
 		{
 		auto psim0 = psim;
 		auto psip0 = psip;
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
 		printfln("\n%d: v- = %f, v+ = %f",i,std::log(inner(psim0,psim))/period,std::log(inner(psip0,psip))/period);
 		psim.normalize();
 		psip.normalize();
 		}
+	// auto sweeps = Sweeps(nstages/2);
+	// sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+	// sweeps.cutoff() = 1E-13;
+	// sweeps.niter() = 10;
+	// sweeps.noise() = 0.0;
+	// sweeps.alpha() = 0.1,0.1,0.1,0.1,0.1,0.05,0.05,0.05,0.05,0.05,0.02,0.02,0.02,0.02,0.02,0.01,0.01,0.01,0.01,0.01,0.005,0.005,0.005,0.005,0.005,0.002,0.002,0.002,0.002,0.002;
+	// for(auto i : range1(50))
+	// 	{
+	// 	auto psim0 = psim;
+	// 	auto psip0 = psip;
+	// 	psim = std::get<1>(tree_tdvp(W1m,psim,deltat,i==1?sweeps:sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+	// 	psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+	// 	psip = std::get<1>(tree_tdvp(W1p,psip,deltat,i==1?sweeps:sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+	// 	psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+	// 	printfln("\n%d: v- = %f, v+ = %f",i,std::log(inner(psim0,psim))/period,std::log(inner(psip0,psip))/period);
+	// 	psim.normalize();
+	// 	psip.normalize();
+	// 	}
 
 	auto finish = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = finish - start;
