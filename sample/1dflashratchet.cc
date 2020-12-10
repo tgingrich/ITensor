@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	std::ifstream ifs;
 	ifs.open(argv[1]);
 	std::string type, val;
-	Real len = 0.0, strength = 0.0, ratio = 0.0, di = 0.0, nstages = 0.0;
+	Real len = 0.0, strength = 0.0, ratio = 0.0, di = 0.0;
 	int bins = 0;
 	int idx = 0;
 	while(ifs >> type >> val)
@@ -33,8 +33,6 @@ int main(int argc, char** argv)
 				ratio = std::stod(val);
 			case 4:
 				di = std::stod(val);
-			case 5:
-				nstages = std::stod(val);
 			}
 		}
 	auto h = len / bins;
@@ -126,6 +124,7 @@ int main(int argc, char** argv)
 	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
 	// auto psim = psi0, psip = psi0;
 
+	auto nstages = std::max(10,(int)ceil(5000/freq));
 	auto period = 1/freq;
 	auto deltat = period/nstages;
 
@@ -140,7 +139,7 @@ int main(int argc, char** argv)
 
 	println("\nStart TDVP");
 
-	for(auto i : range1(50))
+	for(auto i : range1(std::max(10,(int)ceil(freq/20))))
 		{
 		auto psim0 = psim;
 		auto psip0 = psip;
