@@ -127,7 +127,7 @@ namespace itensor {
     const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
     args.add("DebugLevel",debug_level);
-    args.add("DoNormalize",true);
+    // args.add("DoNormalize",true);
     args.add("UseSVD",true);
 
     for(int sw = 1; sw <= sweeps.nsweep(); ++sw)
@@ -178,9 +178,9 @@ namespace itensor {
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
-            printfln("%d %d %d", sw, b, norm(phi1));
+            // printfln("%d %d %d", sw, b, norm(phi1));
             applyExp(H,phi1,t/2,args);
-            printfln("%d %d %d", sw, b, norm(phi1));
+            // printfln("%d %d %d", sw, b, norm(phi1));
 
             if(args.getBool("DoNormalize",true))
 	      phi1 /= norm(phi1);
@@ -222,7 +222,9 @@ namespace itensor {
                     Index l;
                     l = commonIndex(psi(b1),psi(psi.parent(b1)));
                     ITensor U,S,V(l);
+                    // PrintData(phi1);
                     spec = svd(phi1,U,S,V,args);
+                    // PrintData(U*S*V);
                     psi.ref(b1) = U;
                     phi0 = S*V;
 		  }
@@ -230,9 +232,9 @@ namespace itensor {
                 H.numCenter(numCenter-1);
                 H.position(b1,psi);
                 
-                printfln("%d %d %d", sw, b, norm(phi0));
+                // printfln("%d %d %d", sw, b, norm(phi0));
                 applyExp(H,phi0,-t/2,args);
-                printfln("%d %d %d", sw, b, norm(phi0));
+                // printfln("%d %d %d", sw, b, norm(phi0));
  
                 if(args.getBool("DoNormalize",true))
 		  phi0 /= norm(phi0);

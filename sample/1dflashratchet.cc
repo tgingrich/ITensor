@@ -143,7 +143,7 @@ int main(int argc, char** argv)
 		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
 		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
 		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
-		printfln("\n%d: exp(v-) = %f, exp(v+) = %f",i,inner(psim0,psim),inner(psip0,psip));
+		printfln("\n%d: v- = %f, v+ = %f",i,std::log(inner(psim0,psim))/period,std::log(inner(psip0,psip))/period);
 		psim.normalize();
 		psip.normalize();
 		}

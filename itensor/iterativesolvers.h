@@ -971,12 +971,22 @@ template<typename VecT>
 void
 assembleLanczosVectors(std::vector<ITensor> const& lanczos_vectors,
                        VecT const& linear_comb,
-                       double norm, ITensor& phi)
+                       double nrm, ITensor& phi)
     {
     assert(lanczos_vectors.size() == linear_comb.size());
-    phi = norm*linear_comb(0)*lanczos_vectors[0];
+    phi = nrm*linear_comb(0)*lanczos_vectors[0];
+    // PrintData(linear_comb(0));
+    // PrintData(lanczos_vectors[0]);
+    // PrintData(linear_comb(0)*lanczos_vectors[0]);
+    // printfln("%f %f",norm(lanczos_vectors[0]),norm(phi));
     for(int i=1; i<(int)lanczos_vectors.size(); ++i)
-        phi += norm*linear_comb(i)*lanczos_vectors[i];
+        {
+        phi += nrm*linear_comb(i)*lanczos_vectors[i];
+        // PrintData(linear_comb(i));
+        // PrintData(lanczos_vectors[i]);
+        // PrintData(linear_comb(i)*lanczos_vectors[i]);
+        // printfln("%f %f",norm(lanczos_vectors[i]),norm(phi));
+        }
     }
 
 template<typename BigMatrixT, typename ElT>
@@ -1018,6 +1028,7 @@ applyExp(BigMatrixT const& H, ITensor& phi,
             w -= beta * v0;
         v0 = v1;
         beta = norm(w);
+        // beta = 1.0;
 
         // check for Lanczos sequence exhaustion
         if (std::abs(beta) < beta_tol)
