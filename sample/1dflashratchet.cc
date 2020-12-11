@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
 	// auto psim = psi0, psip = psi0;
 
-	auto nstages = std::max(2,(int)(5000/freq));
+	int nstages = std::max(10,(int)(5000/freq));
 	auto period = 1/freq;
 	auto deltat = period/nstages;
 
