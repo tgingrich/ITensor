@@ -141,12 +141,13 @@ int main(int argc, char** argv)
 
 	int maxiter = 10*freq;
 	Real thresh = 1.0E-8;
-	Real mean, var, mean0 = 0.0;
+	Real mean, var;
 	int iter = 0;
 	while(iter<maxiter)
 		{
 		auto psim0 = psim;
 		auto psip0 = psip;
+		auto mean0 = mean;
 		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
 		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
 		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
@@ -158,7 +159,6 @@ int main(int argc, char** argv)
 		psim.normalize();
 		psip.normalize();
 		if(fabs(mean-mean0)<thresh) break;
-		mean0 = mean;
 		}
 	if(iter==maxiter) println("\nMax iterations reached!");
 	printfln("\n{jbar, varj} = {%f, %f}",mean,var);
