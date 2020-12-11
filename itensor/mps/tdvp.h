@@ -186,7 +186,6 @@ TDVPWorker(MPS & psi,
     psi.position(1);
 
     args.add("DebugLevel",debug_level);
-    args.add("DoNormalize",true);
 
     for(int sw = 1; sw <= sweeps.nsweep(); ++sw)
         {
@@ -241,7 +240,7 @@ TDVPWorker(MPS & psi,
            // Calculate energy
             ITensor H_phi1;
             H.product(phi1,H_phi1);
-            energy = real(eltC(dag(phi1)*H_phi1));
+            energy = real(eltC(dag(phi1)*H_phi1))/norm(phi1);
  
             if((ha == 1 && b+numCenter-1 != N) || (ha == 2 && b != 1))
                 {
@@ -283,7 +282,7 @@ TDVPWorker(MPS & psi,
                 // Calculate energy
                 ITensor H_phi0;
                 H.product(phi0,H_phi0);
-                energy = real(eltC(dag(phi0)*H_phi0));
+                energy = real(eltC(dag(phi0)*H_phi0))/norm(phi0);
                 }
  
              if(!quiet)

@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
 	// auto psim = psi0, psip = psi0;
 
-	auto nstages = std::max(10,(int)ceil(5000/freq));
+	auto nstages = std::max(2,(int)(5000/freq));
 	auto period = 1/freq;
 	auto deltat = period/nstages;
 
@@ -139,7 +139,11 @@ int main(int argc, char** argv)
 
 	println("\nStart TDVP");
 
-	for(auto i : range1(std::max(10,(int)ceil(freq/20))))
+	int maxiter = 10*freq;
+	Real thresh = 1.0E-8;
+	Real mean, var, mean0 = 0.0;
+	int iter = 0;
+	while(iter<maxiter)
 		{
 		auto psim0 = psim;
 		auto psip0 = psip;
@@ -147,10 +151,17 @@ int main(int argc, char** argv)
 		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
 		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
 		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
-		printfln("\n%d: v- = %f, v+ = %f",i,std::log(inner(psim0,psim))/period,std::log(inner(psip0,psip))/period);
+		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
+		printfln("\n%d: v- = %f, v+ = %f",iter++,left,right);
+		mean = (right-left)/(2*dz);
+		var = (right+left)/(dz*dz);
+		if(fabs(mean-mean0)<thresh) break;
 		psim.normalize();
 		psip.normalize();
+		mean0 = mean;
 		}
+	if(iter==maxiter) println("\nMax iterations reached!");
+	printfln("\n{jbar, varj} = {%f, %f}",mean,var);
 	// auto sweeps = Sweeps(nstages/2);
 	// sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
 	// sweeps.cutoff() = 1E-13;
