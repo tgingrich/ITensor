@@ -155,9 +155,9 @@ int main(int argc, char** argv)
 		printfln("\n%d: v- = %f, v+ = %f",iter++,left,right);
 		mean = (right-left)/(2*dz);
 		var = (right+left)/(dz*dz);
-		if(fabs(mean-mean0)<thresh) break;
 		psim.normalize();
 		psip.normalize();
+		if(fabs(mean-mean0)<thresh) break;
 		mean0 = mean;
 		}
 	if(iter==maxiter) println("\nMax iterations reached!");
