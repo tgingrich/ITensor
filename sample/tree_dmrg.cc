@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 // for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
 // {
 
-  int N = 8;
+  int N = 64;
   auto sites = SpinHalf(N,{"ConserveQNs",false});
 
   auto state = InitState(sites);
@@ -151,9 +151,9 @@ int main(int argc, char** argv)
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
-  auto sweeps = Sweeps(6);
-  sweeps.maxdim() = 5,10,15,16,16,16,16,16;
-  // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+  auto sweeps = Sweeps(20);
+  // sweeps.maxdim() = 5,10,15,16,16,16,16,16;
+  sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
   sweeps.cutoff() = 1E-13;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
@@ -181,26 +181,26 @@ int main(int argc, char** argv)
   printfln("Final spin = %.5f", inner(psi1,Nop,psi1) );
   // PrintData(psi1);
   // println(totalQN(psi1));
-
-  auto sweeps1 = Sweeps(2);
-  // sweeps1.maxdim() = 16,16;
-  sweeps1.maxdim() = 300,300;
-  sweeps1.cutoff() = 1E-13;
-  sweeps1.niter() = 100;
-  sweeps1.noise() = 0.0;
-  sweeps.alpha() = 0.001,0.001;
-  
-  println("\nStart TDVP");
-  using namespace std::complex_literals;
-  auto [energy2,psi2] = tree_tdvp(H,psi1,5.0e-4i,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",});
-  // psi2.takeReal();
-
-  printfln("\nFinal norm = %.5f", real(innerC(psi2,psi2)) );
-  printfln("\nEnergy of Evolved State = %.10f",energy2);
-  printfln("\nUsing inner = %.10f", real(innerC(psi2,H,psi2)) );
-  printfln("Final spin = %.5f", real(innerC(psi2,Nop,psi2)) );
-  // PrintData(psi2);
-  // println(totalQN(psi2));
+  //
+  // auto sweeps1 = Sweeps(2);
+  // // sweeps1.maxdim() = 16,16;
+  // sweeps1.maxdim() = 300,300;
+  // sweeps1.cutoff() = 1E-13;
+  // sweeps1.niter() = 100;
+  // sweeps1.noise() = 0.0;
+  // sweeps.alpha() = 0.001,0.001;
+  //
+  // println("\nStart TDVP");
+  // using namespace std::complex_literals;
+  // auto [energy2,psi2] = tree_tdvp(H,psi1,5.0e-4i,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",});
+  // // psi2.takeReal();
+  //
+  // printfln("\nFinal norm = %.5f", real(innerC(psi2,psi2)) );
+  // printfln("\nEnergy of Evolved State = %.10f",energy2);
+  // printfln("\nUsing inner = %.10f", real(innerC(psi2,H,psi2)) );
+  // printfln("Final spin = %.5f", real(innerC(psi2,Nop,psi2)) );
+  // // PrintData(psi2);
+  // // println(totalQN(psi2));
 
 // }
 // }
