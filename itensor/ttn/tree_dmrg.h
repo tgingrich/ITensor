@@ -165,12 +165,9 @@ namespace itensor {
     Real energy = NAN;
 
     const int numCenter = args.getInt("NumCenter",2);
-  //println("nc ",numCenter);
     psi.setOrder(args); // Choose sweep order
 
-    // psi.position(psi.startPoint(args));
-
-    const bool subspace_exp=args.getBool("SubspaceExpansion",false);
+    const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
     args.add("DebugLevel",debug_level);
     args.add("DoNormalize",true);
@@ -187,9 +184,7 @@ namespace itensor {
         args.add("Noise",sweeps.noise(sw));
         args.add("MaxIter",sweeps.niter(sw));
 
-        // args.add("WhichEig","LargestReal");
-
-        if(subspace_exp)
+        if(numCenter == 2 && subspace_exp)
         {
           alpha = sweeps.alpha(sw);
         }
@@ -207,9 +202,9 @@ namespace itensor {
             psi.doWrite(true);
             PH.doWrite(true,args);
     }
-  ITensor phi;
-  Spectrum spec;
 
+        ITensor phi;
+        Spectrum spec;
 
         for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
     {
@@ -237,7 +232,9 @@ namespace itensor {
       // } else {
       //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
       // }
+
       TIMER_START(3);
+            // energy = davidson(PH,phi,args);
             energy = arnoldi(PH,phi,args).real();
             phi.takeReal();
       TIMER_STOP(3);
@@ -246,9 +243,16 @@ namespace itensor {
       //Restore tensor network form
             if (numCenter == 2) 
         {
-      spec = psi.svdBond(ha==1?b:psi.parent(b),phi,ha==1?psi.parent(b):b,PH,args);//That change to make direction depend of sweep direction
+      spec = psi.svdBond(b,phi,psi.parent(b),PH,args);//That change to make direction depend of sweep direction
       PH.haveBeenUpdated(b);
       PH.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
+      if(subspace_exp)
+      {
+        long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
+        args.add("MinDim",current_dim);
+        orthPair(psi.ref(b),psi.ref(psi.parent(b)),args);
+        psi.setOrthoLink(b,psi.parent(b)); // Update orthogonalization
+      }
         }
       else if(numCenter == 1)
         {
@@ -298,13 +302,6 @@ namespace itensor {
       //     }
       //   }
       // PrintData(yAx[1]);
-      if(subspace_exp && psi.parent(b) >= 0)//Do subspace expansion only if there is link to be expansed
-      {
-        long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
-        args.add("MinDim",current_dim);
-        orthPair(psi.ref(ha==1?b:psi.parent(b)),psi.ref(ha==1?psi.parent(b):b),args);
-        psi.setOrthoLink(ha==1?b:psi.parent(b),ha==1?psi.parent(b):b); // Update orthogonalization
-      }
       TIMER_STOP(4);
 
             if(!quiet)

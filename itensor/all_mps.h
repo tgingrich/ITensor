@@ -37,6 +37,7 @@
 #include "itensor/mps/dmrg.h"
 #include "itensor/mps/tevol.h"
 #include "itensor/mps/autompo.h"
+#include "itensor/mps/tdvp.h"
 
 #include "itensor/mps/lattice/square.h"
 #include "itensor/mps/lattice/triangular.h"
@@ -50,5 +51,8 @@
 #include "itensor/mps/sites/fermion.h"
 #include "itensor/mps/sites/tj.h"
 #include "itensor/mps/sites/Z3.h"
+
+#include "itensor/ttn/tree_dmrg.h"
+#include "itensor/ttn/tree_tdvp.h"
 
 #endif

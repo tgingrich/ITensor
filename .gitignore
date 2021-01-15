@@ -22,10 +22,16 @@ sample/trg-g
 sample/tree_dmrg
 sample/tree_dmrg-g
 sample/testmps
+sample/testmps=g
+sample/bosehubbard
+sample/bosehubbard-g
+sample/1dflashratchet
+sample/1dflashratchet-g
 sample/*.out
 sample/*.txt
 sample/*.sh
 sample/qsubmit.sh
+sample/.nfs*
 this_dir.mk
 options.mk
 .exrc
@@ -45,3 +51,4 @@ tutorial/finiteT/metts
 tutorial/finiteT/sus.dat
 lib/*
 *.out
+.nfs*

@@ -77,6 +77,7 @@ measure(Args const& args)
     auto nsweep = args.getInt("NSweep",0);
     auto energy = args.getReal("Energy",0);
     auto silent = args.getBool("Silent",false);
+    auto ha = args.getInt("HalfSweep",1);
 
     if(!silent && printeigs)
         {
@@ -114,7 +115,7 @@ measure(Args const& args)
     max_te = std::max(max_te,last_spec_.truncerr());
     if(!silent)
         {
-        if(b == (args.getBool("Reverse",false) ? psi_.startPoint(args) : psi_.endPoint(args))) 
+        if(b == (ha == 1 ? psi_.endPoint(args) : psi_.startPoint(args)))
             {
             if(!printeigs) println();
             auto swstr = (nsweep>0) ? format("%d/%d",sw,nsweep) 

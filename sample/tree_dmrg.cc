@@ -1,7 +1,4 @@
 #include "itensor/all.h"
-#include "itensor/ttn/binarytree.h"
-#include "itensor/ttn/tree_dmrg.h"
-#include "itensor/ttn/tree_tdvp.h"
 #include "itensor/util/print_macro.h"
 
 using namespace itensor;
@@ -53,20 +50,20 @@ int main(int argc, char** argv)
   std::vector<Real> qlist(N + 1, 0.9);
   plist[0] = plist[N] = qlist[0] = qlist[N] = 0.5;
   auto ampo = AutoMPO(sites);
-  ampo += plist[0] * std::exp(lc), "S+", 1;
+  ampo += plist[0] * std::exp(lc), "S-", 1;
   ampo += -plist[0], "projDn", 1;
-  ampo += qlist[0] * std::exp(-lc), "S-", 1;
+  ampo += qlist[0] * std::exp(-lc), "S+", 1;
   ampo += -qlist[0], "projUp", 1;
   for(auto j : range1(N - 1))
   {
-    ampo += plist[j] * std::exp(lc), "S-", j, "S+", j + 1;
+    ampo += plist[j] * std::exp(lc), "S+", j, "S-", j + 1;
     ampo += -plist[j], "projUp", j, "projDn", j + 1;
-    ampo += qlist[j] * std::exp(-lc), "S+", j, "S-", j + 1;
+    ampo += qlist[j] * std::exp(-lc), "S-", j, "S+", j + 1;
     ampo += -qlist[j], "projDn", j, "projUp", j + 1;
   }
-  ampo += qlist[N] * std::exp(-lc), "S+", N;
+  ampo += qlist[N] * std::exp(-lc), "S-", N;
   ampo += -qlist[N], "projDn", N;
-  ampo += plist[N] * std::exp(lc), "S-", N;
+  ampo += plist[N] * std::exp(lc), "S+", N;
   ampo += -plist[N], "projUp", N;
   for(auto j : range1(N))
   {
@@ -89,14 +86,14 @@ int main(int argc, char** argv)
   // auto ampo = AutoMPO(sites);
   // for(auto j : range1(N - 1))
   // {
-  //   ampo += plist[j - 1] * std::exp(lc), "S-", j, "S+", j + 1;
+  //   ampo += plist[j - 1] * std::exp(lc), "S+", j, "S-", j + 1;
   //   ampo += -plist[j - 1], "projUp", j, "projDn", j + 1;
-  //   ampo += qlist[j - 1] * std::exp(-lc), "S+", j, "S-", j + 1;
+  //   ampo += qlist[j - 1] * std::exp(-lc), "S-", j, "S+", j + 1;
   //   ampo += -qlist[j - 1], "projDn", j, "projUp", j + 1;
   // }
-  // ampo += plist[N - 1] * std::exp(lc), "S-", N, "S+", 1;
+  // ampo += plist[N - 1] * std::exp(lc), "S+", N, "S-", 1;
   // ampo += -plist[N - 1], "projUp", N, "projDn", 1;
-  // ampo += qlist[N - 1] * std::exp(-lc), "S+", N, "S-", 1;
+  // ampo += qlist[N - 1] * std::exp(-lc), "S-", N, "S+", 1;
   // ampo += -qlist[N - 1], "projDn", N, "projUp", 1;
   // for(auto j : range1(N))
   // {
@@ -126,8 +123,8 @@ int main(int argc, char** argv)
 //
 
   auto psi0 = BinaryTree(state);
+  // auto psi0 = randomBinaryTree(sites, 16);
   // PrintData(psi0);
-  // auto psi0 = randomBinaryTree(sites, 100);
 
   // auto psidag = prime(dag(psi0));
   // std::vector<std::vector<ITensor>> MPO(psi0.height() + 2);
@@ -151,9 +148,9 @@ int main(int argc, char** argv)
   // Here less than 5 cutoff values are provided, for example,
   // so all remaining sweeps will use the last one given (= 1E-10).
   //
-  auto sweeps = Sweeps(20);
-  // sweeps.maxdim() = 5,10,15,16,16,16,16,16;
-  sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+  auto sweeps = Sweeps(8);
+  sweeps.maxdim() = 16,16,16,16,16,16,16,16;
+  // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
   sweeps.cutoff() = 1E-13;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
@@ -167,8 +164,8 @@ int main(int argc, char** argv)
   //
 
   println("Start DMRG");
-  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"DoSVDBond"});
-  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"SubspaceExpansion",true,"WhichEig","LargestReal"});
+  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"DoSVDBond"});
+  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"});
 
   // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
 
@@ -181,26 +178,26 @@ int main(int argc, char** argv)
   printfln("Final spin = %.5f", inner(psi1,Nop,psi1) );
   // PrintData(psi1);
   // println(totalQN(psi1));
-  //
-  // auto sweeps1 = Sweeps(2);
-  // // sweeps1.maxdim() = 16,16;
+
+  auto sweeps1 = Sweeps(2);
+  sweeps1.maxdim() = 16,16;
   // sweeps1.maxdim() = 300,300;
-  // sweeps1.cutoff() = 1E-13;
-  // sweeps1.niter() = 100;
-  // sweeps1.noise() = 0.0;
-  // sweeps.alpha() = 0.001,0.001;
-  //
-  // println("\nStart TDVP");
-  // using namespace std::complex_literals;
-  // auto [energy2,psi2] = tree_tdvp(H,psi1,5.0e-4i,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",});
-  // // psi2.takeReal();
-  //
-  // printfln("\nFinal norm = %.5f", real(innerC(psi2,psi2)) );
-  // printfln("\nEnergy of Evolved State = %.10f",energy2);
-  // printfln("\nUsing inner = %.10f", real(innerC(psi2,H,psi2)) );
-  // printfln("Final spin = %.5f", real(innerC(psi2,Nop,psi2)) );
-  // // PrintData(psi2);
-  // // println(totalQN(psi2));
+  sweeps1.cutoff() = 1E-13;
+  sweeps1.niter() = 100;
+  sweeps1.noise() = 0.0;
+  sweeps.alpha() = 0.001,0.001;
+  println(sweeps1);
+
+  println("\nStart TDVP");
+  auto [energy2,psi2] = tree_tdvp(H,psi1,0.1,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",});
+  // psi2.takeReal();
+
+  printfln("\nFinal norm = %.5f", std::real(innerC(psi2,psi2)) );
+  printfln("\nEnergy of Evolved State = %.10f",energy2);
+  printfln("\nUsing inner = %.10f", std::real(innerC(psi2,H,psi2)) );
+  printfln("Final spin = %.5f", std::real(innerC(psi2,Nop,psi2)) );
+  // PrintData(psi2);
+  // println(totalQN(psi2));
 
 // }
 // }

@@ -5,7 +5,7 @@ using namespace itensor;
 int 
 main()
     {
-    int N = 64;
+    int N = 8;
 
     //
     // Initialize the site degrees of freedom
@@ -29,7 +29,7 @@ main()
     //     }
     // auto H = toMPO(ampo);
 
-  Real lambda = 0.0;
+  Real lc = 3.0;
   // std::vector<Real> plist(N + 1);
   // std::vector<Real> qlist(N + 1);
   // for(auto j : range(N + 1))
@@ -41,20 +41,20 @@ main()
   std::vector<Real> qlist(N + 1, 0.9);
   plist[0] = plist[N] = qlist[0] = qlist[N] = 0.5;
   auto ampo = AutoMPO(sites);
-  ampo += plist[0] * std::exp(lambda), "S-", 1;
+  ampo += plist[0] * std::exp(lc), "S+", 1;
   ampo += -plist[0], "projDn", 1;
-  ampo += qlist[0] * std::exp(-lambda), "S+", 1;
+  ampo += qlist[0] * std::exp(-lc), "S-", 1;
   ampo += -qlist[0], "projUp", 1;
   for(auto j : range1(N - 1))
   {
-    ampo += plist[j] * std::exp(lambda), "S+", j, "S-", j + 1;
+    ampo += plist[j] * std::exp(lc), "S-", j, "S+", j + 1;
     ampo += -plist[j], "projUp", j, "projDn", j + 1;
-    ampo += qlist[j] * std::exp(-lambda), "S-", j, "S+", j + 1;
+    ampo += qlist[j] * std::exp(-lc), "S+", j, "S-", j + 1;
     ampo += -qlist[j], "projDn", j, "projUp", j + 1;
   }
-  ampo += qlist[N] * std::exp(-lambda), "S-", N;
+  ampo += qlist[N] * std::exp(-lc), "S+", N;
   ampo += -qlist[N], "projDn", N;
-  ampo += plist[N] * std::exp(lambda), "S+", N;
+  ampo += plist[N] * std::exp(lc), "S-", N;
   ampo += -plist[N], "projUp", N;
   auto H = toMPO(ampo);
 
@@ -82,6 +82,8 @@ main()
         else         state.set(i,"Dn");
         }
     auto psi0 = MPS(state);
+    // auto psi0 = randomMPS(sites, 16);
+    // PrintData(psi0);
 
     //
     // inner calculates matrix elements of MPO's with respect to MPS's
@@ -95,24 +97,46 @@ main()
     // Here less than 5 cutoff values are provided, for example,
     // so all remaining sweeps will use the last one given (= 1E-10).
     //
-    auto sweeps = Sweeps(30);
-    // sweeps.maxdim() = 10,20,100,100,200;
-    sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
-    sweeps.cutoff() = 1E-10;
-    sweeps.niter() = 10;
-    sweeps.noise() = 1E-7,1E-8,0.0;
-    println(sweeps);
+    // auto sweeps = Sweeps(6);
+    // sweeps.maxdim() = 16,16,16,16,16,16;
+    // // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+    // sweeps.cutoff() = 1E-13;
+    // sweeps.niter() = 10;
+    // sweeps.noise() = 1E-7,1E-8,0.0,0.0,0.0,0.0;
+    // println(sweeps);
 
-    //
-    // Begin the DMRG calculation
-    //
-    auto [energy,psi] = dmrg(H,psi0,sweeps,"Quiet");
+    // //
+    // // Begin the DMRG calculation
+    // //
+    // auto [energy,psi] = dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"});
 
     //
     // Print the final energy reported by DMRG
     //
-    printfln("\nGround State Energy = %.10f",energy);
-    printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
+    // printfln("\nGround State Energy = %.10f",energy);
+    // printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
+
+    auto sweeps1 = Sweeps(10);
+    sweeps1.maxdim() = 16,16;
+    sweeps1.cutoff() = 1E-13;
+    sweeps1.niter() = 100;
+    sweeps1.noise() = 0.0;
+    println(sweeps1);
+
+    // println("\nStart TDVP");
+    // auto energy2 = tdvp(psi,H,0.1,sweeps1,{"NumCenter",1,"Quiet",});
+
+    // printfln("\nEnergy of Evolved State = %.10f",energy2);
+
+    auto psi = psi0;
+    for(auto i : range1(10))
+        {
+        auto psi1 = psi;
+        tdvp(psi,H,0.1,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",});
+        printfln("\n%d: SCGF = %f",i,std::log(inner(psi1,psi)));
+        psi.position(1);
+        psi.normalize();
+        }
 
     return 0;
     }
