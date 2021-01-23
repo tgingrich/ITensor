@@ -75,14 +75,14 @@ main()
     // Set the initial wavefunction matrix product state
     // to be a Neel state.
     //
-    auto state = InitState(sites);
-    for(auto i : range1(N))
-        {
-        if(i%2 == 1) state.set(i,"Up");
-        else         state.set(i,"Dn");
-        }
-    auto psi0 = MPS(state);
-    // auto psi0 = randomMPS(sites, 16);
+    // auto state = InitState(sites);
+    // for(auto i : range1(N))
+    //     {
+    //     if(i%2 == 1) state.set(i,"Up");
+    //     else         state.set(i,"Dn");
+    //     }
+    // auto psi0 = MPS(state);
+    auto psi0 = randomMPS(sites, 16);
     // PrintData(psi0);
 
     //
@@ -117,7 +117,7 @@ main()
     // printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
 
     auto sweeps1 = Sweeps(10);
-    sweeps1.maxdim() = 16,16;
+    sweeps1.maxdim() = 16;
     sweeps1.cutoff() = 1E-13;
     sweeps1.niter() = 100;
     sweeps1.noise() = 0.0;

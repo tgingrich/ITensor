@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"}));
 	// auto psim = psi0, psip = psi0;
 
-	int nstages = std::max(10,(int)(5000/freq));
+	int nstages = std::max(100,(int)(10000/freq));
 	auto period = 1/freq;
 	auto deltat = period/nstages;
 
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 	println("\nStart TDVP");
 
 	int maxiter = 10*freq;
-	Real thresh = 1.0E-8;
+	Real thresh = 1.0E-4;
 	Real mean, var;
 	int iter = 0;
 	while(iter<maxiter)
@@ -148,16 +148,17 @@ int main(int argc, char** argv)
 		auto psim0 = psim;
 		auto psip0 = psip;
 		auto mean0 = mean;
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",2,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"Order","PostOrder","DoNormalize",false,"Quiet",}));
 		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
 		printfln("\n%d: v- = %f, v+ = %f",iter++,left,right);
 		mean = (right-left)/(2*dz);
 		var = (right+left)/(dz*dz);
 		psim.normalize();
 		psip.normalize();
+		// printfln("%f",fabs(mean-mean0));
 		if(fabs(mean-mean0)<thresh) break;
 		}
 	if(iter==maxiter) println("\nMax iterations reached!");

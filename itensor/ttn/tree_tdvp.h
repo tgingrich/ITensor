@@ -177,7 +177,7 @@ namespace itensor {
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
-            applyExp(H,phi1,t/2,args);
+            applyExp(H,phi1,t,args);
 
             if(args.getBool("DoNormalize",true))
 	      phi1 /= norm(phi1);
@@ -227,7 +227,7 @@ namespace itensor {
                 H.numCenter(numCenter-1);
                 H.position(b1,psi);
                 
-                applyExp(H,phi0,-t/2,args);
+                applyExp(H,phi0,-t,args);
  
                 if(args.getBool("DoNormalize",true))
 		  phi0 /= norm(phi0);

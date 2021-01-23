@@ -5,7 +5,7 @@ using namespace itensor;
 
 int main()
 {
-  int L = 32;
+  int L = 4;
   Real J = 1.0;
   Real Ui = 2*J;
   Real Uf = 7*J;
@@ -68,6 +68,26 @@ int main()
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi1,psi1)));
   printfln("\nGround state current = %.10f", std::real(innerC(psi1,I,psi1)));
+
+  // auto Hfull = H(1) * H(2) * H(3) * H(4);
+  // auto inds = Hfull.inds();
+  // auto C = std::get<0>(combiner(inds[0], inds[2], inds[4], inds[6]));
+  // auto Cp = std::get<0>(combiner(inds[1], inds[3], inds[5], inds[7]));
+  // auto Hfullmat = C * Hfull * Cp;
+  // PrintData(Hfullmat);
+
+  // Hfull = I(1) * I(2) * I(3) * I(4);
+  // inds = Hfull.inds();
+  // C = std::get<0>(combiner(inds[0], inds[2], inds[4], inds[6]));
+  // Cp = std::get<0>(combiner(inds[1], inds[3], inds[5], inds[7]));
+  // auto Ifullmat = C * Hfull * Cp;
+  // PrintData(Ifullmat);
+
+  // Hfull = psi1(0) * psi1(1) * psi1(2);
+  // inds = Hfull.inds();
+  // C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3]));
+  // auto psi1fullmat = C * Hfull;
+  // PrintData(psi1fullmat);
 
   auto sweeps1 = Sweeps(1);
   sweeps1.maxdim() = 60;
