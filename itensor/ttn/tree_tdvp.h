@@ -122,8 +122,6 @@ namespace itensor {
 
     Real energy = NAN;
 
-    psi.setOrder(args); // Choose sweep order
-
     const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
     args.add("DebugLevel",debug_level);
@@ -162,7 +160,7 @@ namespace itensor {
         ITensor phi0,phi1;
         Spectrum spec;
 
-        for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args))
+        for(int b = psi.startPoint(), ha = 1; ha <= 2; sweepnext(b,ha,psi,args))
 	  {
             if(!quiet)
 	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);

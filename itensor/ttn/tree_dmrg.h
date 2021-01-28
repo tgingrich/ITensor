@@ -165,7 +165,6 @@ namespace itensor {
     Real energy = NAN;
 
     const int numCenter = args.getInt("NumCenter",2);
-    psi.setOrder(args); // Choose sweep order
 
     const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
@@ -206,7 +205,7 @@ namespace itensor {
         ITensor phi;
         Spectrum spec;
 
-        for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
+        for(int b = psi.startPoint(), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
     {
             if(!quiet)
         {

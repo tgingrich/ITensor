@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <climits>
+#include <list>
 #include "itensor/decomp.h"
 #include "itensor/mps/siteset.h"
 #include "itensor/mps/mps.h"
@@ -60,8 +61,9 @@ namespace itensor {
 
     std::vector<int> order_; //We store the direction of orthogonality for each node (ie the node towards ), set to -1 if not orthogonalized
     std::vector<int> reverse_order_; //We store the direction of orthogonality for each node (ie the node towards ), set to -1 if not orthogonalized
-    int order_start_;
     int site_dim_;
+    int start_;
+    int end_;
   public:
 
     //
@@ -164,15 +166,19 @@ namespace itensor {
 
 		}
 
-    void setOrder(Args const& args = Args::global());
+    void setOrder(int start, int end);
 
-    void setOrder(std::vector<int> new_order);
+    void getSequence(std::list<int> &sequence, std::vector<bool> &counted, int start, int end) const;
+
+    int forward(int i) const;
+
+    int backward(int i) const;
+
+    int startPoint() const { return start_; }
+
+    int endPoint() const { return end_; }
 
     void sweepnext(int &b, int &ha,Args const& args = Args::global()); //Travel method
-
-    int startPoint(Args const& args = Args::global()) const;
-
-    int endPoint(Args const& args = Args::global()) const;
 
     explicit operator bool() const { return (not A_.empty()); }
 

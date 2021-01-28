@@ -115,7 +115,7 @@ measure(Args const& args)
     max_te = std::max(max_te,last_spec_.truncerr());
     if(!silent)
         {
-        if(b == (ha == 1 ? psi_.endPoint(args) : psi_.startPoint(args)))
+        if(b == (ha == 1 ? psi_.endPoint() : psi_.startPoint()))
             {
             if(!printeigs) println();
             auto swstr = (nsweep>0) ? format("%d/%d",sw,nsweep) 

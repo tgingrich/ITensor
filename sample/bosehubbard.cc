@@ -64,7 +64,7 @@ int main()
   sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01,0.005,0.005;
   println(sweeps);
 
-  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",}));
+  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",}));
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi1,psi1)));
   printfln("\nGround state current = %.10f", std::real(innerC(psi1,I,psi1)));
@@ -117,7 +117,7 @@ int main()
       H = toMPO(ampo);
       }
 
-    psi1 = std::get<1>(tree_tdvp(H,psi1,Cplx_i*dt,sweeps1,{"NumCenter",2,"Order","PostOrder","Quiet",}));
+    psi1 = std::get<1>(tree_tdvp(H,psi1,Cplx_i*dt,sweeps1,{"NumCenter",2,"Quiet",}));
 
     printfln("Current measurement %d %d %d", t, U, std::real(innerC(psi1,I,psi1)));
     }
