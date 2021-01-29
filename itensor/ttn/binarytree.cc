@@ -487,10 +487,12 @@ namespace itensor {
     //   Error("setOrder: the required order is not part of Default,PostOrder,PreOrder,InOrder");
     // }
 
-    start_= start;
+    start_ = start;
     end_ = end;
     std::list<int> sequence;
     std::vector<bool> counted(N_, false);
+    for(bool elt : counted) std::cout << elt << " ";
+    cout << endl;
     getSequence(sequence, counted, start_, end_);
     int prev = -1;
     for(auto it = sequence.begin(); it != sequence.end(); ++it)
@@ -500,15 +502,17 @@ namespace itensor {
       }
     order_[sequence.back()] = -1;
     sequence.clear();
-    counted.resize(N_, false);
+    counted = std::vector<bool>(N_, false);
+    for(bool elt : counted) std::cout << elt << " ";
+    cout << endl;
     getSequence(sequence, counted, end_, start_);
     prev = -1;
-    reverse_order_[sequence.front()] = -1;
     for(auto it = sequence.begin(); it != sequence.end(); ++it)
       {
-      if(prev >= 0) reverse_order_[*it] = prev;
+      if(prev >= 0) reverse_order_[prev] = *it;
       prev = *it;
       }
+    reverse_order_[sequence.back()] = -1;
     }
 
   void BinaryTree::
@@ -569,7 +573,7 @@ namespace itensor {
   int BinaryTree::
   forward(int i) const
     {
-    if (i == end_) Error("Right end of network already reached!");
+    if (i == end_) return -1;
     if (depth(i)==height_) return parent(i);
     int length = pow2(std::max(depth(end_)-depth(leftchild(i)), 0));
     int begin = length*(leftchild(i)+1)-1;
@@ -583,7 +587,7 @@ namespace itensor {
   int BinaryTree::
   backward(int i) const
     {
-    if (i == start_) Error("Left end of network already reached!");
+    if (i == start_) return -1;
     if (depth(i)==height_) return parent(i);
     int length = pow2(std::max(depth(start_)-depth(leftchild(i)), 0));
     int begin = length*(leftchild(i)+1)-1;
