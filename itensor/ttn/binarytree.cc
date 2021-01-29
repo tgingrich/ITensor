@@ -395,104 +395,11 @@ namespace itensor {
   void BinaryTree::
   setOrder(int start, int end)
     {
-    // auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    // if (chosenOrder == "Default" ) {
-    //   for(int i =0; i < N_; ++i) {
-    //     order_[i] = i+1;
-    //     reverse_order_[i] = i-1;
-    //   }
-    //   order_[N_-1]=-N_;
-
-    // } else if (chosenOrder == "PostOrder") {
-    //   std::stack<int> stack;
-    //   std::vector<int> data;
-    //   int root = 0;
-    //   do {
-    //     while (root >= 0) {
-    //       auto rightchild = this->rightchild(root);
-    //       if (rightchild >= 0) {
-    //         stack.push(rightchild);
-    //       }
-    //       stack.push(root);
-    //       root = this->leftchild(root);
-    //     }
-    //     root = stack.top();
-    //     stack.pop();
-    //     if (!stack.empty() && this->rightchild(root) == stack.top()) {
-    //       int temp = root;
-    //       root = stack.top();
-    //       stack.pop();
-    //       stack.push(temp);
-    //     } else {
-    //       data.push_back(root);
-    //       root = -1;
-    //     }
-    //   } while (!stack.empty());
-    //   reverse_order_[data[0]] = -N_;
-    //   for(int i = 0; i < N_ - 1; ++i) {
-    //     order_[data[i]] = data[i + 1];
-    //     reverse_order_[data[i + 1]] = data[i];
-    //   }
-    //   order_[data[N_ - 1]] = -1;
-
-    // } else if (chosenOrder == "PreOrder") {
-    //   std::stack<int> stack;
-    //   stack.push(0);
-    //   auto origin_node = 0;
-    //   while (!stack.empty()) {
-    //     int node = stack.top();
-    //     stack.pop();
-    //     order_[origin_node] = node;
-    //     origin_node = node;
-    //     auto rightchild = this->rightchild(node);
-    //     if (rightchild >= 0) {
-    //       stack.push(rightchild);
-    //     }
-
-    //     auto leftchild = this->leftchild(node);
-    //     if (leftchild >= 0) {
-    //       stack.push(leftchild);
-    //     }
-    //   }
-    //   order_[N_ - 1] = -N_;
-    //   for(int i = 0; i < N_ - 1; ++i) {
-    //     reverse_order_[order_[i]] = i;
-    //   }
-    //   reverse_order_[0] = -1;
-
-    // } else if (chosenOrder == "InOrder") {
-    //   std::stack<int> stack;
-    //   std::vector<int> data;
-    //   int root = 0;
-    //   do {
-    //     while (root >= 0) {
-    //       stack.push(root);
-    //       root = this->leftchild(root);
-    //     }
-    //     if (root < 0 && !stack.empty()) {
-    //       root = stack.top();
-    //       stack.pop();
-    //       data.push_back(root);
-    //       root = this->rightchild(root);
-    //     }
-    //   } while(root >= 0 || !stack.empty());
-    //   reverse_order_[data[0]] = -N_;
-    //   for(int i = 0; i < N_ - 1; ++i) {
-    //     order_[data[i]] = data[i + 1];
-    //     reverse_order_[data[i + 1]] = data[i];
-    //   }
-    //   order_[data[N_ - 1]] = -1;
-
-    // } else {
-    //   Error("setOrder: the required order is not part of Default,PostOrder,PreOrder,InOrder");
-    // }
-
+    if(depth(start) != height_ || depth(end) != height_) Error("Start and end must be leaves!");
     start_ = start;
     end_ = end;
     std::list<int> sequence;
     std::vector<bool> counted(N_, false);
-    for(bool elt : counted) std::cout << elt << " ";
-    cout << endl;
     getSequence(sequence, counted, start_, end_);
     int prev = -1;
     for(auto it = sequence.begin(); it != sequence.end(); ++it)
@@ -503,8 +410,6 @@ namespace itensor {
     order_[sequence.back()] = -1;
     sequence.clear();
     counted = std::vector<bool>(N_, false);
-    for(bool elt : counted) std::cout << elt << " ";
-    cout << endl;
     getSequence(sequence, counted, end_, start_);
     prev = -1;
     for(auto it = sequence.begin(); it != sequence.end(); ++it)
@@ -600,29 +505,6 @@ namespace itensor {
 
   void BinaryTree::sweepnext(int &b, int &ha,Args const& args)
     {
- //    const int numCenter = args.getInt("NumCenter",2);
-
- //    auto b1 = (ha % 2== 1 ? order_.at(b) : reverse_order_.at(b));
- //    if(numCenter == 2 && b1 == 0)
- //      {
- //      b1 = (ha % 2== 1 ? order_.at(b1) : reverse_order_.at(b1));
- //      }
- //    // odd ha means foward order and even one means reverse order
- //    if(b1 < 0) // At the end, either we stop or we return in the reverse direction
- //      {
-	// if (reverse)
-	//   {
-	//     ++ha;
-	//     b = (ha % 2== 1 ? order_.at(b) : reverse_order_.at(b));
-	//   }
-	// else{ha+=2;} // We skip the reverse part
-
- //      }
- //    else
- //      {
- //      b = b1;
- //      }  
-
     const int numCenter = args.getInt("NumCenter",2);
     int b1 = (ha == 1 ? order_.at(b) : reverse_order_.at(b));
     int b2 = b1;
@@ -638,7 +520,7 @@ namespace itensor {
     else
       {
       b = b1;
-      } 
+      }
     }
 
   BinaryTree

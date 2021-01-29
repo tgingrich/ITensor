@@ -220,7 +220,8 @@ namespace itensor {
 
       TIMER_START(2);
       // The local vector to update
-      if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
+      int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
+      if (numCenter == 2) phi = psi(b)*psi(adjacent);
             else if(numCenter == 1) phi = psi(b);
       TIMER_STOP(2);
 
@@ -242,15 +243,18 @@ namespace itensor {
       //Restore tensor network form
             if (numCenter == 2) 
         {
-      spec = psi.svdBond(b,phi,psi.parent(b),PH,args);//That change to make direction depend of sweep direction
+      spec = psi.svdBond(b,phi,adjacent,PH,args);
       PH.haveBeenUpdated(b);
-      PH.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
-      if(subspace_exp)
+      PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
+      int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
+      int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
+      int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
+      if(subspace_exp && link_dim < correct_dim)
       {
-        long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
+        long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
         args.add("MinDim",current_dim);
-        orthPair(psi.ref(b),psi.ref(psi.parent(b)),args);
-        psi.setOrthoLink(b,psi.parent(b)); // Update orthogonalization
+        orthPair(psi.ref(b),psi.ref(adjacent),args);
+        psi.setOrthoLink(b,adjacent); // Update orthogonalization
       }
         }
       else if(numCenter == 1)

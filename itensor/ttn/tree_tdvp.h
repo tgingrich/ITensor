@@ -170,8 +170,9 @@ namespace itensor {
             H.numCenter(numCenter);
             H.position(b,psi);
 
+            int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
             if(numCenter == 2)
-	      phi1 = psi(b)*psi(psi.parent(b));
+	      phi1 = psi(b)*psi(adjacent);
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
@@ -182,15 +183,18 @@ namespace itensor {
    
             if(numCenter == 2)
             {
-	      spec = psi.svdBond(b,phi1,psi.parent(b),H,args);
+	      spec = psi.svdBond(b,phi1,adjacent,H,args);
         H.haveBeenUpdated(b);
-        H.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
-        if(subspace_exp)
+        H.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
+        int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
+        int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
+        int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
+        if(subspace_exp && link_dim < correct_dim)
         {
-          long current_dim=subspace_expansion(psi,H,b,psi.parent(b),alpha);// We choose to put the zero into the parent
+          long current_dim=subspace_expansion(psi,H,b,adjacent,alpha);
           args.add("MinDim",current_dim);
-          orthPair(psi.ref(b),psi.ref(psi.parent(b)),args);
-          psi.setOrthoLink(b,psi.parent(b)); // Update orthogonalization
+          orthPair(psi.ref(b),psi.ref(adjacent),args);
+          psi.setOrthoLink(b,adjacent); // Update orthogonalization
         }
             }
             else if(numCenter == 1)
@@ -204,9 +208,10 @@ namespace itensor {
             H.product(phi1,H_phi1);
             energy = real(eltC(dag(phi1)*H_phi1))/norm(phi1);
  
-            if((numCenter == 1 && b != 0) || (numCenter == 2 && b != 1 && b != 2))
+            if((ha == 1 && numCenter == 1 && b == psi.endPoint()) || (ha == 1 && numCenter == 2 && b == psi.parent(psi.endPoint())) ||
+              (ha == 2 && numCenter == 1 && b == psi.startPoint()) || (ha == 2 && numCenter == 2 && b == psi.parent(psi.startPoint())))
 	      {
-                auto b1 = (numCenter == 2 ? psi.parent(b) : b);
+                auto b1 = (numCenter == 2 ? adjacent : b);
  
                 if(numCenter == 2)
 		  {
@@ -215,10 +220,10 @@ namespace itensor {
                 else if(numCenter == 1)
 		  {
                     Index l;
-                    l = commonIndex(psi(b1),psi(psi.parent(b1)));
+                    l = commonIndex(psi(b),psi(adjacent));
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
-                    psi.ref(b1) = U;
+                    psi.ref(b) = U;
                     phi0 = S*V;
 		  }
  
@@ -236,7 +241,7 @@ namespace itensor {
 		  }
                 if(numCenter == 1)
 		  {
-                    psi.ref(psi.parent(b1)) *= phi0;
+                    psi.ref(adjacent) *= phi0;
 		  }
 
                 if (numCenter == 1) H.haveBeenUpdated(b1);
@@ -285,7 +290,7 @@ namespace itensor {
   
     if(args.getBool("DoNormalize",true))
       {
-        if(numCenter==1) psi.position(0);
+        if(numCenter==1) psi.position(psi.startPoint());
         psi.normalize();
       }
 
