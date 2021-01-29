@@ -105,6 +105,8 @@ namespace itensor {
     order_=other.order_;
     reverse_order_=other.reverse_order_;
     site_dim_ = other.site_dim_;
+    start_ = other.start_;
+    end_ = other.end_;
   }
 
   BinaryTree& BinaryTree::
@@ -118,6 +120,8 @@ namespace itensor {
     order_=other.order_;
     reverse_order_=other.reverse_order_;
     site_dim_ = other.site_dim_;
+    start_ = other.start_;
+    end_ = other.end_;
     return *this;
   }
 
