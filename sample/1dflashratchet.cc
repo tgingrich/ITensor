@@ -50,8 +50,8 @@ int main(int argc, char** argv)
 	int count = 0;
 	for(auto i : range(bins))
 		{
-		if(i%(bins/nparticles)==0 && count++ < nparticles) state.set(i+1,"Up");
-		else state.set(i+1,"Dn");
+		if(i%(bins/nparticles)==0 && count++ < nparticles) state.set(i+1,"Dn");
+		else state.set(i+1,"Up");
 		}
 	auto psi0 = BinaryTree(state);
 
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
   	auto Nop = toMPO(anop);
 	int spin = inner(psi0,Nop,psi0);
 	printfln("Driving frequency: %f",freq);
-	printfln("\nParticle number: %d",spin+bins/2);
+	printfln("\nParticle number: %d",bins/2-spin);
 
 	auto sweeps = Sweeps(30);
 	sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
@@ -113,6 +113,21 @@ int main(int argc, char** argv)
 
 	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"}));
 	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"}));
+
+	// PrintData(psim(0).inds());
+	// PrintData(psim(1).inds());
+	// PrintData(psim(2).inds());
+	// PrintData(psim(3).inds());
+	// PrintData(psim(4).inds());
+	// PrintData(psim(5).inds());
+	// PrintData(psim(6).inds());
+	// PrintData(psip(0).inds());
+	// PrintData(psip(1).inds());
+	// PrintData(psip(2).inds());
+	// PrintData(psip(3).inds());
+	// PrintData(psip(4).inds());
+	// PrintData(psip(5).inds());
+	// PrintData(psip(6).inds());
 
 	// int nstages = std::max(100,(int)(10000/freq));
 	// auto period = 1/freq;
@@ -152,7 +167,7 @@ int main(int argc, char** argv)
 		auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
 		auto psi1fullmat = C * Hfull;
 		PrintData(psi1fullmat);
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat/2,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
 		}
 	// psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
 

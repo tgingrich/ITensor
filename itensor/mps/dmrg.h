@@ -447,6 +447,8 @@ TIMER_STOP(4);
 
             obs.measure(args);
 
+            printfln("%d %d %d", sw, b, energy);
+
             } //for loop over b
 
         if(!silent)

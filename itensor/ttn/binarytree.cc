@@ -352,32 +352,37 @@ namespace itensor {
 
   BinaryTree& BinaryTree::
   position(int k, Args args)
-  {
+    {
     if(not *this) Error("position: BinaryTree is default constructed");
 
     //Find the max distance from the position to orthogonalize
     auto dist_to_zero=depth(k);
     auto max_dist=height_+dist_to_zero;
     //By decreasing distance, we check if the tensor are orthogonal, if not we orthogonalize them
-    for(int d =max_dist; d > 0; d--) {
+    for(int d =max_dist; d > 0; d--)
+      {
       auto node_d = this->node_list(k,d); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
-      for(unsigned int i=0; i < node_d.size(); ++i) {
-        if (orth_pos_.at(node_d.at(i)[0]) != node_d.at(i)[1] ) {
-          if(args.getBool("DoSVDBond",false)) {
+      for(unsigned int i=0; i < node_d.size(); ++i)
+        {
+        if (orth_pos_.at(node_d.at(i)[0]) != node_d.at(i)[1])
+          {
+          if(args.getBool("DoSVDBond",false))
+            {
             auto WF = operator()(node_d.at(i)[0]) * operator()(node_d.at(i)[1]);
             svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);//svdBond already update the orthogonalisation memory
-          } else {
+            }
+          else
+            {
             orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
 						// this->setOrthoLink(node_d.at(i)[0],node_d.at(i)[1]);
 						orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
 						orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
+            }
           }
-
         }
       }
-    }
     return *this;
-  }
+    }
 
   BinaryTree& BinaryTree::
   orthogonalize(Args args) // Since position check the orthognality along the path
@@ -518,8 +523,8 @@ namespace itensor {
       }
     if(b2 < 0)
       {
+      if(numCenter == 2) b = b1;
       ++ha;
-      if(numCenter == 1) b = (ha == 1 ? order_.at(b) : reverse_order_.at(b));
       }
     else
       {

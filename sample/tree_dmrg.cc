@@ -118,9 +118,7 @@ int main(int argc, char** argv)
   // }
   // Print(M);
 
-  println("Construction of the MPO and LocalMPO");
-//  LocalMPO_BT PH(H,args);
-//
+  println("Construction of the MPO and LocalMPO");//
 
   auto psi0 = BinaryTree(state);
   // auto psi0 = randomBinaryTree(sites, 16);
@@ -130,10 +128,7 @@ int main(int argc, char** argv)
   // std::vector<std::vector<ITensor>> MPO(psi0.height() + 2);
   //println(totalQN(psi0));
   println("Construction of the BinaryTree");
-//  PH.position(0,psi0);
-//  PH.haveBeenUpdated(2);
-//  //println("----------New-------");
-//  PH.position(3,psi0);
+
 //removeQNs(psi0);
   printfln("Initial norm = %.5f", inner(psi0,psi0) );
 

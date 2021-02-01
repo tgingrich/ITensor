@@ -168,7 +168,7 @@ namespace itensor {
         psi.position(b,args); //Orthogonalize with respect to b
 
             H.numCenter(numCenter);
-            H.position(b,psi);
+            H.position(b,(ha==1?Fromleft:Fromright),psi);
 
             int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
             if(numCenter == 2)
@@ -176,7 +176,8 @@ namespace itensor {
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
-            applyExp(H,phi1,t,args);
+            PrintData(phi1.inds());
+            applyExp(H,phi1,t/2,args);
 
             if(args.getBool("DoNormalize",true))
 	      phi1 /= norm(phi1);
@@ -208,8 +209,8 @@ namespace itensor {
             H.product(phi1,H_phi1);
             energy = real(eltC(dag(phi1)*H_phi1))/norm(phi1);
  
-            if((ha == 1 && numCenter == 1 && b == psi.endPoint()) || (ha == 1 && numCenter == 2 && b == psi.parent(psi.endPoint())) ||
-              (ha == 2 && numCenter == 1 && b == psi.startPoint()) || (ha == 2 && numCenter == 2 && b == psi.parent(psi.startPoint())))
+            if((ha == 1 && numCenter == 1 && b != psi.endPoint()) || (ha == 1 && numCenter == 2 && b != psi.parent(psi.endPoint())) ||
+              (ha == 2 && numCenter == 1 && b != psi.startPoint()) || (ha == 2 && numCenter == 2 && b != psi.parent(psi.startPoint())))
 	      {
                 auto b1 = (numCenter == 2 ? adjacent : b);
  
@@ -228,9 +229,10 @@ namespace itensor {
 		  }
  
                 H.numCenter(numCenter-1);
-                H.position(b1,psi);
+                H.position(b1,(ha==1?Fromleft:Fromright),psi);
                 
-                applyExp(H,phi0,-t,args);
+                PrintData(phi0.inds());
+                applyExp(H,phi0,-t/2,args);
  
                 if(args.getBool("DoNormalize",true))
 		  phi0 /= norm(phi0);

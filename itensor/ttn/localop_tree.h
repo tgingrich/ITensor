@@ -237,6 +237,11 @@ product(ITensor const& phi,
     {
     if(!(*this)) Error("LocalOpTree is null");
 
+    // if(nc_ == 1 || nc_ == 2) PrintData(Op1_->inds());
+    // if(nc_ == 2) PrintData(Op2_->inds());
+    // if(!LIsNull()) PrintData(L().inds());
+    // if(!RIsNull()) PrintData(R().inds());
+
     if(LIsNull())
         {
         phip = phi;
@@ -272,6 +277,8 @@ product(ITensor const& phi,
         }
 
     phip.noPrime();
+    // PrintData(phi.inds());
+    // PrintData(phip.inds());
     }
 
 Real inline LocalOpTree::

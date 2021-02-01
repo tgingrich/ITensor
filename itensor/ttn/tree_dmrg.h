@@ -215,12 +215,12 @@ namespace itensor {
       TIMER_START(1);
       psi.position(b,args); //Orthogonalize with respect to b
 
-        PH.position(b,psi); // Compute the local environnement
+        PH.position(b,(ha==1?Fromleft:Fromright),psi); // Compute the local environnement
       TIMER_STOP(1);
 
       TIMER_START(2);
       // The local vector to update
-      int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
+      int adjacent = (ha == 1 ? psi.forward(b) : psi.backward(b));
       if (numCenter == 2) phi = psi(b)*psi(adjacent);
             else if(numCenter == 1) phi = psi(b);
       TIMER_STOP(2);
@@ -241,20 +241,25 @@ namespace itensor {
 
       TIMER_START(4);
       //Restore tensor network form
+            // PrintData(psi(b).inds());
+            // PrintData(psi(adjacent).inds());
             if (numCenter == 2) 
         {
+      PrintData(commonIndex(psi(b), psi(adjacent)));
       spec = psi.svdBond(b,phi,adjacent,PH,args);
       PH.haveBeenUpdated(b);
       PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
       int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
       int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
       int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
+      PrintData(commonIndex(psi(b), psi(adjacent)));
       if(subspace_exp && link_dim < correct_dim)
       {
         long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
         args.add("MinDim",current_dim);
         orthPair(psi.ref(b),psi.ref(adjacent),args);
         psi.setOrthoLink(b,adjacent); // Update orthogonalization
+        PrintData(commonIndex(psi(b), psi(adjacent)));
       }
         }
       else if(numCenter == 1)
@@ -262,6 +267,8 @@ namespace itensor {
       psi.ref(b) = phi;
       PH.haveBeenUpdated(b);
         }
+        // PrintData(psi(b).inds());
+        // PrintData(psi(adjacent).inds());
 
       // PrintData(phi);
       // PrintData(psi);
@@ -327,7 +334,7 @@ namespace itensor {
 
             obs.measure(args);
 
-            // printfln("%d %d %d", sw, b, energy);
+            printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b
 
