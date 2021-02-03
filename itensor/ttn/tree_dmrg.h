@@ -241,6 +241,8 @@ namespace itensor {
 
       TIMER_START(4);
       //Restore tensor network form
+            // PrintData(psi(b).inds());
+            // PrintData(psi(adjacent).inds());
             if (numCenter == 2) 
         {
       spec = psi.svdBond(b,phi,adjacent,PH,args);
@@ -252,6 +254,8 @@ namespace itensor {
       if(subspace_exp && b > adjacent && link_dim < correct_dim)
       {
         long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
+        // PrintData(psi(b).inds());
+        // PrintData(psi(adjacent).inds());
         args.add("MinDim",current_dim);
         orthPair(psi.ref(b),psi.ref(adjacent),args);
         psi.setOrthoLink(b,adjacent); // Update orthogonalization
@@ -262,6 +266,9 @@ namespace itensor {
       psi.ref(b) = phi;
       PH.haveBeenUpdated(b);
         }
+        // PrintData(psi(b).inds());
+        // PrintData(psi(adjacent).inds());
+
 
       // PrintData(phi);
       // PrintData(psi);

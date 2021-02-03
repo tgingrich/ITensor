@@ -139,7 +139,7 @@ namespace itensor {
 
     std::vector<int> children(int i,int distance) const; // Return all the children of the node that are at a certain distance, there is 2^distance of them
 
-    std::vector<int[2]> node_list (int i, int distance) const; // Return all the nodes that are at a certain distance from a given node
+    std::vector<int[2]> node_list (int i, int distance, Direction dir = Fromleft) const; // Return all the nodes that are at a certain distance from a given node
 
     //
     // BinaryTree Accessor Methods

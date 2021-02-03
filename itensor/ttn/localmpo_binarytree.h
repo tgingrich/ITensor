@@ -182,7 +182,7 @@ namespace itensor {
     /////////////////
 
     void
-    makeHloc(const BinaryTree& psi, int k);
+    makeHloc(const BinaryTree& psi, int k, Direction dir);
 
   };
 
@@ -245,7 +245,7 @@ namespace itensor {
   {
     if(!(*this)) Error("LocalMPO_BT is null");
 
-    makeHloc(psi,b);
+    makeHloc(psi,b,dir);
 
     if(nc_ == 2 && b == (dir == Fromleft ? psi.endPoint() : psi.startPoint()))
       {
@@ -294,7 +294,7 @@ namespace itensor {
 
 
   inline void LocalMPO_BT::
-  makeHloc(BinaryTree const& psi, int k)
+  makeHloc(BinaryTree const& psi, int k, Direction dir)
   {
     if(!PH_.empty())
       {
@@ -306,7 +306,7 @@ namespace itensor {
 	  {
     if(nc_ != 0 && d == 0) break;
 	    //println(d);
-	    auto node_d = psi.node_list(k,d); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
+	    auto node_d = psi.node_list(k,d,dir); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
 	    for(unsigned int i=0; i < node_d.size(); i++)
 	      {
 		auto node=node_d.at(i)[0];

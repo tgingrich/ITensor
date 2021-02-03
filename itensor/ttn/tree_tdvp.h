@@ -277,7 +277,7 @@ namespace itensor {
 
             obs.measure(args);
 
-            printfln("%d %d %d", sw, b, energy);
+            // printfln("%d %d %d", sw, b, energy);
             // printfln("%d %d %d", norm(phi0), norm(phi1), norm(psi));
 
 	  } //for loop over b

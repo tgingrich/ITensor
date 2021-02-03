@@ -270,15 +270,15 @@ namespace itensor {
     return child;
   }
 
-  std::vector<int[2]> BinaryTree::node_list(int i, int distance) const{
+  std::vector<int[2]> BinaryTree::node_list(int k, int distance, Direction dir) const{
     // Return all the nodes that are at a certain distance from a given node as well as the predecessor in the graph
     // This is all the children at a given distance from every parent of the node for the other subgraph
     // So we iterate to the root and get the children at the reduced distance for each node in the road
-    auto de=this->depth(i);
-    std::vector<int> node_list=this->children(i,distance);
+    auto de=this->depth(k);
+    std::vector<int> node_list=this->children(k,distance);
     std::vector<int> node_pred(node_list.size(),-1);
 
-    auto new_node=i;
+    auto new_node=k;
     for( int d =1; d <=de; d++) // We start from the node and get the parent then the other children of the parents
       {
 	if( distance < d or new_node== -1) break;// No more node to add
@@ -305,7 +305,8 @@ namespace itensor {
 	nodes_out.at(i)[0] =node_list.at(i);
 	if(node_pred.at(i) == -1)
 	  {
-	    nodes_out.at(i)[1] = this->parent(node_list.at(i));
+	    if(node_list.at(i) == k) nodes_out.at(i)[1] = (dir == Fromleft ? this->forward(node_list.at(i)) : this->backward(node_list.at(i)));
+      else nodes_out.at(i)[1] = this->parent(node_list.at(i));
 	  }
 	else
 	  {

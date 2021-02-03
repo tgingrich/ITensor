@@ -167,7 +167,7 @@ int main(int argc, char** argv)
 		auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
 		auto psi1fullmat = C * Hfull;
 		PrintData(psi1fullmat);
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
 		}
 	// psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
 

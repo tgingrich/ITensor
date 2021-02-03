@@ -237,10 +237,10 @@ product(ITensor const& phi,
     {
     if(!(*this)) Error("LocalOpTree is null");
 
-    if(nc_ == 1 || nc_ == 2) PrintData(Op1_->inds());
-    if(nc_ == 2) PrintData(Op2_->inds());
-    if(!LIsNull()) PrintData(L().inds());
-    if(!RIsNull()) PrintData(R().inds());
+    // if(nc_ == 1 || nc_ == 2) PrintData(Op1_->inds());
+    // if(nc_ == 2) PrintData(Op2_->inds());
+    // if(!LIsNull()) PrintData(L().inds());
+    // if(!RIsNull()) PrintData(R().inds());
 
     if(LIsNull())
         {
@@ -276,8 +276,8 @@ product(ITensor const& phi,
             phip *= R();
         }
 
-    PrintData(phi.inds());
-    PrintData(phip.inds());
+    // PrintData(phi.inds());
+    // PrintData(phip.inds());
     phip.noPrime();
     }
 
