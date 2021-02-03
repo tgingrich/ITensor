@@ -276,25 +276,18 @@ namespace itensor {
         }
       else if(nc_ == 1)
         {
-        if (b1 == 0)  // If we updated the top node
+        if (b == 0)  // If we updated the top node
           {
 		      lop_.update(PH_.at(1), PH_.at(2), PH_.back());
           }
         else
           {
-          lop_.update(PH_.at(2*b1+1), PH_.at(2*b1+2), PH_.at(psi.parent(b1)));
+          lop_.update(PH_.at(2*b+1), PH_.at(2*b+2), PH_.at(psi.parent(b)));
           }
         }
       else if(nc_ == 0)
         {
-        if (b1 == 0)  // If we updated the top node
-          {
-          lop_.update(PH_.at(0), PH_.back());
-          }
-        else
-          {
-          lop_.update(PH_.at(b1), PH_.at(psi.parent(b1)));
-          }
+        lop_.update(PH_.at(b), PH_.at(neighbor));
         }
       }
   }

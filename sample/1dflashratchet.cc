@@ -114,20 +114,20 @@ int main(int argc, char** argv)
 	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"}));
 	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"}));
 
-	// PrintData(psim(0).inds());
-	// PrintData(psim(1).inds());
-	// PrintData(psim(2).inds());
-	// PrintData(psim(3).inds());
-	// PrintData(psim(4).inds());
-	// PrintData(psim(5).inds());
-	// PrintData(psim(6).inds());
-	// PrintData(psip(0).inds());
-	// PrintData(psip(1).inds());
-	// PrintData(psip(2).inds());
-	// PrintData(psip(3).inds());
-	// PrintData(psip(4).inds());
-	// PrintData(psip(5).inds());
-	// PrintData(psip(6).inds());
+	PrintData(psim(0).inds());
+	PrintData(psim(1).inds());
+	PrintData(psim(2).inds());
+	PrintData(psim(3).inds());
+	PrintData(psim(4).inds());
+	PrintData(psim(5).inds());
+	PrintData(psim(6).inds());
+	PrintData(psip(0).inds());
+	PrintData(psip(1).inds());
+	PrintData(psip(2).inds());
+	PrintData(psip(3).inds());
+	PrintData(psip(4).inds());
+	PrintData(psip(5).inds());
+	PrintData(psip(6).inds());
 
 	// int nstages = std::max(100,(int)(10000/freq));
 	// auto period = 1/freq;

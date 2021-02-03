@@ -168,7 +168,7 @@ namespace itensor {
         psi.position(b,args); //Orthogonalize with respect to b
 
             H.numCenter(numCenter);
-            H.position(b,(ha==1?Fromleft:Fromright),psi);
+            H.position(b,ha==1?Fromleft:Fromright,psi);
 
             int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
             if(numCenter == 2)
@@ -176,7 +176,7 @@ namespace itensor {
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
-            PrintData(phi1.inds());
+            // PrintData(phi1.inds());
             applyExp(H,phi1,t/2,args);
 
             if(args.getBool("DoNormalize",true))
@@ -190,7 +190,7 @@ namespace itensor {
         int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
         int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
         int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-        if(subspace_exp && link_dim < correct_dim)
+        if(subspace_exp && b > adjacent && link_dim < correct_dim)
         {
           long current_dim=subspace_expansion(psi,H,b,adjacent,alpha);
           args.add("MinDim",current_dim);
@@ -201,6 +201,7 @@ namespace itensor {
             else if(numCenter == 1)
             {
 	      psi.ref(b) = phi1;
+        // PrintData(psi(b).inds());
         H.haveBeenUpdated(b);
             }
 
@@ -225,13 +226,14 @@ namespace itensor {
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
                     psi.ref(b) = U;
+                    // PrintData(psi(b).inds());
                     phi0 = S*V;
 		  }
  
                 H.numCenter(numCenter-1);
-                H.position(b1,(ha==1?Fromleft:Fromright),psi);
+                H.position(b1,ha==1?Fromleft:Fromright,psi);
                 
-                PrintData(phi0.inds());
+                // PrintData(phi0.inds());
                 applyExp(H,phi0,-t/2,args);
  
                 if(args.getBool("DoNormalize",true))
@@ -244,6 +246,7 @@ namespace itensor {
                 if(numCenter == 1)
 		  {
                     psi.ref(adjacent) *= phi0;
+                    // PrintData(psi(adjacent).inds());
 		  }
 
                 if (numCenter == 1) H.haveBeenUpdated(b1);
