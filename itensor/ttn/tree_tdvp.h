@@ -208,7 +208,7 @@ namespace itensor {
 	    // Calculate energy
             ITensor H_phi1;
             H.product(phi1,H_phi1);
-            energy = real(eltC(dag(phi1)*H_phi1))/norm(phi1);
+            energy = real(eltC(dag(phi1)*H_phi1));
  
             if((ha == 1 && numCenter == 1 && b != psi.endPoint()) || (ha == 1 && numCenter == 2 && b != psi.parent(psi.endPoint())) ||
               (ha == 2 && numCenter == 1 && b != psi.startPoint()) || (ha == 2 && numCenter == 2 && b != psi.parent(psi.startPoint())))
@@ -254,7 +254,7 @@ namespace itensor {
                 // Calculate energy
                 ITensor H_phi0;
                 H.product(phi0,H_phi0);
-                energy = real(eltC(dag(phi0)*H_phi0))/norm(phi0);
+                energy = real(eltC(dag(phi0)*H_phi0));
 	      }
  
 	    if(!quiet)
@@ -277,8 +277,7 @@ namespace itensor {
 
             obs.measure(args);
 
-            // printfln("%d %d %d", sw, b, energy);
-            // printfln("%d %d %d", norm(phi0), norm(phi1), norm(psi));
+            // printfln("%d %d %d %d %d %d", sw, b, energy, norm(psi), norm(phi0), norm(phi1));
 
 	  } //for loop over b
 
