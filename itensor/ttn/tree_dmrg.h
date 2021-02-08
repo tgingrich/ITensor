@@ -241,7 +241,7 @@ namespace itensor {
               int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
               int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
               int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-              if(subspace_exp && b > adjacent && link_dim < correct_dim)
+              if(subspace_exp && link_dim < correct_dim)
                 {
                 long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
                 orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",current_dim});
@@ -259,7 +259,7 @@ namespace itensor {
                 int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
                 int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
                 int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-                if(subspace_exp && b > adjacent && link_dim < correct_dim)
+                if(subspace_exp && link_dim < correct_dim)
                   {
                   long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
                   orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",current_dim});
