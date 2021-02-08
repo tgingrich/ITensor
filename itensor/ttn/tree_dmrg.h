@@ -164,7 +164,7 @@ namespace itensor {
 
     Real energy = NAN;
 
-    const int numCenter = args.getInt("NumCenter",2);
+    const int numCenter = args.getInt("NumCenter",1);
 
     const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
@@ -241,34 +241,42 @@ namespace itensor {
 
       TIMER_START(4);
       //Restore tensor network form
-            // PrintData(psi(b).inds());
-            // PrintData(psi(adjacent).inds());
             if (numCenter == 2) 
-        {
-      spec = psi.svdBond(b,phi,adjacent,PH,args);
-      PH.haveBeenUpdated(b);
-      PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
-      int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
-      int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-      int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-      if(subspace_exp && b > adjacent && link_dim < correct_dim)
-      {
-        long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-        // PrintData(psi(b).inds());
-        // PrintData(psi(adjacent).inds());
-        args.add("MinDim",current_dim);
-        orthPair(psi.ref(b),psi.ref(adjacent),args);
-        psi.setOrthoLink(b,adjacent); // Update orthogonalization
-      }
-        }
-      else if(numCenter == 1)
-        {
-      psi.ref(b) = phi;
-      PH.haveBeenUpdated(b);
-        }
-        // PrintData(psi(b).inds());
-        // PrintData(psi(adjacent).inds());
-
+              {
+              // PrintData(psi(b));
+              spec = psi.svdBond(b,phi,adjacent,PH,args);
+              // PrintData(psi(b));
+              PH.haveBeenUpdated(b);
+              PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
+              int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
+              int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
+              int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
+              if(subspace_exp && b > adjacent && link_dim < correct_dim)
+                {
+                long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
+                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",current_dim});
+                psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                }
+              }
+            else if(numCenter == 1)
+              {
+              psi.ref(b) = phi;
+              PH.haveBeenUpdated(b);
+              if(adjacent != -1)
+                {
+                orthPair(psi.ref(b),psi.ref(adjacent),args);
+                psi.setOrthoLink(b,adjacent);
+                int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
+                int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
+                int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
+                if(subspace_exp && b > adjacent && link_dim < correct_dim)
+                  {
+                  long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
+                  orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",current_dim});
+                  psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                  }
+                }
+              }
 
       // PrintData(phi);
       // PrintData(psi);

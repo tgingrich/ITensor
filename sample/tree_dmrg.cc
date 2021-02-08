@@ -159,10 +159,8 @@ int main(int argc, char** argv)
   //
 
   println("Start DMRG");
-  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"DoSVDBond"});
-  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"});
-
-  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
+  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","PostOrder","Quiet",true,"DoSVDBond"});
+  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"});
 
   //
   // Print the final energy reported by DMRG

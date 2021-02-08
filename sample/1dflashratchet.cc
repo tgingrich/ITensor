@@ -111,16 +111,16 @@ int main(int argc, char** argv)
 
 	println("\nStart DMRG");
 
-	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"}));
-	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"}));
+	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
 
 	int nstages = std::max(100,(int)(10000/freq));
 	auto period = 1/freq;
-	// auto deltat = period/nstages;
-	auto deltat = period/100;
+	auto deltat = period/nstages;
+	// auto deltat = period/100;
 
-	// auto sweeps1 = Sweeps(nstages/2);
-	auto sweeps1 = Sweeps(1);
+	auto sweeps1 = Sweeps(nstages/2);
+	// auto sweeps1 = Sweeps(1);
 	sweeps1.maxdim() = 300;
 	sweeps1.cutoff() = 1E-13;
 	sweeps1.niter() = 100;
@@ -131,67 +131,47 @@ int main(int argc, char** argv)
 
 	println("\nStart TDVP");
 
-	// printfln("%f", deltat);
-	// auto Hfull1 = W1m(1) * W1m(2) * W1m(3) * W1m(4) * W1m(5) * W1m(6) * W1m(7) * W1m(8);
-	// auto inds1 = Hfull1.inds();
-	// auto C1 = std::get<0>(combiner(inds1[0], inds1[2], inds1[4], inds1[6], inds1[8], inds1[10], inds1[12], inds1[14]));
-	// auto Cp1 = std::get<0>(combiner(inds1[1], inds1[3], inds1[5], inds1[7], inds1[9], inds1[11], inds1[13], inds1[15]));
-	// auto Hfullmat1 = C1 * Hfull1 * Cp1;
-	// PrintData(Hfullmat1);
-	// auto Hfull2 = W2m(1) * W2m(2) * W2m(3) * W2m(4) * W2m(5) * W2m(6) * W2m(7) * W2m(8);
-	// auto inds2 = Hfull2.inds();
-	// auto C2 = std::get<0>(combiner(inds2[0], inds2[2], inds2[4], inds2[6], inds2[8], inds2[10], inds2[12], inds2[14]));
-	// auto Cp2 = std::get<0>(combiner(inds2[1], inds2[3], inds2[5], inds2[7], inds2[9], inds2[11], inds2[13], inds2[15]));
-	// auto Hfullmat2 = C2 * Hfull2 * Cp2;
-	// PrintData(Hfullmat2);
-	PrintData(psim(0));
-	PrintData(psim(1));
-	PrintData(psim(2));
-	PrintData(psim(3));
-	PrintData(psim(4));
-	PrintData(psim(5));
-	PrintData(psim(6));
-	for (int i = 0; i < 1; ++i)
-		{
-		printfln("%f, %f", inner(psim,psim), inner(psim,W1m,psim));
-		auto Hfull = psim(0) * psim(1) * psim(2) * psim(3) * psim(4) * psim(5) * psim(6);
-		auto inds = Hfull.inds();
-		auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
-		auto psi1fullmat = C * Hfull;
-		PrintData(psi1fullmat);
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
-		}
-	PrintData(psim(0));
-	PrintData(psim(1));
-	PrintData(psim(2));
-	PrintData(psim(3));
-	PrintData(psim(4));
-	PrintData(psim(5));
-	PrintData(psim(6));
-
-	// int maxiter = 10*freq;
-	// Real thresh = 1.0E-8;
-	// Real mean, var;
-	// int iter = 0;
-	// while(iter<maxiter)
+	// PrintData(psim(0).inds());
+	// PrintData(psim(1).inds());
+	// PrintData(psim(2).inds());
+	// PrintData(psim(3).inds());
+	// PrintData(psim(4).inds());
+	// PrintData(psim(5).inds());
+	// PrintData(psim(6).inds());
+	// for (int i = 0; i < 10; ++i)
 	// 	{
-	// 	auto psim0 = psim;
-	// 	auto psip0 = psip;
-	// 	auto mean0 = mean;
+	// 	printfln("%f, %f", inner(psim,psim), inner(psim,W1m,psim));
+	// 	auto Hfull = psim(0) * psim(1) * psim(2) * psim(3) * psim(4) * psim(5) * psim(6);
+	// 	auto inds = Hfull.inds();
+	// 	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
+	// 	auto psi1fullmat = C * Hfull;
+	// 	PrintData(psi1fullmat);
 	// 	psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
-	// 	psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
-	// 	psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
-	// 	psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
-	// 	auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
-	// 	printfln("\n%d: v- = %f, v+ = %f",iter++,left,right);
-	// 	mean = (right-left)/(2*dz);
-	// 	var = (right+left)/(dz*dz);
-	// 	psim.normalize();
-	// 	psip.normalize();
-	// 	if(fabs(mean-mean0)<thresh) break;
 	// 	}
-	// if(iter==maxiter) println("\nMax iterations reached!");
-	// printfln("\n{jbar, varj} = {%f, %f}",mean,var);
+
+	int maxiter = 10*freq;
+	Real thresh = 1.0E-4;
+	Real mean, var;
+	int iter = 0;
+	while(iter<maxiter)
+		{
+		auto psim0 = psim;
+		auto psip0 = psip;
+		auto mean0 = mean;
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
+		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
+		printfln("\n%d: v- = %f, v+ = %f",iter++,left,right);
+		mean = (right-left)/(2*dz);
+		var = (right+left)/(dz*dz);
+		psim.normalize();
+		psip.normalize();
+		if(fabs(mean-mean0)<thresh) break;
+		}
+	if(iter==maxiter) println("\nMax iterations reached!");
+	printfln("\n{jbar, varj} = {%f, %f}",mean,var);
 
 	auto finish = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = finish - start;

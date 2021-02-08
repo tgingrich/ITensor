@@ -515,7 +515,7 @@ namespace itensor {
 
   void BinaryTree::sweepnext(int &b, int &ha,Args const& args)
     {
-    const int numCenter = args.getInt("NumCenter",2);
+    const int numCenter = args.getInt("NumCenter",1);
     int b1 = (ha == 1 ? order_.at(b) : reverse_order_.at(b));
     int b2 = b1;
     if(numCenter == 2)
