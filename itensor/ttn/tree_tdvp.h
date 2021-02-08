@@ -165,25 +165,18 @@ namespace itensor {
             if(!quiet)
 	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
 
-        // PrintData(psi(b).inds());
         psi.position(b,args); //Orthogonalize with respect to b
-        // PrintData(psi(b).inds());
 
             H.numCenter(numCenter);
             H.position(b,ha==1?Fromleft:Fromright,psi);
-            // PrintData(psi(4).inds());
 
             int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
             if(numCenter == 2)
 	      phi1 = psi(b)*psi(adjacent);
             else if(numCenter == 1)
 	      phi1 = psi(b);
-      // PrintData(psi(4).inds());
 
-            // PrintData(phi1.inds());
             applyExp(H,phi1,t/2,args);
-            // PrintData(phi1.inds());
-            // PrintData(psi(4).inds());
 
             if(args.getBool("DoNormalize",true))
 	      phi1 /= norm(phi1);
@@ -206,7 +199,6 @@ namespace itensor {
             else if(numCenter == 1)
               {
       	      psi.ref(b) = phi1;
-              // PrintData(psi(b).inds());
               H.haveBeenUpdated(b);
               }
 
@@ -235,9 +227,6 @@ namespace itensor {
                     int link_dim = commonIndex(psi(b), phi0).dim();
                     int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
                     int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-                    // PrintData(psi(b));
-                    // PrintData(phi0);
-                    // PrintData(psi(b)*phi0);
                     if(subspace_exp && b > adjacent && link_dim < correct_dim)
                       {
                       auto temp = psi(adjacent);
@@ -248,15 +237,11 @@ namespace itensor {
                       phi0 = psi(adjacent);
                       psi.ref(adjacent) = temp;
                       }
-                    // PrintData(psi(b));
-                    // PrintData(phi0);
-                    // PrintData(psi(b)*phi0);
 		  }
  
                 H.numCenter(numCenter-1);
                 H.position(b1,ha==1?Fromleft:Fromright,psi);
                 
-                // PrintData(phi0.inds());
                 applyExp(H,phi0,-t/2,args);
  
                 if(args.getBool("DoNormalize",true))
@@ -269,7 +254,6 @@ namespace itensor {
                 if(numCenter == 1)
 		  {
                     psi.ref(adjacent) *= phi0;
-                    // PrintData(psi(adjacent).inds());
                     H.haveBeenUpdated(b);
 		  }
  
@@ -300,13 +284,6 @@ namespace itensor {
             obs.measure(args);
 
             // printfln("%d %d %d %d %d %d", sw, b, energy, norm(psi), norm(phi0), norm(phi1));
-            // PrintData(psi(0).inds());
-            // PrintData(psi(1).inds());
-            // PrintData(psi(2).inds());
-            // PrintData(psi(3).inds());
-            // PrintData(psi(4).inds());
-            // PrintData(psi(5).inds());
-            // PrintData(psi(6).inds());
 
 	  } //for loop over b
 

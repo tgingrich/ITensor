@@ -225,27 +225,17 @@ namespace itensor {
             else if(numCenter == 1) phi = psi(b);
       TIMER_STOP(2);
 
-      // PrintData(psi);
-      // PrintData(phi);
-      // if (b == 1 || b == 2) {
-      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().R());
-      // } else {
-      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
-      // }
-
       TIMER_START(3);
-            // energy = davidson(PH,phi,args);
-            energy = arnoldi(PH,phi,args).real();
-            phi.takeReal();
+            energy = davidson(PH,phi,args);
+            // energy = arnoldi(PH,phi,args).real();
+            // phi.takeReal();
       TIMER_STOP(3);
 
       TIMER_START(4);
       //Restore tensor network form
             if (numCenter == 2) 
               {
-              // PrintData(psi(b));
               spec = psi.svdBond(b,phi,adjacent,PH,args);
-              // PrintData(psi(b));
               PH.haveBeenUpdated(b);
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
               int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
@@ -278,48 +268,6 @@ namespace itensor {
                 }
               }
 
-      // PrintData(phi);
-      // PrintData(psi);
-      // PrintData(psi(b) * psi(psi.parent(b)));
-      // for(auto it : range1(length(psi)))
-      //   {
-      //   auto psidag = dag(psi(it));
-      //   auto link = commonIndex(psi(it), psi(psi.parent(it)));
-      //   psidag.replaceInds({link}, {sim(link)});
-      //   PrintData(psi(it));
-      //   PrintData(psidag);
-      //   PrintData(psi(it) * psidag);
-      //   }
-
-      // MPO Nop(SpinHalf(length(psi),{"ConserveQNs",false}));
-      // for(auto n : range1(length(Nop)))
-      //   {
-      //   Nop.ref(n).replaceInds({Nop(n).inds()[0], Nop(n).inds()[1]}, {PH.H()(n).inds()[0], PH.H()(n).inds()[1]});
-      //   }
-      // auto xdag = prime(dag(psi));
-      // xdag.replaceLinkInds(sim(linkInds(xdag)));
-      // auto N_sites = length(psi);
-      // auto height = intlog2(N_sites) - 1;
-      // std::vector<ITensor> yAx(N_sites + 2);
-      // for(auto n : range1(N_sites))
-      //   {
-      //   yAx[n] = Nop(n);
-      //   }
-      // for(int i = height; i >= 0; --i)
-      //   {
-      //   for(auto n : range1(pow2(i)))
-      //     {
-      //     if(n + pow2(i) - 2 == b || n + pow2(i) - 2 == psi.parent(b))
-      //       {
-      //       yAx[n] = yAx[2 * n - 1] * yAx[2 * n];
-      //       }
-      //     else
-      //       {
-      //       yAx[n] = psi(n + pow2(i) - 2) * yAx[2 * n - 1] * yAx[2 * n] * xdag(n + pow2(i) - 2);
-      //       }
-      //     }
-      //   }
-      // PrintData(yAx[1]);
       TIMER_STOP(4);
 
             if(!quiet)

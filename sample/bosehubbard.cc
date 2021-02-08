@@ -5,13 +5,13 @@ using namespace itensor;
 
 int main()
 {
-  int L = 4;
+  int L = 32;
   Real J = 1.0;
   Real Ui = 2*J;
   Real Uf = 7*J;
   Real phi = 0.7*M_PI;
   Real h = 1.0;
-  Real gamma = J/(6*h);
+  Real gamma = J/(14*h);
   Real t0 = (1-Uf/Ui)/gamma;
   Real dt = 2.0E-3*h/J;
   Real c = 1.0;
