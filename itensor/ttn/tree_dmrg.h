@@ -164,7 +164,7 @@ namespace itensor {
 
     Real energy = NAN;
 
-    const int numCenter = args.getInt("NumCenter",1);
+    const int numCenter = args.getInt("NumCenter",2);
 
     const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
@@ -221,6 +221,7 @@ namespace itensor {
       TIMER_START(2);
       // The local vector to update
       int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
+      // PrintData(psi(b).inds());
       if (numCenter == 2) phi = psi(b)*psi(adjacent);
             else if(numCenter == 1) phi = psi(b);
       TIMER_STOP(2);
@@ -238,13 +239,14 @@ namespace itensor {
               spec = psi.svdBond(b,phi,adjacent,PH,args);
               PH.haveBeenUpdated(b);
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
-              int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
+              Real current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
               int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-              int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-              if(subspace_exp && link_dim < correct_dim)
+              Real max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
+              Real correct = std::min((double)pow2(tree_level), max);
+              if(subspace_exp && current < correct)
                 {
-                long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",current_dim});
+                long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
+                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
                 }
               }
@@ -256,13 +258,14 @@ namespace itensor {
                 {
                 orthPair(psi.ref(b),psi.ref(adjacent),args);
                 psi.setOrthoLink(b,adjacent);
-                int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
+                Real current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
                 int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-                int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-                if(subspace_exp && link_dim < correct_dim)
+                Real max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
+                Real correct = std::min((double)pow2(tree_level), max);
+                if(subspace_exp && current < correct)
                   {
-                  long current_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                  orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",current_dim});
+                  long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
+                  orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
                   psi.setOrthoLink(b,adjacent); // Update orthogonalization
                   }
                 }
@@ -290,6 +293,12 @@ namespace itensor {
 
             obs.measure(args);
 
+            // PrintData(psi(b).inds());
+            // for(auto j : range(psi.size()))
+            //   {
+            //   println(j);
+            //   PrintData(psi(j).inds());
+            //   }
             // printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b

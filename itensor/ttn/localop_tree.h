@@ -163,7 +163,7 @@ LocalOpTree(Args const& args)
     R_(nullptr),
     size_(-1)
     {
-    nc_ = args.getInt("NumCenter",1);
+    nc_ = args.getInt("NumCenter",2);
     }
 
 void inline LocalOpTree::

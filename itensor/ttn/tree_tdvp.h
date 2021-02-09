@@ -114,7 +114,7 @@ namespace itensor {
       }
     const bool quiet = args.getBool("Quiet",false);
     const int debug_level = args.getInt("DebugLevel",(quiet ? -1 : 0));
-    const int numCenter = args.getInt("NumCenter",1);
+    const int numCenter = args.getInt("NumCenter",2);
     if(numCenter != 1)
         args.add("Truncate",args.getBool("Truncate",true));
     else
@@ -186,13 +186,14 @@ namespace itensor {
       	      spec = psi.svdBond(b,phi1,adjacent,H,args);
               H.haveBeenUpdated(b);
               H.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
-              int link_dim = commonIndex(psi(b), psi(adjacent)).dim();
+              Real current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
               int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-              int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-              if(subspace_exp && b > adjacent && link_dim < correct_dim)
+              Real max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
+              Real correct = std::min((double)pow2(tree_level), max);
+              if(subspace_exp && current < correct)
                 {
-                long current_dim=subspace_expansion(psi,H,b,adjacent,alpha);
-                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",current_dim});
+                long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
+                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
                 }
               }
@@ -224,15 +225,17 @@ namespace itensor {
                     spec = svd(phi1,U,S,V,args);
                     psi.ref(b) = U;
                     phi0 = S*V;
-                    int link_dim = commonIndex(psi(b), phi0).dim();
+
+                    Real current = std::log(commonIndex(psi(b), phi0).dim())/std::log(psi.site_dim());
                     int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-                    int correct_dim = std::min((int)std::pow(psi.site_dim(), pow2(tree_level)), (int)args.getInt("MaxDim", MAX_DIM));
-                    if(subspace_exp && b > adjacent && link_dim < correct_dim)
+                    Real max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
+                    Real correct = std::min((double)pow2(tree_level), max);
+                    if(subspace_exp && current < correct)
                       {
                       auto temp = psi(adjacent);
                       psi.ref(adjacent) = phi0;
-                      long current_dim=subspace_expansion(psi,H,b,adjacent,alpha);
-                      orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",current_dim});
+                      long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
+                      orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
                       psi.setOrthoLink(b,adjacent); // Update orthogonalization
                       phi0 = psi(adjacent);
                       psi.ref(adjacent) = temp;
