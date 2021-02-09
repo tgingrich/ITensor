@@ -221,15 +221,14 @@ namespace itensor {
       TIMER_START(2);
       // The local vector to update
       int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
-      // PrintData(psi(b).inds());
       if (numCenter == 2) phi = psi(b)*psi(adjacent);
             else if(numCenter == 1) phi = psi(b);
       TIMER_STOP(2);
 
       TIMER_START(3);
-            energy = davidson(PH,phi,args);
-            // energy = arnoldi(PH,phi,args).real();
-            // phi.takeReal();
+            // energy = davidson(PH,phi,args);
+            energy = arnoldi(PH,phi,args).real();
+            phi.takeReal();
       TIMER_STOP(3);
 
       TIMER_START(4);
@@ -239,10 +238,10 @@ namespace itensor {
               spec = psi.svdBond(b,phi,adjacent,PH,args);
               PH.haveBeenUpdated(b);
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
-              Real current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
+              auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
               int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-              Real max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
-              Real correct = std::min((double)pow2(tree_level), max);
+              auto max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
+              auto correct = std::min((double)pow2(tree_level), max);
               if(subspace_exp && current < correct)
                 {
                 long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
@@ -258,10 +257,10 @@ namespace itensor {
                 {
                 orthPair(psi.ref(b),psi.ref(adjacent),args);
                 psi.setOrthoLink(b,adjacent);
-                Real current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
+                auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
                 int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-                Real max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
-                Real correct = std::min((double)pow2(tree_level), max);
+                auto max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
+                auto correct = std::min((double)pow2(tree_level), max);
                 if(subspace_exp && current < correct)
                   {
                   long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
@@ -293,12 +292,6 @@ namespace itensor {
 
             obs.measure(args);
 
-            // PrintData(psi(b).inds());
-            // for(auto j : range(psi.size()))
-            //   {
-            //   println(j);
-            //   PrintData(psi(j).inds());
-            //   }
             // printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b

@@ -11,7 +11,7 @@ int main()
   Real Uf = 7*J;
   Real phi = 0.7*M_PI;
   Real h = 1.0;
-  Real gamma = J/(6*h);
+  Real gamma = J/(14*h);
   Real t0 = (1-Uf/Ui)/gamma;
   Real dt = 2.0E-3*h/J;
   Real c = 1.0;
@@ -65,7 +65,6 @@ int main()
   println(sweeps);
 
   auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",}));
-  PrintData(psi1);
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi1,psi1)));
   printfln("\nGround state current = %.10f", std::real(innerC(psi1,I,psi1)));

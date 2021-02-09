@@ -186,10 +186,10 @@ namespace itensor {
       	      spec = psi.svdBond(b,phi1,adjacent,H,args);
               H.haveBeenUpdated(b);
               H.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
-              Real current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
+              auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
               int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-              Real max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
-              Real correct = std::min((double)pow2(tree_level), max);
+              auto max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
+              auto correct = std::min((double)pow2(tree_level), max);
               if(subspace_exp && current < correct)
                 {
                 long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
@@ -202,11 +202,6 @@ namespace itensor {
       	      psi.ref(b) = phi1;
               H.haveBeenUpdated(b);
               }
-
-	    // Calculate energy
-            ITensor H_phi1;
-            H.product(phi1,H_phi1);
-            energy = real(eltC(dag(phi1)*H_phi1));
  
             if((ha == 1 && numCenter == 1 && b != psi.endPoint()) || (ha == 1 && numCenter == 2 && b != psi.parent(psi.endPoint())) ||
               (ha == 2 && numCenter == 1 && b != psi.startPoint()) || (ha == 2 && numCenter == 2 && b != psi.parent(psi.startPoint())))
@@ -226,10 +221,10 @@ namespace itensor {
                     psi.ref(b) = U;
                     phi0 = S*V;
 
-                    Real current = std::log(commonIndex(psi(b), phi0).dim())/std::log(psi.site_dim());
+                    auto current = std::log(commonIndex(psi(b), phi0).dim())/std::log(psi.site_dim());
                     int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-                    Real max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
-                    Real correct = std::min((double)pow2(tree_level), max);
+                    auto max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
+                    auto correct = std::min((double)pow2(tree_level), max);
                     if(subspace_exp && current < correct)
                       {
                       auto temp = psi(adjacent);
@@ -263,7 +258,7 @@ namespace itensor {
                 // Calculate energy
                 ITensor H_phi0;
                 H.product(phi0,H_phi0);
-                energy = real(eltC(dag(phi0)*H_phi0));
+                energy = real(eltC(dag(phi0)*H_phi0))/norm(phi0);
 	      }
  
 	    if(!quiet)

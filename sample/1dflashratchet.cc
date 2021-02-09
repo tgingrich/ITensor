@@ -150,7 +150,7 @@ int main(int argc, char** argv)
 	// 	}
 
 	int maxiter = 10*freq;
-	Real thresh = 1.0E-4;
+	Real thresh = 1.0E-6;
 	Real mean, var;
 	int iter = 0;
 	while(iter<maxiter)
@@ -158,10 +158,10 @@ int main(int argc, char** argv)
 		auto psim0 = psim;
 		auto psip0 = psip;
 		auto mean0 = mean;
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",2,"DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
 		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
 		printfln("\n%d: v- = %f, v+ = %f",iter++,left,right);
 		mean = (right-left)/(2*dz);
