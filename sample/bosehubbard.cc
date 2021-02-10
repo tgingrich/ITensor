@@ -64,7 +64,7 @@ int main()
   sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01,0.005,0.002;
   println(sweeps);
 
-  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",}));
+  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Quiet",}));
   // PrintData(psi1);
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi1,psi1)));

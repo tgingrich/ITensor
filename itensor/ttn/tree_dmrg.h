@@ -227,9 +227,9 @@ namespace itensor {
       TIMER_STOP(2);
 
       TIMER_START(3);
-            energy = davidson(PH,phi,args);
-            // energy = arnoldi(PH,phi,args).real();
-            // phi.takeReal();
+            // energy = davidson(PH,phi,args);
+            energy = arnoldi(PH,phi,args).real();
+            phi.takeReal();
       TIMER_STOP(3);
 
       TIMER_START(4);
@@ -246,7 +246,7 @@ namespace itensor {
               if(subspace_exp && current < correct)
                 {
                 long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
+                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
                 }
               }
@@ -265,7 +265,7 @@ namespace itensor {
                 if(subspace_exp && current < correct)
                   {
                   long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                  orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
+                  orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
                   psi.setOrthoLink(b,adjacent); // Update orthogonalization
                   }
                 }
