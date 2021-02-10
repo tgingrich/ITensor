@@ -188,12 +188,12 @@ namespace itensor {
               H.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
               auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
               int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-              auto max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
-              auto correct = std::min((double)pow2(tree_level), max);
+              int max_dim = args.getInt("MaxDim", MAX_DIM);
+              auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
               if(subspace_exp && current < correct)
                 {
                 long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
-                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
                 }
               }
@@ -223,14 +223,14 @@ namespace itensor {
 
                     auto current = std::log(commonIndex(psi(b), phi0).dim())/std::log(psi.site_dim());
                     int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-                    auto max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
-                    auto correct = std::min((double)pow2(tree_level), max);
+                    int max_dim = args.getInt("MaxDim", MAX_DIM);
+                    auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
                     if(subspace_exp && current < correct)
                       {
                       auto temp = psi(adjacent);
                       psi.ref(adjacent) = phi0;
                       long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
-                      orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                      orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                       psi.setOrthoLink(b,adjacent); // Update orthogonalization
                       phi0 = psi(adjacent);
                       psi.ref(adjacent) = temp;

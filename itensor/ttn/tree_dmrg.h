@@ -214,6 +214,7 @@ namespace itensor {
 
       TIMER_START(1);
       psi.position(b,args); //Orthogonalize with respect to b
+      // PrintData(psi(b).inds());
 
         PH.position(b,ha==1?Fromleft:Fromright,psi); // Compute the local environnement
       TIMER_STOP(1);
@@ -226,9 +227,9 @@ namespace itensor {
       TIMER_STOP(2);
 
       TIMER_START(3);
-            // energy = davidson(PH,phi,args);
-            energy = arnoldi(PH,phi,args).real();
-            phi.takeReal();
+            energy = davidson(PH,phi,args);
+            // energy = arnoldi(PH,phi,args).real();
+            // phi.takeReal();
       TIMER_STOP(3);
 
       TIMER_START(4);
@@ -240,12 +241,12 @@ namespace itensor {
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
               auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
               int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-              auto max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
-              auto correct = std::min((double)pow2(tree_level), max);
+              int max_dim = args.getInt("MaxDim", MAX_DIM);
+              auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
               if(subspace_exp && current < correct)
                 {
                 long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
                 }
               }
@@ -259,12 +260,12 @@ namespace itensor {
                 psi.setOrthoLink(b,adjacent);
                 auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
                 int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-                auto max = std::log(args.getInt("MaxDim", MAX_DIM))/std::log(psi.site_dim());
-                auto correct = std::min((double)pow2(tree_level), max);
+                int max_dim = args.getInt("MaxDim", MAX_DIM);
+                auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
                 if(subspace_exp && current < correct)
                   {
                   long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                  orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                  orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                   psi.setOrthoLink(b,adjacent); // Update orthogonalization
                   }
                 }
@@ -292,6 +293,7 @@ namespace itensor {
 
             obs.measure(args);
 
+            // PrintData(psi(b).inds());
             // printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b
