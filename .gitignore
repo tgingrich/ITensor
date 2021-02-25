@@ -32,6 +32,7 @@ sample/*.txt
 sample/*.sh
 sample/qsubmit.sh
 sample/.nfs*
+sample/core.*
 this_dir.mk
 options.mk
 .exrc

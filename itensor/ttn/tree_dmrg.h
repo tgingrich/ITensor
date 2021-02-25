@@ -246,7 +246,9 @@ namespace itensor {
               if(subspace_exp && current < correct)
                 {
                 long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                // int maxmin = std::pow(psi.site_dim(),correct);
+                // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
                 }
               }
@@ -265,7 +267,8 @@ namespace itensor {
                 if(subspace_exp && current < correct)
                   {
                   long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                  orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                  // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                  orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                   psi.setOrthoLink(b,adjacent); // Update orthogonalization
                   }
                 }

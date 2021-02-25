@@ -1,4 +1,5 @@
 #include <chrono>
+#include <fstream>
 #include "itensor/all.h"
 #include "itensor/util/print_macro.h"
 
@@ -6,10 +7,6 @@ using namespace itensor;
 
 int main(int argc, char** argv)
 	{
-	if (argc != 4)
-		{
-	    Error("Incorrect number of arguments!");
-		}
 	auto start = std::chrono::high_resolution_clock::now();
 	auto freq = atof(argv[3]);
 	int nparticles = atoi(argv[2]);
@@ -19,20 +16,17 @@ int main(int argc, char** argv)
 	Real len = 0.0, strength = 0.0, ratio = 0.0, di = 0.0;
 	int bins = 0;
 	int idx = 0;
+	int dens = 0;
 	while(ifs >> type >> val)
 		{
 		switch(idx++)
 			{
-			case 0:
-				len = std::stod(val);
-			case 1:
-				bins = std::stoi(val);
-			case 2:
-				strength = std::stod(val);
-			case 3:
-				ratio = std::stod(val);
-			case 4:
-				di = std::stod(val);
+			case 0: len = std::stod(val); break;
+			case 1: bins = std::stoi(val); break;
+			case 2: strength = std::stod(val); break;
+			case 3: ratio = std::stod(val); break;
+			case 4: di = std::stod(val); break;
+			case 5: dens = std::stoi(val);
 			}
 		}
 	auto h = len / bins;
@@ -44,6 +38,12 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
+	int maxdim = 300, nstages = std::max(10,(int)(1E5/freq));
+	if (argc > 4)
+		{
+	    maxdim = std::stoi(argv[4]);
+	    nstages = std::max(10,(int)(std::stoi(argv[5])/freq));
+		}
 
 	auto sites = SpinHalf(bins,{"ConserveQNs",true});
 	auto state = InitState(sites);
@@ -69,6 +69,7 @@ int main(int argc, char** argv)
  			}
 		}
 	auto ampo1m = AutoMPO(sites), ampo1p = AutoMPO(sites), ampo2m = AutoMPO(sites), ampo2p = AutoMPO(sites);
+	auto ampo1 = AutoMPO(sites), ampo2 = AutoMPO(sites);
 	for(auto j : range1(bins))
 		{
 		ampo1m += plist1[j-1]*std::exp(-dz),"S+",j,"S-",j%bins+1;
@@ -87,8 +88,17 @@ int main(int argc, char** argv)
 		ampo2p += -plist2[j-1],"projDn",j,"projUp",j%bins+1;
 		ampo2p += qlist2[j-1]*std::exp(-dz),"S-",j,"S+",j%bins+1;
 		ampo2p += -qlist2[j-1],"projUp",j,"projDn",j%bins+1;
+		ampo1 += plist1[j-1],"S+",j,"S-",j%bins+1;
+		ampo1 += -plist1[j-1],"projDn",j,"projUp",j%bins+1;
+		ampo1 += qlist1[j-1],"S-",j,"S+",j%bins+1;
+		ampo1 += -qlist1[j-1],"projUp",j,"projDn",j%bins+1;
+		ampo2 += plist2[j-1],"S+",j,"S-",j%bins+1;
+		ampo2 += -plist2[j-1],"projDn",j,"projUp",j%bins+1;
+		ampo2 += qlist2[j-1],"S-",j,"S+",j%bins+1;
+		ampo2 += -qlist2[j-1],"projUp",j,"projDn",j%bins+1;
 		}
 	auto W1m = toMPO(ampo1m), W1p = toMPO(ampo1p), W2m = toMPO(ampo2m), W2p = toMPO(ampo2p);
+	auto W1 = toMPO(ampo1), W2 = toMPO(ampo2);
 
 	auto anop = AutoMPO(sites);
 	for(auto j : range1(bins))
@@ -100,8 +110,12 @@ int main(int argc, char** argv)
 	printfln("Driving frequency: %f",freq);
 	printfln("\nParticle number: %d",bins/2-spin);
 
-	auto sweeps = Sweeps(30);
-	sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+	auto sweeps = Sweeps(40);
+	if(maxdim < 150) sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,maxdim;
+	else if(maxdim < 200) sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,maxdim;
+	else if(maxdim < 250) sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,maxdim;
+	else if(maxdim < 300) sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,maxdim;
+	else sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,maxdim;
 	sweeps.cutoff() = 1E-13;
 	sweeps.niter() = 10;
 	sweeps.noise() = 0.0;
@@ -109,19 +123,62 @@ int main(int argc, char** argv)
 	println();
 	println(sweeps);
 
+	auto sweeps0 = Sweeps(1);
+	sweeps0.maxdim() = maxdim;
+	sweeps0.cutoff() = 1E-13;
+	sweeps0.niter() = 100;
+	sweeps0.noise() = 0.0;
+	sweeps0.alpha() = 0.001;
+
 	println("\nStart DMRG");
 
-	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	auto datam = tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",});
+	auto psim = std::get<1>(datam);
+	while(fabs(std::get<0>(datam)) > 1)
+		{
+		datam = tree_dmrg(W2m,psim,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",});
+		psim = std::get<1>(datam);
+		}
+	auto datap = tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",});
+	auto psip = std::get<1>(datap);
+	while(fabs(std::get<0>(datap)) > 1)
+		{
+		datap = tree_dmrg(W2p,psip,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",});
+		psip = std::get<1>(datap);
+		}
 
-	int nstages = std::max(10,(int)(10000/freq));
+	if(dens > 0)
+		{
+		auto data0 = tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",});
+		psi0 = std::get<1>(data0);
+		while(fabs(std::get<0>(data0)) > 1)
+			{
+			data0 = tree_dmrg(W2,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",});
+			psi0 = std::get<1>(data0);
+			}
+		}
+
+	// auto Hfull = psim(0)*psim(1)*psim(2)*psim(3)*psim(4)*psim(5)*psim(6);
+ //  	auto inds = Hfull.inds();
+ //  	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
+ //  	PrintData(C * Hfull);
+
+	// siteval(psim,1);
+	// siteval(psim,2);
+	// siteval(psim,3);
+	// siteval(psim,4);
+	// siteval(psim,5);
+	// siteval(psim,6);
+	// siteval(psim,7);
+	// siteval(psim,8);
+
 	auto period = 1/freq;
 	auto deltat = period/nstages;
 	// auto deltat = period/100;
 
 	auto sweeps1 = Sweeps(nstages/2);
 	// auto sweeps1 = Sweeps(1);
-	sweeps1.maxdim() = 300;
+	sweeps1.maxdim() = maxdim;
 	sweeps1.cutoff() = 1E-13;
 	sweeps1.niter() = 100;
 	sweeps1.noise() = 0.0;
@@ -155,6 +212,12 @@ int main(int argc, char** argv)
 	int iter = 0;
 	while(iter<maxiter)
 		{
+		for(auto j : range(bins-1))
+			{
+			println(j);
+			PrintData(psim(j).inds());
+			PrintData(psip(j).inds());
+			}
 		auto psim0 = psim;
 		auto psip0 = psip;
 		auto mean0 = mean;
@@ -163,15 +226,42 @@ int main(int argc, char** argv)
 		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
 		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
 		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
-		printfln("\n%d: v- = %f, v+ = %f",iter++,left,right);
 		mean = (right-left)/(2*dz);
 		var = (right+left)/(dz*dz);
+		printfln("\n%d: v- = %f, v+ = %f, j = %f, dj = %f",iter++,left,right,mean,mean-mean0);
 		psim.normalize();
 		psip.normalize();
+		if(dens > 0)
+			{
+			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat,sweeps1,{"NumCenter",1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps1,{"NumCenter",1,"Quiet",}));
+			}
 		if(fabs(mean-mean0)<thresh) break;
 		}
 	if(iter==maxiter) println("\nMax iterations reached!");
 	printfln("\n{jbar, varj} = {%f, %f}",mean,var);
+
+	if(dens > 0)
+		{
+		auto sweeps2 = Sweeps(nstages/dens);
+		sweeps2.maxdim() = maxdim;
+		sweeps2.cutoff() = 1E-13;
+		sweeps2.niter() = 100;
+		sweeps2.noise() = 0.0;
+		sweeps2.alpha() = 0.001;
+		std::ofstream ofs;
+		ofs.open("dens_"+std::to_string(nparticles)+"_"+std::to_string((int)freq)+"_"+std::to_string(bins)+".txt");
+		for(auto j : range(dens))
+			{
+			psi0 = std::get<1>(tree_tdvp(j*2/dens == 0 ? W1 : W2,psi0,deltat,sweeps1,{"NumCenter",1,"Quiet",}));
+			for(auto n : range1(bins))
+				{
+				ofs << siteval(psi0,n)[1] << " ";
+				}
+			ofs << std::endl;
+			}
+		ofs.close();
+		}
 
 	auto finish = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = finish - start;

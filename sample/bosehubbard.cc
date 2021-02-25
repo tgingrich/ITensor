@@ -64,8 +64,7 @@ int main()
   sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01,0.005,0.002;
   println(sweeps);
 
-  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Quiet",}));
-  // PrintData(psi1);
+  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",}));
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi1,psi1)));
   printfln("\nGround state current = %.10f", std::real(innerC(psi1,I,psi1)));
@@ -100,6 +99,11 @@ int main()
   
   for(Real t = t0, U = Ui; t < 25.0; t += dt)
     {
+    for(auto j : range(L-1))
+      {
+      println(j);
+      PrintData(psi1(j).inds());
+      }
     if(t < 0.0)
       {
       U += (Ui - Uf) * dt / t0;

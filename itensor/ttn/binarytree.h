@@ -179,7 +179,7 @@ namespace itensor {
     int endPoint() const { return end_; }
 
     void sweepnext(int &b, int &ha,Args const& args = Args::global()); //Travel method
-
+    
     explicit operator bool() const { return (not A_.empty()); }
 
     bool
@@ -756,6 +756,12 @@ namespace itensor {
 	MPO const& A,
 	BinaryTree const& y,
 	Real& re, Real& im);
+
+  std::vector<Real>
+  siteval(BinaryTree const& x, int site);
+
+  std::vector<Cplx>
+  sitevalC(BinaryTree const& x, int site);
 
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M);

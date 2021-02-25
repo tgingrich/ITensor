@@ -1103,6 +1103,49 @@ call .position(j) or .orthogonalize() to set ortho center");
     return re;
   }
 
+  std::vector<Cplx>
+  sitevalC(BinaryTree const& x, int site)
+  {
+    auto phi = removeQNs(x);
+    auto inds = siteInds(phi);
+    std::vector<ITensor> ones(phi.length());
+    for(int i = 0; i < phi.length(); ++i)
+      {
+      ones[i] = ITensor(inds(i+1));
+      // PrintData(ones[i]);
+      for(int j = 0; j < phi.site_dim(); ++j) ones[i].set(j+1,1);
+      // PrintData(ones[i]);
+      }
+    std::vector<ITensor> p(phi.length()/2);
+    for(int j = 0; j < phi.length()/2; ++j)
+      {
+      p[j] = phi(j+phi.length()/2-1);
+      if(2*j+1 != site) p[j] *= ones[2*j];
+      if(2*j+2 != site) p[j] *= ones[2*j+1];
+      // PrintData(p[j]);
+      }
+    for(int i = phi.height() - 1; i >= 0; --i)
+      {
+      for(int j = 0; j < pow2(i); ++j)
+        {
+        p[j] = phi(j+pow2(i)-1)*p[2*j]*p[2*j+1];
+        // PrintData(p[j]);
+        }
+      }
+    std::vector<Cplx> data(phi.site_dim());
+    for(int j = 0; j < phi.site_dim(); ++j) data[j] = eltC(p[0],j+1);
+    return data;
+  }
+
+  std::vector<Real>
+  siteval(BinaryTree const& x, int site)
+  {
+    if(isComplex(x)) Error("Cannot use siteval(...) with complex BinaryTree, use sitevalC(...) instead");
+    auto z = sitevalC(x,site);
+    std::vector<Real> data(z.size());
+    for(int i = 0; i < (int)z.size(); ++i) data[i] = real(z[i]);
+    return data;
+  }
 
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M)
