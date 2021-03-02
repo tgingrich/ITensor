@@ -158,19 +158,20 @@ int main(int argc, char** argv)
 			}
 		}
 
-	// auto Hfull = psim(0)*psim(1)*psim(2)*psim(3)*psim(4)*psim(5)*psim(6);
- //  	auto inds = Hfull.inds();
- //  	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
- //  	PrintData(C * Hfull);
-
-	// siteval(psim,1);
-	// siteval(psim,2);
-	// siteval(psim,3);
-	// siteval(psim,4);
-	// siteval(psim,5);
-	// siteval(psim,6);
-	// siteval(psim,7);
-	// siteval(psim,8);
+	// auto psim = psi0, psip = psi0;
+	// int duplicates = 10;
+	// auto sweeps = Sweeps(duplicates);
+	// for(auto j : range1(maxdim/10))
+	// 	{
+	// 	sweeps.maxdim() = 10*j;
+	// 	sweeps.cutoff() = 1E-13;
+	// 	sweeps.niter() = 10;
+	// 	sweeps.noise() = 0.0;
+	// 	sweeps.alpha() = 0.1*std::exp(-0.2*j);
+	// 	psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	// 	psip = std::get<1>(tree_dmrg(W2p,psip,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	// 	if(dens > 0) psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	// 	}
 
 	auto period = 1/freq;
 	auto deltat = period/nstages;
@@ -187,6 +188,11 @@ int main(int argc, char** argv)
 	println(sweeps1);
 
 	println("\nStart TDVP");
+
+	// auto psim = std::get<1>(tree_tdvp(W2m,psi0,deltat,sweeps,{"NumCenter",2,"Quiet",}));
+	// auto psip = std::get<1>(tree_tdvp(W2p,psi0,deltat,sweeps,{"NumCenter",2,"Quiet",}));
+
+	// if(dens > 0) psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps,{"NumCenter",2,"Quiet",}));
 
 	// PrintData(psim(0).inds());
 	// PrintData(psim(1).inds());
@@ -207,7 +213,7 @@ int main(int argc, char** argv)
 	// 	}
 
 	int maxiter = 10*freq;
-	Real thresh = 1.0E-4;
+	Real thresh = 1.0E-2;
 	Real mean, var;
 	int iter = 0;
 	while(iter<maxiter)
