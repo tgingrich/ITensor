@@ -101,7 +101,7 @@ namespace itensor {
     // b and parent(b) are exposed
     //
     void
-    position(int b, BinaryTree const& psi);
+    position(int b, Direction dir, BinaryTree const& psi);
 
     //
     // Accessor Methods
@@ -182,7 +182,7 @@ namespace itensor {
     /////////////////
 
     void
-    makeHloc(const BinaryTree& psi, int k);
+    makeHloc(const BinaryTree& psi, int k, Direction dir);
 
   };
 
@@ -241,15 +241,15 @@ namespace itensor {
   }
 
   inline void LocalMPO_BT::
-  position(int b, BinaryTree const& psi)
+  position(int b, Direction dir, BinaryTree const& psi)
   {
     if(!(*this)) Error("LocalMPO_BT is null");
 
-    makeHloc(psi,b);
+    makeHloc(psi,b,dir);
 
-    if(nc_ == 2 && b == 0 )
+    if(nc_ == 2 && b == (dir == Fromleft ? psi.endPoint() : psi.startPoint()))
       {
-        Error("LocalMPO_BT position cannot position at 0 with 2 center sites");
+        Error("LocalMPO_BT position cannot position at the end point");
       }
 
 #ifdef DEBUG
@@ -259,17 +259,19 @@ namespace itensor {
       }
 #endif
 
+    int neighbor = (dir == Fromleft ? psi.forward(b) : psi.backward(b));
+    int b1 = (b > neighbor ? b : neighbor);
     if(Op_ != 0) //normal MPO case //TODO Update LocalOpTree to not be dependent of the structure of the tree
       {
       if(nc_ == 2)
         {
-        if(psi.parent(b) == 0)//The if the top node is inclued this is a particular case
+        if(psi.parent(b1) == 0)//The if the top node is inclued this is a particular case
   	      {
-  		    lop_.update(PH_.at(2*b+1), PH_.at(2*b+2), PH_.at(psi.sibling(b)), PH_.back());
+  		    lop_.update(PH_.at(2*b1+1), PH_.at(2*b1+2), PH_.at(psi.sibling(b1)), PH_.back());
   	      }
         else
           {
-		      lop_.update(PH_.at(2*b+1), PH_.at(2*b+2), PH_.at(psi.sibling(b)), PH_.at(psi.parent(psi.parent(b))));
+		      lop_.update(PH_.at(2*b1+1), PH_.at(2*b1+2), PH_.at(psi.sibling(b1)), PH_.at(psi.parent(psi.parent(b1))));
           }
         }
       else if(nc_ == 1)
@@ -285,21 +287,14 @@ namespace itensor {
         }
       else if(nc_ == 0)
         {
-        if (b == 0)  // If we updated the top node
-          {
-          lop_.update(PH_.at(0), PH_.back());
-          }
-        else
-          {
-          lop_.update(PH_.at(b), PH_.at(psi.parent(b)));
-          }
+        lop_.update(PH_.at(b), PH_.at(neighbor));
         }
       }
   }
 
 
   inline void LocalMPO_BT::
-  makeHloc(BinaryTree const& psi, int k)
+  makeHloc(BinaryTree const& psi, int k, Direction dir)
   {
     if(!PH_.empty())
       {
@@ -311,7 +306,7 @@ namespace itensor {
 	  {
     if(nc_ != 0 && d == 0) break;
 	    //println(d);
-	    auto node_d = psi.node_list(k,d); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
+	    auto node_d = psi.node_list(k,d,dir); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
 	    for(unsigned int i=0; i < node_d.size(); i++)
 	      {
 		auto node=node_d.at(i)[0];

@@ -165,7 +165,6 @@ namespace itensor {
     Real energy = NAN;
 
     const int numCenter = args.getInt("NumCenter",2);
-    psi.setOrder(args); // Choose sweep order
 
     const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
@@ -206,7 +205,7 @@ namespace itensor {
         ITensor phi;
         Spectrum spec;
 
-        for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
+        for(int b = psi.startPoint(), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
     {
             if(!quiet)
         {
@@ -215,23 +214,17 @@ namespace itensor {
 
       TIMER_START(1);
       psi.position(b,args); //Orthogonalize with respect to b
+      // PrintData(psi(b).inds());
 
-        PH.position(b,psi); // Compute the local environnement
+        PH.position(b,ha==1?Fromleft:Fromright,psi); // Compute the local environnement
       TIMER_STOP(1);
 
       TIMER_START(2);
       // The local vector to update
-      if (numCenter == 2) phi = psi(b)*psi(psi.parent(b));
+      int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
+      if (numCenter == 2) phi = psi(b)*psi(adjacent);
             else if(numCenter == 1) phi = psi(b);
       TIMER_STOP(2);
-
-      // PrintData(psi);
-      // PrintData(phi);
-      // if (b == 1 || b == 2) {
-      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().R());
-      // } else {
-      //   PrintData(PH.lop().L() * PH.lop().Op1() * PH.lop().Op2() * PH.lop().R());
-      // }
 
       TIMER_START(3);
             // energy = davidson(PH,phi,args);
@@ -242,66 +235,45 @@ namespace itensor {
       TIMER_START(4);
       //Restore tensor network form
             if (numCenter == 2) 
-        {
-      spec = psi.svdBond(b,phi,psi.parent(b),PH,args);//That change to make direction depend of sweep direction
-      PH.haveBeenUpdated(b);
-      PH.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
-      if(subspace_exp)
-      {
-        long current_dim=subspace_expansion(psi,PH,b,psi.parent(b),alpha);// We choose to put the zero into the parent
-        args.add("MinDim",current_dim);
-        orthPair(psi.ref(b),psi.ref(psi.parent(b)),args);
-        psi.setOrthoLink(b,psi.parent(b)); // Update orthogonalization
-      }
-        }
-      else if(numCenter == 1)
-        {
-      psi.ref(b) = phi;
-      PH.haveBeenUpdated(b);
-        }
+              {
+              spec = psi.svdBond(b,phi,adjacent,PH,args);
+              PH.haveBeenUpdated(b);
+              PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
+              auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
+              int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
+              int max_dim = args.getInt("MaxDim", MAX_DIM);
+              auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
+              if(subspace_exp && current < correct)
+                {
+                long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
+                // int maxmin = std::pow(psi.site_dim(),correct);
+                // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
+                psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                }
+              }
+            else if(numCenter == 1)
+              {
+              psi.ref(b) = phi;
+              PH.haveBeenUpdated(b);
+              if(adjacent != -1)
+                {
+                orthPair(psi.ref(b),psi.ref(adjacent),args);
+                psi.setOrthoLink(b,adjacent);
+                auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
+                int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
+                int max_dim = args.getInt("MaxDim", MAX_DIM);
+                auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
+                if(subspace_exp && current < correct)
+                  {
+                  long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
+                  // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                  orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
+                  psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                  }
+                }
+              }
 
-      // PrintData(phi);
-      // PrintData(psi);
-      // PrintData(psi(b) * psi(psi.parent(b)));
-      // for(auto it : range1(length(psi)))
-      //   {
-      //   auto psidag = dag(psi(it));
-      //   auto link = commonIndex(psi(it), psi(psi.parent(it)));
-      //   psidag.replaceInds({link}, {sim(link)});
-      //   PrintData(psi(it));
-      //   PrintData(psidag);
-      //   PrintData(psi(it) * psidag);
-      //   }
-
-      // MPO Nop(SpinHalf(length(psi),{"ConserveQNs",false}));
-      // for(auto n : range1(length(Nop)))
-      //   {
-      //   Nop.ref(n).replaceInds({Nop(n).inds()[0], Nop(n).inds()[1]}, {PH.H()(n).inds()[0], PH.H()(n).inds()[1]});
-      //   }
-      // auto xdag = prime(dag(psi));
-      // xdag.replaceLinkInds(sim(linkInds(xdag)));
-      // auto N_sites = length(psi);
-      // auto height = intlog2(N_sites) - 1;
-      // std::vector<ITensor> yAx(N_sites + 2);
-      // for(auto n : range1(N_sites))
-      //   {
-      //   yAx[n] = Nop(n);
-      //   }
-      // for(int i = height; i >= 0; --i)
-      //   {
-      //   for(auto n : range1(pow2(i)))
-      //     {
-      //     if(n + pow2(i) - 2 == b || n + pow2(i) - 2 == psi.parent(b))
-      //       {
-      //       yAx[n] = yAx[2 * n - 1] * yAx[2 * n];
-      //       }
-      //     else
-      //       {
-      //       yAx[n] = psi(n + pow2(i) - 2) * yAx[2 * n - 1] * yAx[2 * n] * xdag(n + pow2(i) - 2);
-      //       }
-      //     }
-      //   }
-      // PrintData(yAx[1]);
       TIMER_STOP(4);
 
             if(!quiet)
@@ -324,6 +296,7 @@ namespace itensor {
 
             obs.measure(args);
 
+            // PrintData(psi(b).inds());
             // printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b

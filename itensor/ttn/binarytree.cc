@@ -49,7 +49,7 @@ namespace itensor {
   //
 
   BinaryTree::
-  BinaryTree():N_(0),height_(0),N_sites_(0),orth_pos_(0), order_(0), reverse_order_(0), site_dim_(0)
+  BinaryTree():N_(0),height_(0),N_sites_(0),orth_pos_(0), order_(0), reverse_order_(0), site_dim_(0), start_(0), end_(0)
   { }
 
   BinaryTree::
@@ -59,12 +59,7 @@ namespace itensor {
     orth_pos_(mlength-1,-1), order_(mlength-1), reverse_order_(mlength-1), site_dim_(2)
   {
     if(!islog2(mlength)) Error("The number of sites is not a power of 2");
-    for(int i =0; i < N_; ++i)
-      {
-	order_[i] = i-1;
-	reverse_order_[i] = i+1;
-      }
-    reverse_order_.at(N_-1) = -1*N_;
+    setOrder(mlength/2-1, mlength-2);
   }
 
   BinaryTree::BinaryTree(SiteSet const& sites,int m)
@@ -74,12 +69,7 @@ namespace itensor {
   {
     if(!islog2(sites.length())) Error("The number of sites is not a power of 2");
     binary_new_tensors(A_,sites,m);
-    for(int i =0; i < N_; ++i)
-      {
-	order_[i] = i-1;
-	reverse_order_[i] = i+1;
-      }
-    reverse_order_.at(N_-1) = -1*N_;
+    setOrder(sites.length()/2-1, sites.length()-2);
   }
 
   BinaryTree::BinaryTree(IndexSet const& sites,int m)
@@ -89,12 +79,7 @@ namespace itensor {
   {
     if(!islog2(sites.length())) Error("The number of sites is not a power of 2");
     binary_new_tensors(A_,sites,m);
-    for(int i =0; i < N_; ++i)
-      {
-	order_[i] = i-1;
-	reverse_order_[i] = i+1;
-      }
-    reverse_order_.at(N_-1) = -1*N_;
+    setOrder(sites.length()/2-1, sites.length()-2);
   }
 
   BinaryTree::
@@ -106,12 +91,7 @@ namespace itensor {
   {
     if(!islog2(initState.sites().length())) Error("The number of sites is not a power of 2");
     init_tensors(initState);
-    for(int i =0; i < N_; ++i)
-      {
-	order_[i] = i-1;
-	reverse_order_[i] = i+1;
-      }
-    reverse_order_.at(N_-1) = -1*N_;
+    setOrder(initState.sites().length()/2-1, initState.sites().length()-2);
   }
 
 
@@ -125,6 +105,8 @@ namespace itensor {
     order_=other.order_;
     reverse_order_=other.reverse_order_;
     site_dim_ = other.site_dim_;
+    start_ = other.start_;
+    end_ = other.end_;
   }
 
   BinaryTree& BinaryTree::
@@ -138,6 +120,8 @@ namespace itensor {
     order_=other.order_;
     reverse_order_=other.reverse_order_;
     site_dim_ = other.site_dim_;
+    start_ = other.start_;
+    end_ = other.end_;
     return *this;
   }
 
@@ -286,15 +270,15 @@ namespace itensor {
     return child;
   }
 
-  std::vector<int[2]> BinaryTree::node_list(int i, int distance) const{
+  std::vector<int[2]> BinaryTree::node_list(int k, int distance, Direction dir) const{
     // Return all the nodes that are at a certain distance from a given node as well as the predecessor in the graph
     // This is all the children at a given distance from every parent of the node for the other subgraph
     // So we iterate to the root and get the children at the reduced distance for each node in the road
-    auto de=this->depth(i);
-    std::vector<int> node_list=this->children(i,distance);
+    auto de=this->depth(k);
+    std::vector<int> node_list=this->children(k,distance);
     std::vector<int> node_pred(node_list.size(),-1);
 
-    auto new_node=i;
+    auto new_node=k;
     for( int d =1; d <=de; d++) // We start from the node and get the parent then the other children of the parents
       {
 	if( distance < d or new_node== -1) break;// No more node to add
@@ -321,7 +305,8 @@ namespace itensor {
 	nodes_out.at(i)[0] =node_list.at(i);
 	if(node_pred.at(i) == -1)
 	  {
-	    nodes_out.at(i)[1] = this->parent(node_list.at(i));
+	    if(node_list.at(i) == k) nodes_out.at(i)[1] = (dir == Fromleft ? this->forward(node_list.at(i)) : this->backward(node_list.at(i)));
+      else nodes_out.at(i)[1] = this->parent(node_list.at(i));
 	  }
 	else
 	  {
@@ -368,32 +353,37 @@ namespace itensor {
 
   BinaryTree& BinaryTree::
   position(int k, Args args)
-  {
+    {
     if(not *this) Error("position: BinaryTree is default constructed");
 
     //Find the max distance from the position to orthogonalize
     auto dist_to_zero=depth(k);
     auto max_dist=height_+dist_to_zero;
     //By decreasing distance, we check if the tensor are orthogonal, if not we orthogonalize them
-    for(int d =max_dist; d > 0; d--) {
+    for(int d =max_dist; d > 0; d--)
+      {
       auto node_d = this->node_list(k,d); // Get the list of node to check, each element is the node and the node towards it is supposed to point out
-      for(unsigned int i=0; i < node_d.size(); ++i) {
-        if (orth_pos_.at(node_d.at(i)[0]) != node_d.at(i)[1] ) {
-          if(args.getBool("DoSVDBond",false)) {
+      for(unsigned int i=0; i < node_d.size(); ++i)
+        {
+        if (orth_pos_.at(node_d.at(i)[0]) != node_d.at(i)[1])
+          {
+          if(args.getBool("DoSVDBond",false))
+            {
             auto WF = operator()(node_d.at(i)[0]) * operator()(node_d.at(i)[1]);
             svdBond(node_d.at(i)[0],WF,node_d.at(i)[1],args);//svdBond already update the orthogonalisation memory
-          } else {
+            }
+          else
+            {
             orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
 						// this->setOrthoLink(node_d.at(i)[0],node_d.at(i)[1]);
 						orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
 						orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
+            }
           }
-
         }
       }
-    }
     return *this;
-  }
+    }
 
   BinaryTree& BinaryTree::
   orthogonalize(Args args) // Since position check the orthognality along the path
@@ -408,199 +398,140 @@ namespace itensor {
     return svdBond(b1,AA,b2,LocalOp(),args);
   }
 
-  int BinaryTree::
-  startPoint(Args const& args) const
-  {
-    auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    auto numCenter = args.getInt("NumCenter",2);
-    if(chosenOrder == "Default" || chosenOrder == "PreOrder")
-      {
-      if(numCenter == 1)
-        {
-        return 0;
-        }
-      else
-        {
-        return 1;
-        }
-      }
-    else
-      {
-      return N_ / 2;
-      }
-  }
-
-  int BinaryTree::
-  endPoint(Args const& args) const
-  {
-    auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    auto numCenter = args.getInt("NumCenter",2);
-    if(chosenOrder == "PostOrder")
-      {
-      if(numCenter == 1)
-        {
-        return 0;
-        }
-      else
-        {
-        return 2;
-        }
-      }
-    else
-      {
-      return N_ - 1;
-      }
-  }
-
   //
   // Travel method
   //
 
   void BinaryTree::
-  setOrder(Args const& args) // Set the chosen direction of travel
-  // We have the choices: Default, PostOrder, PreOrder, InOrder
-  {
-    auto chosenOrder=args.getString("Order","Default");// Default (breath first) is the default value
-    if (chosenOrder == "Default" ) {
-      for(int i =0; i < N_; ++i) {
-        order_[i] = i+1;
-        reverse_order_[i] = i-1;
-      }
-      order_[N_-1]=-N_;
-
-    } else if (chosenOrder == "PostOrder") {
-      std::stack<int> stack;
-      std::vector<int> data;
-      int root = 0;
-      do {
-        while (root >= 0) {
-          auto rightchild = this->rightchild(root);
-          if (rightchild >= 0) {
-            stack.push(rightchild);
-          }
-          stack.push(root);
-          root = this->leftchild(root);
-        }
-        root = stack.top();
-        stack.pop();
-        if (!stack.empty() && this->rightchild(root) == stack.top()) {
-          int temp = root;
-          root = stack.top();
-          stack.pop();
-          stack.push(temp);
-        } else {
-          data.push_back(root);
-          root = -1;
-        }
-      } while (!stack.empty());
-      reverse_order_[data[0]] = -N_;
-      for(int i = 0; i < N_ - 1; ++i) {
-        order_[data[i]] = data[i + 1];
-        reverse_order_[data[i + 1]] = data[i];
-      }
-      order_[data[N_ - 1]] = -1;
-
-    } else if (chosenOrder == "PreOrder") {
-      std::stack<int> stack;
-      stack.push(0);
-      auto origin_node = 0;
-      while (!stack.empty()) {
-        int node = stack.top();
-        stack.pop();
-        order_[origin_node] = node;
-        origin_node = node;
-        auto rightchild = this->rightchild(node);
-        if (rightchild >= 0) {
-          stack.push(rightchild);
-	      }
-
-        auto leftchild = this->leftchild(node);
-        if (leftchild >= 0) {
-          stack.push(leftchild);
-	      }
-      }
-      order_[N_ - 1] = -N_;
-      for(int i = 0; i < N_ - 1; ++i) {
-        reverse_order_[order_[i]] = i;
-      }
-      reverse_order_[0] = -1;
-
-    } else if (chosenOrder == "InOrder") {
-      std::stack<int> stack;
-      std::vector<int> data;
-      int root = 0;
-      do {
-        while (root >= 0) {
-          stack.push(root);
-          root = this->leftchild(root);
-        }
-        if (root < 0 && !stack.empty()) {
-          root = stack.top();
-          stack.pop();
-          data.push_back(root);
-          root = this->rightchild(root);
-        }
-      } while(root >= 0 || !stack.empty());
-      reverse_order_[data[0]] = -N_;
-      for(int i = 0; i < N_ - 1; ++i) {
-        order_[data[i]] = data[i + 1];
-        reverse_order_[data[i + 1]] = data[i];
-      }
-      order_[data[N_ - 1]] = -1;
-
-    } else {
-      Error("setOrder: the required order is not part of Default,PostOrder,PreOrder,InOrder");
-    }
-  }
-
-  void BinaryTree::setOrder(std::vector<int> new_order) // Among the condition an order should contain at least a position with -1 to signal the end of the travel
-  {
-    bool find_negative=false;
-    for(unsigned int i=1; i < new_order.size();i ++)
+  setOrder(int start, int end)
+    {
+    if(depth(start) != height_ || depth(end) != height_) Error("Start and end must be leaves!");
+    start_ = start;
+    end_ = end;
+    std::list<int> sequence;
+    std::vector<bool> counted(N_, false);
+    getSequence(sequence, counted, start_, end_);
+    int prev = -1;
+    for(auto it = sequence.begin(); it != sequence.end(); ++it)
       {
-	if (new_order[i] < 0)
-	  { find_negative= true;
-	    break;
-	  }
+      if(prev >= 0) order_[prev] = *it;
+      prev = *it;
       }
-    if(!find_negative) { // We should have a least one postion with a negative value
-      Error("setOrder: The new_order should contains a negative value to stop the iteration");
-    }
-    order_=new_order;
-    //Update reverse order
-    for(unsigned int i=1; i < new_order.size();i ++)
+    order_[sequence.back()] = -1;
+    sequence.clear();
+    counted = std::vector<bool>(N_, false);
+    getSequence(sequence, counted, end_, start_);
+    prev = -1;
+    for(auto it = sequence.begin(); it != sequence.end(); ++it)
       {
-	reverse_order_[new_order.at(i)] = i;
+      if(prev >= 0) reverse_order_[prev] = *it;
+      prev = *it;
       }
-    reverse_order_[N_-1] = -1*N_;
-  }
+    reverse_order_[sequence.back()] = -1;
+    }
+
+  void BinaryTree::
+  getSequence(std::list<int> &sequence, std::vector<bool> &counted, int start, int end) const
+    {
+    sequence.push_back(start);
+    counted[start] = true;
+    sequence.push_back(parent(start));
+    counted[parent(start)] = true;
+    int elt = parent(start);
+    while(elt != end)
+      {
+      int length = pow2(std::max(depth(end)-depth(leftchild(elt)), 0));
+      int begin = length*(leftchild(elt)+1)-1;
+      if(end >= begin && end < begin + length)
+        {
+        sequence.push_back(leftchild(elt));
+        counted[leftchild(elt)] = true;
+        elt = leftchild(elt);
+        continue;
+        }
+      length = pow2(std::max(depth(end)-depth(rightchild(elt)), 0));
+      begin = length*(rightchild(elt)+1)-1;
+      if(end >= begin && end < begin + length)
+        {
+        sequence.push_back(rightchild(elt));
+        counted[rightchild(elt)] = true;
+        elt = rightchild(elt);
+        continue;
+        }
+      sequence.push_back(parent(elt));
+      counted[parent(elt)] = true;
+      elt = parent(elt);
+      }
+    for (auto it = sequence.begin(); it != sequence.end(); ++it)
+      {
+      std::list<int> subsequence;
+      if(depth(*it) != height_ && !counted[leftchild(*it)])
+        {
+        getSequence(subsequence, counted, pow2(height_-depth(leftchild(*it)))*(leftchild(*it)+1)-1, *it);
+        subsequence.pop_back();
+        }
+      if(depth(*it) != height_ && !counted[rightchild(*it)])
+        {
+        getSequence(subsequence, counted, pow2(height_-depth(rightchild(*it)))*(rightchild(*it)+1)-1, *it);
+        subsequence.pop_back();
+        }
+      if(*it && !counted[parent(*it)])
+        {
+        int other = *it % 2 ? rightchild(parent(*it)) : leftchild(parent(*it));
+        getSequence(subsequence, counted, pow2(height_-depth(other))*(other+1)-1, *it);
+        subsequence.pop_back();
+        }
+      sequence.insert(it, subsequence.begin(), subsequence.end());
+      }
+    }
+
+  int BinaryTree::
+  forward(int i) const
+    {
+    if (i == end_) return -1;
+    if (depth(i)==height_) return parent(i);
+    int length = pow2(std::max(depth(end_)-depth(leftchild(i)), 0));
+    int begin = length*(leftchild(i)+1)-1;
+    if(end_ >= begin && end_ < begin + length) return leftchild(i);
+    length = pow2(std::max(depth(end_)-depth(rightchild(i)), 0));
+    begin = length*(rightchild(i)+1)-1;
+    if(end_ >= begin && end_ < begin + length) return rightchild(i);
+    return parent(i);
+    }
+
+  int BinaryTree::
+  backward(int i) const
+    {
+    if (i == start_) return -1;
+    if (depth(i)==height_) return parent(i);
+    int length = pow2(std::max(depth(start_)-depth(leftchild(i)), 0));
+    int begin = length*(leftchild(i)+1)-1;
+    if(start_ >= begin && start_ < begin + length) return leftchild(i);
+    length = pow2(std::max(depth(start_)-depth(rightchild(i)), 0));
+    begin = length*(rightchild(i)+1)-1;
+    if(start_ >= begin && start_ < begin + length) return rightchild(i);
+    return parent(i);
+    }
 
   void BinaryTree::sweepnext(int &b, int &ha,Args const& args)
-  {
+    {
     const int numCenter = args.getInt("NumCenter",2);
-    const bool reverse = args.getBool("Reverse",false);// By default we do not sweep back
-
-    auto b1 = (ha % 2== 1 ? order_.at(b) : reverse_order_.at(b));
-    if(numCenter == 2 && b1 == 0)
+    int b1 = (ha == 1 ? order_.at(b) : reverse_order_.at(b));
+    int b2 = b1;
+    if(numCenter == 2)
       {
-      b1 = (ha % 2== 1 ? order_.at(b1) : reverse_order_.at(b1));
+      b2 = (ha == 1 ? order_.at(b1) : reverse_order_.at(b1));
       }
-    // odd ha means foward order and even one means reverse order
-    if(b1 < 0) // At the end, either we stop or we return in the reverse direction
+    if(b2 < 0)
       {
-	if (reverse)
-	  {
-	    ++ha;
-	    b = (ha % 2== 1 ? order_.at(b) : reverse_order_.at(b));
-	  }
-	else{ha+=2;} // We skip the reverse part
-
+      if(numCenter == 2) b = b1;
+      ++ha;
       }
     else
       {
       b = b1;
-      }  
-  }
+      }
+    }
 
   BinaryTree
   randomBinaryTree(SiteSet const& sites, int m, Args const& args)
@@ -1172,6 +1103,49 @@ call .position(j) or .orthogonalize() to set ortho center");
     return re;
   }
 
+  std::vector<Cplx>
+  sitevalC(BinaryTree const& x, int site)
+  {
+    auto phi = removeQNs(x);
+    auto inds = siteInds(phi);
+    std::vector<ITensor> ones(phi.length());
+    for(int i = 0; i < phi.length(); ++i)
+      {
+      ones[i] = ITensor(inds(i+1));
+      // PrintData(ones[i]);
+      for(int j = 0; j < phi.site_dim(); ++j) ones[i].set(j+1,1);
+      // PrintData(ones[i]);
+      }
+    std::vector<ITensor> p(phi.length()/2);
+    for(int j = 0; j < phi.length()/2; ++j)
+      {
+      p[j] = phi(j+phi.length()/2-1);
+      if(2*j+1 != site) p[j] *= ones[2*j];
+      if(2*j+2 != site) p[j] *= ones[2*j+1];
+      // PrintData(p[j]);
+      }
+    for(int i = phi.height() - 1; i >= 0; --i)
+      {
+      for(int j = 0; j < pow2(i); ++j)
+        {
+        p[j] = phi(j+pow2(i)-1)*p[2*j]*p[2*j+1];
+        // PrintData(p[j]);
+        }
+      }
+    std::vector<Cplx> data(phi.site_dim());
+    for(int j = 0; j < phi.site_dim(); ++j) data[j] = eltC(p[0],j+1);
+    return data;
+  }
+
+  std::vector<Real>
+  siteval(BinaryTree const& x, int site)
+  {
+    if(isComplex(x)) Error("Cannot use siteval(...) with complex BinaryTree, use sitevalC(...) instead");
+    auto z = sitevalC(x,site);
+    std::vector<Real> data(z.size());
+    for(int i = 0; i < (int)z.size(); ++i) data[i] = real(z[i]);
+    return data;
+  }
 
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M)

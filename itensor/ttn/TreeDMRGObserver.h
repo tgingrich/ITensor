@@ -81,7 +81,7 @@ measure(Args const& args)
 
     if(!silent && printeigs)
         {
-        if(b == 1)
+        if(b == 0 && ha == 2)
             {
             println();
             auto center_eigs = last_spec_.eigsKept();
@@ -115,7 +115,7 @@ measure(Args const& args)
     max_te = std::max(max_te,last_spec_.truncerr());
     if(!silent)
         {
-        if(b == (ha == 1 ? psi_.endPoint(args) : psi_.startPoint(args)))
+        if(b == (args.getInt("NumCenter",2) == 1 ? psi_.startPoint() : psi_.forward(psi_.startPoint())) && ha == 2)
             {
             if(!printeigs) println();
             auto swstr = (nsweep>0) ? format("%d/%d",sw,nsweep) 

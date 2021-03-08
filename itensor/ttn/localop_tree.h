@@ -267,7 +267,7 @@ product(ITensor const& phi,
             phip *= (*Op1_);
             }
 
-        if(!RIsNull()) 
+        if(!RIsNull())
             phip *= R();
         }
 

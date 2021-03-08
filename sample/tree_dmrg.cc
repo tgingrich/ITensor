@@ -118,9 +118,7 @@ int main(int argc, char** argv)
   // }
   // Print(M);
 
-  println("Construction of the MPO and LocalMPO");
-//  LocalMPO_BT PH(H,args);
-//
+  println("Construction of the MPO and LocalMPO");//
 
   auto psi0 = BinaryTree(state);
   // auto psi0 = randomBinaryTree(sites, 16);
@@ -130,10 +128,7 @@ int main(int argc, char** argv)
   // std::vector<std::vector<ITensor>> MPO(psi0.height() + 2);
   //println(totalQN(psi0));
   println("Construction of the BinaryTree");
-//  PH.position(0,psi0);
-//  PH.haveBeenUpdated(2);
-//  //println("----------New-------");
-//  PH.position(3,psi0);
+
 //removeQNs(psi0);
   printfln("Initial norm = %.5f", inner(psi0,psi0) );
 
@@ -164,10 +159,8 @@ int main(int argc, char** argv)
   //
 
   println("Start DMRG");
-  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"DoSVDBond"});
-  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"});
-
-  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","Default","Quiet",});
+  // auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","PostOrder","Quiet",true,"DoSVDBond"});
+  auto [energy1,psi1] = tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Order","PostOrder","Quiet",true,"WhichEig","LargestReal"});
 
   //
   // Print the final energy reported by DMRG

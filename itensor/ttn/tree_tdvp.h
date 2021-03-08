@@ -122,8 +122,6 @@ namespace itensor {
 
     Real energy = NAN;
 
-    psi.setOrder(args); // Choose sweep order
-
     const bool subspace_exp=args.getBool("SubspaceExpansion",true);
     Real alpha = 0.0;
     args.add("DebugLevel",debug_level);
@@ -162,7 +160,7 @@ namespace itensor {
         ITensor phi0,phi1;
         Spectrum spec;
 
-        for(int b = psi.startPoint(args), ha = 1; ha <= 2; sweepnext(b,ha,psi,args))
+        for(int b = psi.startPoint(), ha = 1; ha <= 2; sweepnext(b,ha,psi,args))
 	  {
             if(!quiet)
 	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
@@ -170,10 +168,11 @@ namespace itensor {
         psi.position(b,args); //Orthogonalize with respect to b
 
             H.numCenter(numCenter);
-            H.position(b,psi);
+            H.position(b,ha==1?Fromleft:Fromright,psi);
 
+            int adjacent = ha == 1 ? psi.forward(b) : psi.backward(b);
             if(numCenter == 2)
-	      phi1 = psi(b)*psi(psi.parent(b));
+	      phi1 = psi(b)*psi(adjacent);
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
@@ -183,32 +182,32 @@ namespace itensor {
 	      phi1 /= norm(phi1);
    
             if(numCenter == 2)
-            {
-	      spec = psi.svdBond(b,phi1,psi.parent(b),H,args);
-        H.haveBeenUpdated(b);
-        H.haveBeenUpdated(psi.parent(b)); // To known that we need to update the environement tensor
-        if(subspace_exp)
-        {
-          long current_dim=subspace_expansion(psi,H,b,psi.parent(b),alpha);// We choose to put the zero into the parent
-          args.add("MinDim",current_dim);
-          orthPair(psi.ref(b),psi.ref(psi.parent(b)),args);
-          psi.setOrthoLink(b,psi.parent(b)); // Update orthogonalization
-        }
-            }
+              {
+      	      spec = psi.svdBond(b,phi1,adjacent,H,args);
+              H.haveBeenUpdated(b);
+              H.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
+              auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
+              int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
+              int max_dim = args.getInt("MaxDim", MAX_DIM);
+              auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
+              if(subspace_exp && current < correct)
+                {
+                long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
+                // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
+                psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                }
+              }
             else if(numCenter == 1)
-            {
-	      psi.ref(b) = phi1;
-        H.haveBeenUpdated(b);
-            }
-
-	    // Calculate energy
-            ITensor H_phi1;
-            H.product(phi1,H_phi1);
-            energy = real(eltC(dag(phi1)*H_phi1))/norm(phi1);
+              {
+      	      psi.ref(b) = phi1;
+              H.haveBeenUpdated(b);
+              }
  
-            if((numCenter == 1 && b != 0) || (numCenter == 2 && b != 1 && b != 2))
+            if((ha == 1 && numCenter == 1 && b != psi.endPoint()) || (ha == 1 && numCenter == 2 && b != psi.parent(psi.endPoint())) ||
+              (ha == 2 && numCenter == 1 && b != psi.startPoint()) || (ha == 2 && numCenter == 2 && b != psi.parent(psi.startPoint())))
 	      {
-                auto b1 = (numCenter == 2 ? psi.parent(b) : b);
+                auto b1 = (numCenter == 2 ? adjacent : b);
  
                 if(numCenter == 2)
 		  {
@@ -217,15 +216,31 @@ namespace itensor {
                 else if(numCenter == 1)
 		  {
                     Index l;
-                    l = commonIndex(psi(b1),psi(psi.parent(b1)));
+                    l = commonIndex(psi(b),psi(adjacent));
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
-                    psi.ref(b1) = U;
+                    psi.ref(b) = U;
                     phi0 = S*V;
+
+                    auto current = std::log(commonIndex(psi(b), phi0).dim())/std::log(psi.site_dim());
+                    int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
+                    int max_dim = args.getInt("MaxDim", MAX_DIM);
+                    auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
+                    if(subspace_exp && current < correct)
+                      {
+                      auto temp = psi(adjacent);
+                      psi.ref(adjacent) = phi0;
+                      long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
+                      // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
+                      orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
+                      psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                      phi0 = psi(adjacent);
+                      psi.ref(adjacent) = temp;
+                      }
 		  }
  
                 H.numCenter(numCenter-1);
-                H.position(b1,psi);
+                H.position(b1,ha==1?Fromleft:Fromright,psi);
                 
                 applyExp(H,phi0,-t/2,args);
  
@@ -238,10 +253,9 @@ namespace itensor {
 		  }
                 if(numCenter == 1)
 		  {
-                    psi.ref(psi.parent(b1)) *= phi0;
+                    psi.ref(adjacent) *= phi0;
+                    H.haveBeenUpdated(b);
 		  }
-
-                if (numCenter == 1) H.haveBeenUpdated(b1);
  
                 // Calculate energy
                 ITensor H_phi0;
@@ -269,8 +283,7 @@ namespace itensor {
 
             obs.measure(args);
 
-            // printfln("%d %d %d", sw, b, energy);
-            // printfln("%d %d %d", norm(phi0), norm(phi1), norm(psi));
+            // printfln("%d %d %d %d %d %d", sw, b, energy, norm(psi), norm(phi0), norm(phi1));
 
 	  } //for loop over b
 
@@ -287,7 +300,7 @@ namespace itensor {
   
     if(args.getBool("DoNormalize",true))
       {
-        if(numCenter==1) psi.position(0);
+        if(numCenter==1) psi.position(psi.startPoint());
         psi.normalize();
       }
 
