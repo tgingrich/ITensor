@@ -214,7 +214,6 @@ namespace itensor {
 
       TIMER_START(1);
       psi.position(b,args); //Orthogonalize with respect to b
-      // PrintData(psi(b).inds());
 
         PH.position(b,ha==1?Fromleft:Fromright,psi); // Compute the local environnement
       TIMER_STOP(1);
@@ -236,12 +235,15 @@ namespace itensor {
       //Restore tensor network form
             if (numCenter == 2) 
               {
-              spec = psi.svdBond(b,phi,adjacent,PH,args);
+              int max_dim = args.getInt("MaxDim", MAX_DIM);
+              PrintData(phi.inds());
+              PrintData(psi(b).inds());
+              spec = psi.svdBond(b,phi,adjacent,PH,{"MaxDim",max_dim,"MinDim",max_dim});
+              PrintData(psi(b).inds());
               PH.haveBeenUpdated(b);
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
               auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
               int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-              int max_dim = args.getInt("MaxDim", MAX_DIM);
               auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
               if(subspace_exp && current < correct)
                 {
@@ -250,6 +252,7 @@ namespace itensor {
                 // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
                 orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                PrintData(psi(b).inds());
                 }
               }
             else if(numCenter == 1)
@@ -297,9 +300,15 @@ namespace itensor {
             obs.measure(args);
 
             // PrintData(psi(b).inds());
-            // printfln("%d %d %d", sw, b, energy);
+            printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b
+
+    // for(auto j : range(psi.size()))
+    //   {
+    //   println(j);
+    //   PrintData(psi(j).inds());
+    //   }
 
         if(!silent)
     {

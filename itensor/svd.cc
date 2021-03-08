@@ -205,6 +205,15 @@ svdImpl(ITensor const& A,
 
             SVD(M,UU,d,VV,args);
 
+            // printfln("b %d",b);
+            // printfln("nrows(M) %d",nrows(M));
+            // printfln("ncols(M) %d",ncols(M));
+            // printfln("nrows(UU) %d",nrows(UU));
+            // printfln("ncols(UU) %d",ncols(UU));
+            // printfln("d.size() %d",d.size());
+            // printfln("nrows(VV) %d",nrows(VV));
+            // printfln("ncols(VV) %d",ncols(VV));
+
             //conjugate VV so later we can just do
             //U*D*V to reconstruct ITensor A:
             conjugate(VV);
@@ -239,8 +248,10 @@ svdImpl(ITensor const& A,
         int ndegen = 1;
         if(do_truncate)
             {
+            // for(int i=0; i<(int)probs.size(); ++i) printfln("%d %.10e",i,probs(i));
             tie(truncerr,docut_lower,docut_upper,ndegen) = truncate(probs,maxdim,mindim,cutoff,
                                                                     absoluteCutoff,doRelCutoff,args);
+            // for(int i=0; i<(int)probs.size(); ++i) printfln("%d %.10e",i,probs(i));
             m = probs.size();
             alleigqn.resize(m);
             }
@@ -399,7 +410,7 @@ svdImpl(ITensor const& A,
         U = ITensor(Uis,move(Ustore));
         D = ITensor(Dis,move(Dstore),A.scale()*signfix);
         V = ITensor(Vis,move(Vstore),LogNum{signfix});
-        
+
         //Originally eigs were found without including scale
         //so put the scale back in
         if(A.scale().isFiniteReal())
