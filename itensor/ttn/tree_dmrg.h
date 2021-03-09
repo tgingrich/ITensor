@@ -238,7 +238,8 @@ namespace itensor {
               int max_dim = args.getInt("MaxDim", MAX_DIM);
               PrintData(phi.inds());
               PrintData(psi(b).inds());
-              spec = psi.svdBond(b,phi,adjacent,PH,{"MaxDim",max_dim,"MinDim",max_dim});
+              spec = psi.svdBond(b,phi,adjacent,PH,args);
+              // spec = psi.svdBond(b,phi,adjacent,PH,{"MaxDim",max_dim,"MinDim",max_dim});
               PrintData(psi(b).inds());
               PH.haveBeenUpdated(b);
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
