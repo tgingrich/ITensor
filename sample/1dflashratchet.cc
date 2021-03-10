@@ -123,14 +123,6 @@ int main(int argc, char** argv)
 	// println();
 	// println(sweeps);
 
-	auto sweeps0 = Sweeps(30);
-	sweeps0.maxdim() = maxdim;
-	sweeps0.cutoff() = 1E-13;
-	sweeps0.cutoff() = 1E-15;
-	sweeps0.niter() = 100;
-	sweeps0.noise() = 0.0;
-	println(sweeps0);
-
 	// auto sweeps = Sweeps(30);
 	// sweeps.maxdim() = maxdim;
 	// sweeps.cutoff() = 1E-13;
@@ -138,12 +130,19 @@ int main(int argc, char** argv)
 	// sweeps.noise() = 0.0;
 	// sweeps.alpha() = 0.001;
 
-	// auto sweeps0 = Sweeps(10);
-	// sweeps0.maxdim() = maxdim;
-	// sweeps0.cutoff() = 1E-13;
-	// sweeps0.niter() = 100;
-	// sweeps0.noise() = 0.0;
-	// sweeps0.alpha() = 0.001;
+	auto sweeps0 = Sweeps(1);
+	sweeps0.maxdim() = maxdim;
+	sweeps0.cutoff() = 1E-13;
+	sweeps0.niter() = 100;
+	sweeps0.noise() = 0.0;
+	sweeps0.alpha() = 0.1;
+
+	auto sweeps = Sweeps(10);
+	sweeps.maxdim() = maxdim;
+	sweeps.cutoff() = 1E-13;
+	sweeps.niter() = 100;
+	sweeps.noise() = 0.0;
+	sweeps.alpha() = 0.1;
 
 	// auto sweeps = Sweeps(30);
 	// if(maxdim < 150) sweeps.maxdim() = maxdim;
@@ -219,9 +218,15 @@ int main(int argc, char** argv)
 	// 	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
 	// 	}
 
-	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	if(dens > 0) psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	// psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
+	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	// psip = std::get<1>(tree_dmrg(W2p,psip,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
+	if(dens > 0)
+		{
+		psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+		// psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
+		}
 
 	auto period = 1/freq;
 	auto deltat = period/nstages;
@@ -277,10 +282,10 @@ int main(int argc, char** argv)
 		auto psim0 = psim;
 		auto psip0 = psip;
 		auto mean0 = mean;
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",false,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",false,"Quiet",}));
 		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
 		mean = (right-left)/(2*dz);
 		var = (right+left)/(dz*dz);
@@ -289,8 +294,8 @@ int main(int argc, char** argv)
 		psip.normalize();
 		if(dens > 0)
 			{
-			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat,sweeps1,{"NumCenter",1,"Quiet",}));
-			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps1,{"NumCenter",1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",false,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",false,"Quiet",}));
 			}
 		if(fabs(mean-mean0)<thresh) break;
 		}

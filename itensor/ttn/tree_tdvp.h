@@ -219,7 +219,9 @@ namespace itensor {
                     l = commonIndex(psi(b),psi(adjacent));
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
+                    // PrintData(psi(b).inds());
                     psi.ref(b) = U;
+                    // PrintData(psi(b).inds());
                     phi0 = S*V;
 
                     auto current = std::log(commonIndex(psi(b), phi0).dim())/std::log(psi.site_dim());
@@ -253,7 +255,9 @@ namespace itensor {
 		  }
                 if(numCenter == 1)
 		  {
+                    // PrintData(psi(adjacent).inds());
                     psi.ref(adjacent) *= phi0;
+                    // PrintData(psi(adjacent).inds());
                     H.haveBeenUpdated(b);
 		  }
  
