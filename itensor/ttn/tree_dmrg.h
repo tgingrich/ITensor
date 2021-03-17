@@ -239,7 +239,7 @@ namespace itensor {
               // PrintData(phi.inds());
               // PrintData(psi(b).inds());
               spec = psi.svdBond(b,phi,adjacent,PH,args);
-              // spec = psi.svdBond(b,phi,adjacent,PH,{"MaxDim",max_dim,"MinDim",commonIndex(psi(b), psi(adjacent)).dim()});
+              // spec = psi.svdBond(b,phi,adjacent,PH,{"MaxDim",max_dim,"MinDim",max_dim});
               // PrintData(psi(b).inds());
               PH.haveBeenUpdated(b);
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
@@ -249,7 +249,6 @@ namespace itensor {
               if(subspace_exp && current < correct)
                 {
                 long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                args.add("MinDim",min_dim);
                 // int maxmin = std::pow(psi.site_dim(),correct);
                 // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
                 orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
@@ -272,9 +271,8 @@ namespace itensor {
                 if(subspace_exp && current < correct)
                   {
                   long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                  args.add("MinDim",min_dim);
                   // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
-                  orthPair(psi.ref(b),psi.ref(adjacent),args);
+                  orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                   psi.setOrthoLink(b,adjacent); // Update orthogonalization
                   }
                 }
