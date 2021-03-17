@@ -236,11 +236,11 @@ namespace itensor {
             if (numCenter == 2) 
               {
               int max_dim = args.getInt("MaxDim", MAX_DIM);
-              PrintData(phi.inds());
-              PrintData(psi(b).inds());
+              // PrintData(phi.inds());
+              // PrintData(psi(b).inds());
               spec = psi.svdBond(b,phi,adjacent,PH,args);
               // spec = psi.svdBond(b,phi,adjacent,PH,{"MaxDim",max_dim,"MinDim",commonIndex(psi(b), psi(adjacent)).dim()});
-              PrintData(psi(b).inds());
+              // PrintData(psi(b).inds());
               PH.haveBeenUpdated(b);
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
               auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
@@ -252,9 +252,9 @@ namespace itensor {
                 args.add("MinDim",min_dim);
                 // int maxmin = std::pow(psi.site_dim(),correct);
                 // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
-                orthPair(psi.ref(b),psi.ref(adjacent),args);
+                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
-                PrintData(psi(b).inds());
+                // PrintData(psi(b).inds());
                 }
               }
             else if(numCenter == 1)
@@ -303,7 +303,7 @@ namespace itensor {
             obs.measure(args);
 
             // PrintData(psi(b).inds());
-            printfln("%d %d %d", sw, b, energy);
+            // printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b
 
