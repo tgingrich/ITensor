@@ -38,12 +38,39 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, nstages = std::max(10,(int)(1E5/freq));
+	int maxdim = 300, se1 = 1, se2 = 1, nstages = std::max(10,(int)(1E5/freq));
+	Real co1 = 1.0E-13, co2 = 1.0E-13;
 	if (argc > 4)
 		{
-	    maxdim = std::stoi(argv[4]);
-	    nstages = std::max(10,(int)(std::stoi(argv[5])/freq));
+		maxdim = std::stoi(argv[4]);
+		printf("%d ",maxdim);
 		}
+	if (argc > 5)
+		{
+		se1 = std::stoi(argv[5]);
+		printf("%d ",se1);
+		}
+	if (argc > 6)
+		{
+		se2 = std::stoi(argv[6]);
+		printf("%d ",se2);
+		}
+	if (argc > 7)
+		{
+		co1 = std::stod(argv[7]);
+		printf("%.10e ",co1);
+		}
+	if (argc > 8)
+		{
+		co2 = std::stod(argv[8]);
+		printf("%.10e ",co2);
+		}
+	if (argc > 9)
+		{
+		nstages = std::max(10,(int)(std::stoi(argv[9])/freq));
+		printf("%d ",nstages);
+		}
+	println();
 
 	auto sites = SpinHalf(bins,{"ConserveQNs",true});
 	auto state = InitState(sites);
@@ -132,17 +159,16 @@ int main(int argc, char** argv)
 
 	auto sweeps0 = Sweeps(1);
 	sweeps0.maxdim() = maxdim;
-	sweeps0.cutoff() = 1E-13;
+	sweeps0.cutoff() = co1;
 	sweeps0.niter() = 100;
 	sweeps0.noise() = 0.0;
-	sweeps0.alpha() = 0.1;
 
 	auto sweeps = Sweeps(10);
 	sweeps.maxdim() = maxdim;
-	sweeps.cutoff() = 1E-13;
+	sweeps.cutoff() = co1;
 	sweeps.niter() = 100;
 	sweeps.noise() = 0.0;
-	sweeps.alpha() = 0.1;
+	println(sweeps);
 
 	// auto sweeps = Sweeps(30);
 	// if(maxdim < 150) sweeps.maxdim() = maxdim;
@@ -218,15 +244,18 @@ int main(int argc, char** argv)
 	// 	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
 	// 	}
 
-	auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	// psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
-	auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	// psip = std::get<1>(tree_dmrg(W2p,psip,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
-	if(dens > 0)
-		{
-		psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-		// psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
-		}
+	// auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	// // psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
+	// auto psip = std::get<1>(tree_dmrg(W2p,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	// // psip = std::get<1>(tree_dmrg(W2p,psip,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
+	// if(dens > 0)
+	// 	{
+	// 	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	// 	// psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
+	// 	}
+
+	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
+	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
 
 	auto period = 1/freq;
 	auto deltat = period/nstages;
@@ -235,10 +264,9 @@ int main(int argc, char** argv)
 	auto sweeps1 = Sweeps(nstages/2);
 	// auto sweeps1 = Sweeps(1);
 	sweeps1.maxdim() = maxdim;
-	sweeps1.cutoff() = 1E-13;
+	sweeps1.cutoff() = co2;
 	sweeps1.niter() = 100;
 	sweeps1.noise() = 0.0;
-	sweeps1.alpha() = 0.001;
 	println();
 	println(sweeps1);
 
@@ -271,6 +299,8 @@ int main(int argc, char** argv)
 	Real thresh = 1.0E-2;
 	Real mean, var;
 	int iter = 0;
+	auto psim = psi0;
+	auto psip = psi0;
 	while(iter<maxiter)
 		{
 		for(auto j : range(bins-1))
@@ -282,10 +312,10 @@ int main(int argc, char** argv)
 		auto psim0 = psim;
 		auto psip0 = psip;
 		auto mean0 = mean;
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",false,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
 		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
 		mean = (right-left)/(2*dz);
 		var = (right+left)/(dz*dz);
@@ -294,8 +324,8 @@ int main(int argc, char** argv)
 		psip.normalize();
 		if(dens > 0)
 			{
-			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",false,"Quiet",}));
-			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",false,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
 			}
 		if(fabs(mean-mean0)<thresh) break;
 		}
