@@ -38,39 +38,15 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, se1 = 1, se2 = 1, nstages = std::max(10,(int)(1E5/freq));
+	int maxdim = 300, se1 = 1, se2 = 0, nstages = std::max(10,(int)(1E5/freq));
 	Real co1 = 1.0E-13, co2 = 1.0E-13;
-	if (argc > 4)
-		{
-		maxdim = std::stoi(argv[4]);
-		printf("%d ",maxdim);
-		}
-	if (argc > 5)
-		{
-		se1 = std::stoi(argv[5]);
-		printf("%d ",se1);
-		}
-	if (argc > 6)
-		{
-		se2 = std::stoi(argv[6]);
-		printf("%d ",se2);
-		}
-	if (argc > 7)
-		{
-		co1 = std::stod(argv[7]);
-		printf("%.10e ",co1);
-		}
-	if (argc > 8)
-		{
-		co2 = std::stod(argv[8]);
-		printf("%.10e ",co2);
-		}
-	if (argc > 9)
-		{
-		nstages = std::max(10,(int)(std::stoi(argv[9])/freq));
-		printf("%d ",nstages);
-		}
-	println();
+	if (argc > 4) maxdim = std::stoi(argv[4]);
+	if (argc > 5) se1 = std::stoi(argv[5]);
+	if (argc > 6) se2 = std::stoi(argv[6]);
+	if (argc > 7) co1 = std::stod(argv[7]);
+	if (argc > 8) co2 = std::stod(argv[8]);
+	if (argc > 9) nstages = std::max(10,(int)(std::stoi(argv[9])/freq));
+	printfln("%d %d %d %.10e %.10e %d",maxdim,se1,se2,co1,co2,nstages);
 
 	auto sites = SpinHalf(bins,{"ConserveQNs",true});
 	auto state = InitState(sites);
@@ -254,8 +230,8 @@ int main(int argc, char** argv)
 	// 	// psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
 	// 	}
 
-	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
+	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
+	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",1,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
 
 	auto period = 1/freq;
 	auto deltat = period/nstages;
@@ -303,12 +279,12 @@ int main(int argc, char** argv)
 	auto psip = psi0;
 	while(iter<maxiter)
 		{
-		for(auto j : range(bins-1))
-			{
-			println(j);
-			PrintData(psim(j).inds());
-			PrintData(psip(j).inds());
-			}
+		// for(auto j : range(bins-1))
+		// 	{
+		// 	println(j);
+		// 	PrintData(psim(j).inds());
+		// 	PrintData(psip(j).inds());
+		// 	}
 		auto psim0 = psim;
 		auto psip0 = psip;
 		auto mean0 = mean;

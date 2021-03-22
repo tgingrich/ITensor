@@ -193,9 +193,7 @@ namespace itensor {
               if(subspace_exp && current < correct)
                 {
                 long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
-                args.add("MinDim",min_dim);
-                // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
-                orthPair(psi.ref(b),psi.ref(adjacent),args);
+                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
                 }
               }
@@ -234,9 +232,7 @@ namespace itensor {
                       auto temp = psi(adjacent);
                       psi.ref(adjacent) = phi0;
                       long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
-                      args.add("MinDim",min_dim);
-                      // orthPair(psi.ref(b),psi.ref(adjacent),{args,"MinDim",min_dim});
-                      orthPair(psi.ref(b),psi.ref(adjacent),args);
+                      orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                       psi.setOrthoLink(b,adjacent); // Update orthogonalization
                       phi0 = psi(adjacent);
                       psi.ref(adjacent) = temp;
