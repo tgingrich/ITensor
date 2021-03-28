@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, se1 = 1, se2 = 0, nstages = std::max(10,(int)(1E5/freq));
+	int maxdim = 400, se1 = 1, se2 = 0, nstages = std::max(10,(int)(1E5/freq));
 	Real co1 = 1.0E-13, co2 = 1.0E-13;
 	if (argc > 4) maxdim = std::stoi(argv[4]);
 	if (argc > 5) se1 = std::stoi(argv[5]);
@@ -272,7 +272,7 @@ int main(int argc, char** argv)
 	// 	}
 
 	int maxiter = 10*freq;
-	Real thresh = 1.0E-2;
+	Real thresh = 0.1;
 	Real mean, var;
 	int iter = 0;
 	auto psim = psi0;
@@ -298,17 +298,17 @@ int main(int argc, char** argv)
 		printfln("\n%d: v- = %f, v+ = %f, j = %f, dj = %f",iter++,left,right,mean,mean-mean0);
 		psim.normalize();
 		psip.normalize();
-		if(dens > 0)
+		if(dens>0)
 			{
 			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
 			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
 			}
-		if(fabs(mean-mean0)<thresh) break;
+		if(fabs(mean-mean0)<thresh && fabs(left)<0 && fabs(right)<0) break;
 		}
 	if(iter==maxiter) println("\nMax iterations reached!");
 	printfln("\n{jbar, varj} = {%f, %f}",mean,var);
 
-	if(dens > 0)
+	if(dens>0)
 		{
 		auto sweeps2 = Sweeps(nstages/dens);
 		sweeps2.maxdim() = maxdim;
