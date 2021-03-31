@@ -174,14 +174,16 @@ int main(int argc, char** argv)
 		sweeps1.cutoff() = co2;
 		sweeps1.niter() = 100;
 		sweeps1.noise() = 0.0;
+		sweeps1.alpha() = 0.001;
 		println(sweeps1);
 		println();
 
 		auto period = 1/freq;
 		auto deltat = period/nstages;
-		int maxiter = 10*freq;
-		Real thresh = 0.1;
-		Real mean, var;
+		int maxiter = freq, miniter = freq/100;
+		if(maxiter<10) maxiter = 10;
+		if(maxiter>1E4) maxiter = 1E4;
+		Real mean = 0.0, var = 0.0;
 		int iter = 0;
 		auto psim = psi0;
 		auto psip = psi0;
@@ -206,7 +208,8 @@ int main(int argc, char** argv)
 				psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
 				psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
 				}
-			if(fabs(mean-mean0)<thresh && fabs(left)<0 && fabs(right)<0) break;
+			Real thresh = std::pow(10,(int)std::log10(fabs(mean)))/1000;
+			if(fabs(mean-mean0)<thresh && iter>miniter) break;
 			}
 		if(iter==maxiter)
 			{
@@ -220,7 +223,7 @@ int main(int argc, char** argv)
 			{
 			auto sweeps2 = Sweeps(nstages/dens);
 			sweeps2.maxdim() = maxdim;
-			sweeps2.cutoff() = 1E-13;
+			sweeps2.cutoff() = co2;
 			sweeps2.niter() = 100;
 			sweeps2.noise() = 0.0;
 			sweeps2.alpha() = 0.001;
@@ -228,7 +231,7 @@ int main(int argc, char** argv)
 			ofs.open("dens_"+std::to_string(nparticles)+"_"+std::to_string((int)freq)+"_"+std::to_string(bins)+".txt");
 			for(auto j : range(dens))
 				{
-				psi0 = std::get<1>(tree_tdvp(j*2/dens == 0 ? W1 : W2,psi0,deltat,sweeps1,{"NumCenter",1,"Quiet",}));
+				psi0 = std::get<1>(tree_tdvp(j*2/dens==0?W1:W2,psi0,deltat,sweeps2,{"NumCenter",1,"Quiet",}));
 				for(auto n : range1(bins))
 					{
 					ofs << siteval(psi0,n)[1] << " ";
