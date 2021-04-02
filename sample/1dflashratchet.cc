@@ -38,15 +38,16 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, se1 = 1, se2 = 0, nstages = std::max(10,(int)(1E5/freq));
-	Real co1 = 1.0E-13, co2 = 1.0E-13;
+	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq = 1E5;
+	Real co1 = 1.0E-13, co2 = 1.0E-13, alpha = 0.1;
 	if (argc > 4) maxdim = std::stoi(argv[4]);
 	if (argc > 5) se1 = std::stoi(argv[5]);
 	if (argc > 6) se2 = std::stoi(argv[6]);
 	if (argc > 7) co1 = std::stod(argv[7]);
 	if (argc > 8) co2 = std::stod(argv[8]);
-	if (argc > 9) nstages = std::max(10,(int)(std::stoi(argv[9])/freq));
-	printfln("%d %d %d %.10e %.10e %d",maxdim,se1,se2,co1,co2,nstages);
+	if (argc > 9) tdvp_freq = std::stoi(argv[9]);
+	if (argc > 10) alpha = std::stod(argv[10]);
+	printfln("%d %d %d %.10e %.10e %d %f",maxdim,se1,se2,co1,co2,tdvp_freq,alpha);
 
 	auto sites = SpinHalf(bins,{"ConserveQNs",true});
 	auto state = InitState(sites);
@@ -138,12 +139,14 @@ int main(int argc, char** argv)
 	sweeps0.cutoff() = co1;
 	sweeps0.niter() = 100;
 	sweeps0.noise() = 0.0;
+	sweeps0.alpha() = alpha;
 
 	auto sweeps = Sweeps(30);
 	sweeps.maxdim() = maxdim;
 	sweeps.cutoff() = co1;
 	sweeps.niter() = 100;
 	sweeps.noise() = 0.0;
+	sweeps.alpha() = alpha;
 	println(sweeps);
 
 	// auto sweeps = Sweeps(30);
@@ -233,6 +236,7 @@ int main(int argc, char** argv)
 	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
 	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",1,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
 
+	auto nstages = std::max(10,(int)(tdvp_freq/freq));
 	auto period = 1/freq;
 	auto deltat = period/nstages;
 	// auto deltat = period/100;
@@ -243,7 +247,7 @@ int main(int argc, char** argv)
 	sweeps1.cutoff() = co2;
 	sweeps1.niter() = 100;
 	sweeps1.noise() = 0.0;
-	sweeps1.alpha() = 0.001;
+	sweeps1.alpha() = alpha;
 	println();
 	println(sweeps1);
 
@@ -318,7 +322,7 @@ int main(int argc, char** argv)
 		sweeps2.cutoff() = co2;
 		sweeps2.niter() = 100;
 		sweeps2.noise() = 0.0;
-		sweeps2.alpha() = 0.001;
+		sweeps2.alpha() = alpha;
 		std::ofstream ofs;
 		ofs.open("dens_"+std::to_string(nparticles)+"_"+std::to_string((int)freq)+"_"+std::to_string(bins)+".txt");
 		for(auto j : range(dens))
