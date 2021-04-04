@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq = 1E5;
+	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq = 1E5, anneal = 0;
 	Real co1 = 1.0E-13, co2 = 1.0E-13, alpha = 0.1;
 	if (argc > 4) maxdim = std::stoi(argv[4]);
 	if (argc > 5) se1 = std::stoi(argv[5]);
@@ -47,7 +47,8 @@ int main(int argc, char** argv)
 	if (argc > 8) co2 = std::stod(argv[8]);
 	if (argc > 9) tdvp_freq = std::stoi(argv[9]);
 	if (argc > 10) alpha = std::stod(argv[10]);
-	printfln("%d %d %d %.10e %.10e %d %f",maxdim,se1,se2,co1,co2,tdvp_freq,alpha);
+	if (argc > 11) anneal = std::stoi(argv[11]);
+	printfln("%d %d %d %.10e %.10e %d %f %d",maxdim,se1,se2,co1,co2,tdvp_freq,alpha,anneal);
 
 	auto sites = SpinHalf(bins,{"ConserveQNs",true});
 	auto state = InitState(sites);
@@ -141,14 +142,6 @@ int main(int argc, char** argv)
 	sweeps0.noise() = 0.0;
 	sweeps0.alpha() = alpha;
 
-	auto sweeps = Sweeps(30);
-	sweeps.maxdim() = maxdim;
-	sweeps.cutoff() = co1;
-	sweeps.niter() = 100;
-	sweeps.noise() = 0.0;
-	sweeps.alpha() = alpha;
-	println(sweeps);
-
 	// auto sweeps = Sweeps(30);
 	// if(maxdim < 150) sweeps.maxdim() = maxdim;
 	// else if(maxdim < 200) sweeps.maxdim() = 100,110,120,130,140,150,maxdim;
@@ -195,23 +188,32 @@ int main(int argc, char** argv)
 	// 		}
 	// 	}
 
-	// auto psim = psi0, psip = psi0;
-	// auto sweeps = Sweeps(1);
-	// for(auto j : range1(maxdim/10))
-	// 	{
-	// 	printfln("Max bond dimension: %d",10*j);
-	// 	sweeps.maxdim() = 10*j;
-	// 	sweeps.cutoff() = 1E-15;
-	// 	sweeps.niter() = 10;
-	// 	sweeps.noise() = 0.0;
-	// 	sweeps.alpha() = 0.1*std::exp(-0.2*j);
-	// 	psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	// 	psip = std::get<1>(tree_dmrg(W2p,psip,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	// 	if(dens > 0) psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
-	// 	}
-	// psim = std::get<1>(tree_dmrg(W2m,psim,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
-	// psip = std::get<1>(tree_dmrg(W2p,psip,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
-	// if(dens > 0) psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
+	if(anneal)
+		{
+		auto sweeps = Sweeps(anneal);
+		for(auto j : range1(maxdim/10))
+			{
+			sweeps.maxdim() = 10*j;
+			sweeps.cutoff() = 1E-15;
+			sweeps.niter() = 10;
+			sweeps.noise() = 0.0;
+			sweeps.alpha() = alpha<0 ? std::exp(-0.2*j) : alpha;
+			println(sweeps);
+			psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
+			}
+		}
+	else
+		{
+		auto sweeps = Sweeps(30);
+		sweeps.maxdim() = maxdim;
+		sweeps.cutoff() = co1;
+		sweeps.niter() = 100;
+		sweeps.noise() = 0.0;
+		sweeps.alpha() = alpha;
+		println(sweeps);
+		psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
+		psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",1,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
+		}
 
 	// auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
 	// psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
@@ -232,9 +234,6 @@ int main(int argc, char** argv)
 	// 	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
 	// 	// psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
 	// 	}
-
-	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
-	psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",1,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
 
 	auto nstages = std::max(10,(int)(tdvp_freq/freq));
 	auto period = 1/freq;
