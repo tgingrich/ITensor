@@ -226,9 +226,15 @@ namespace itensor {
       TIMER_STOP(2);
 
       TIMER_START(3);
+            // if(!PH.lop().LIsNull()) PrintData(PH.lop().L().inds());
+            // if(!PH.lop().RIsNull()) PrintData(PH.lop().R().inds());
+            // PrintData(PH.lop().Op1().inds());
+            // if(numCenter == 2) PrintData(PH.lop().Op2().inds());
+            // PrintData(phi.inds());
             // energy = davidson(PH,phi,args);
             energy = arnoldi(PH,phi,args).real();
             phi.takeReal();
+            // PrintData(phi.inds());
       TIMER_STOP(3);
 
       TIMER_START(4);

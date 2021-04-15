@@ -267,22 +267,22 @@ namespace itensor {
         {
         if(psi.parent(b1) == 0)//The if the top node is inclued this is a particular case
   	      {
-  		    lop_.update(PH_.at(2*b1+1), PH_.at(2*b1+2), PH_.at(psi.sibling(b1)), PH_.back());
+  		    lop_.update(PH_.at(2*b1+1), PH_.at(2*b1+2), PH_.back(), PH_.at(psi.sibling(b1)));
   	      }
         else
           {
-		      lop_.update(PH_.at(2*b1+1), PH_.at(2*b1+2), PH_.at(psi.sibling(b1)), PH_.at(psi.parent(psi.parent(b1))));
+		      lop_.update(PH_.at(2*b1+1), PH_.at(2*b1+2), PH_.at(psi.parent(psi.parent(b1))), PH_.at(psi.sibling(b1)));
           }
         }
       else if(nc_ == 1)
         {
         if (b == 0)  // If we updated the top node
           {
-		      lop_.update(PH_.at(1), PH_.at(2), PH_.back());
+		      lop_.update(PH_.at(1), PH_.back(), PH_.at(2));
           }
         else
           {
-          lop_.update(PH_.at(2*b+1), PH_.at(2*b+2), PH_.at(psi.parent(b)));
+          lop_.update(PH_.at(2*b+1), PH_.at(psi.parent(b)), PH_.at(2*b+2));
           }
         }
       else if(nc_ == 0)
@@ -324,10 +324,15 @@ namespace itensor {
 
 		    for (auto & conc : to_contract)
 		      {
+            // printfln("%d %d",node,conc);
+            // PrintData(PH_.at(node).inds());
+            // PrintData(PH_.at(conc).inds());
 			PH_.at(node)*=PH_.at(conc);
 		      }
 
-		    PH_.at(node)*=dag(prime(psi(node)));
+		    // PrintData(PH_.at(node).inds());
+      //   PrintData(dag(prime(psi(node))).inds());
+        PH_.at(node)*=dag(prime(psi(node)));
 		    //We update the current status of contraction
 		    Hlim_.at(node) = direction;// This node have now open indices towards direction
 		    Hlim_.at(direction) = -1; // This is the next one to be updated

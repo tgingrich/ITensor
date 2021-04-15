@@ -27,6 +27,8 @@ sample/bosehubbard
 sample/bosehubbard-g
 sample/1dflashratchet
 sample/1dflashratchet-g
+sample/1dflashratchet_serial
+sample/1dflashratchet_serial-g
 sample/*.out
 sample/*.txt
 sample/*.sh
