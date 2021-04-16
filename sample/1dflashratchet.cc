@@ -60,6 +60,12 @@ int main(int argc, char** argv)
 		}
 	auto psi0 = BinaryTree(state);
 
+	for(auto n : range1(bins))
+		{
+		printf("%f ", siteval(psi0,n)[1]);
+		}
+	println();
+
 	Real dz = 0.0001;
 	std::vector<Real> plist1(bins), qlist1(bins), plist2(bins), qlist2(bins);
 	for(auto j : range(bins))
@@ -214,6 +220,12 @@ int main(int argc, char** argv)
 		psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
 		psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",1,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
 		}
+
+	for(auto n : range1(bins))
+		{
+		printf("%f ", siteval(psi0,n)[1]);
+		}
+	println();
 
 	// auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
 	// psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
