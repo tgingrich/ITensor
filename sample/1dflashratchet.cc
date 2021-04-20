@@ -59,6 +59,7 @@ int main(int argc, char** argv)
 		else state.set(i+1,"Up");
 		}
 	auto psi0 = BinaryTree(state);
+	auto psi1 = doubleTree(psi0, state);
 
 	for(auto n : range1(bins))
 		{
@@ -81,7 +82,7 @@ int main(int argc, char** argv)
 		}
 	auto ampo1m = AutoMPO(sites), ampo1p = AutoMPO(sites), ampo2m = AutoMPO(sites), ampo2p = AutoMPO(sites);
 	auto ampo1 = AutoMPO(sites), ampo2 = AutoMPO(sites);
-	for(auto j : range1(bins))
+	for(auto j : range1(bins-1))
 		{
 		ampo1m += plist1[j-1]*std::exp(-dz),"S+",j,"S-",j%bins+1;
 		ampo1m += -plist1[j-1],"projDn",j,"projUp",j%bins+1;
