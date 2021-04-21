@@ -1213,20 +1213,36 @@ call .position(j) or .orthogonalize() to set ortho center");
       a1 = Index(1,"Link,l=1");
       a2 = Index(1,"Link,l=2");
       }
-    auto temp1 = phi(1);
-    auto temp2 = phi(2);
+    // auto temp1 = phi(1);
+    // auto temp2 = phi(2);
+    // phi.ref(0) = ITensor(IndexSet(a1,a2));
+    // phi.ref(0).set(1,1,1);
+    // phi.ref(1) = ITensor(IndexSet(itensor::dag(a1),temp1.inds()));
+    // for(auto it : iterInds(temp1))
+    //   {
+    //   phi.ref(1).set(1,it[0].val,it[1].val,temp1.real(it));
+    //   }
+    // phi.ref(2) = ITensor(IndexSet(itensor::dag(a2),temp2.inds()));
+    // for(auto it : iterInds(temp2))
+    //   {
+    //   phi.ref(2).set(1,it[0].val,it[1].val,temp2.real(it));
+    //   }
     phi.ref(0) = ITensor(IndexSet(a1,a2));
     phi.ref(0).set(1,1,1);
-    phi.ref(1) = ITensor(IndexSet(itensor::dag(a1),temp1.inds()));
-    for(auto it : iterInds(temp1))
-      {
-      phi.ref(1).set(1,it[0].val,it[1].val,temp1.real(it));
-      }
-    phi.ref(2) = ITensor(IndexSet(itensor::dag(a2),temp2.inds()));
-    for(auto it : iterInds(temp2))
-      {
-      phi.ref(2).set(1,it[0].val,it[1].val,temp2.real(it));
-      }
+    // PrintData(phi(0));
+    // PrintData(phi(1));
+    auto C1 = combiner(itensor::dag(a1),sim(phi(1).inds()[0]));
+    // PrintData(std::get<0>(C));
+    // PrintData(std::get<1>(C));
+    phi.ref(1).replaceInds({phi(1).inds()[0]},{std::get<1>(C1)});
+    // PrintData(phi(1));
+    phi.ref(1) *= itensor::dag(std::get<0>(C1));
+    // PrintData(phi(1));
+    auto C2 = combiner(itensor::dag(a2),sim(phi(2).inds()[0]));
+    phi.ref(2).replaceInds({phi(2).inds()[0]},{std::get<1>(C2)});
+    phi.ref(2) *= itensor::dag(std::get<0>(C2));
+    // phi.ref(1) *= delta(a1,phi(1).inds()[0],sim(phi(1).inds()[0]));
+    // phi.ref(2) *= delta(a2,phi(2).inds()[0],sim(phi(2).inds()[0]));
     // PrintData(x);
     // PrintData(phi);
     // PrintData(phi(0)*phi(1)*phi(2));
