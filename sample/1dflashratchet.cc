@@ -238,6 +238,7 @@ int main(int argc, char** argv)
 			psi0 = doubleTree(psi0,state);
 			PrintData(psi0);
 			bins *= 2;
+			nparticles *= 2;
 			sites = SpinHalf(bins,{"ConserveQNs",true});
 			state = InitState(sites);
 			}
