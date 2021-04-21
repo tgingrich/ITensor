@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 // for(double lo = atof(argv[1]); lo <= atof(argv[2]); lo += atof(argv[3]))
 // {
 
-  int N = 8;
+  int N = 64;
   auto sites = SpinHalf(N,{"ConserveQNs",false});
 
   auto state = InitState(sites);
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
   sweeps1.noise() = 0.0;
   sweeps.alpha() = 0.001,0.001;
   println(sweeps1);
-  
+
   println("\nStart TDVP");
   auto [energy2,psi2] = tree_tdvp(H,psi1,0.1,sweeps1,{"NumCenter",1,"Order","PostOrder","Quiet",});
   // psi2.takeReal();
