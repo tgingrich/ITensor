@@ -175,7 +175,7 @@ namespace itensor {
     if(hasQNs(sites))
       {
 	if(m==1) for(auto i : range(N)) a[i] = Index(QN(),m,format("Link,l=%d",i));
-	printfln("Cannot create QN conserving BinaryTree with bond dimension greater than 1 from an IndexSet");
+	else printfln("Cannot create QN conserving BinaryTree with bond dimension greater than 1 from an IndexSet");
       }
     for(auto i : range1(N)) a[i] = Index(m,format("Link,l=%d",i));
     //First tensor that is only a rank-2 tensor
@@ -207,6 +207,9 @@ namespace itensor {
 	for(int i=0; i < N_sites/2; ++i) //That correspond the the N_sites /2 of the last line
 	  {
 	    qa[pow2(height)+i-1] =Out*(- qn(initState(2*i+1))- qn(initState(2*i+2)));
+      // PrintData(qn(initState(2*i+1)));
+      // PrintData(qn(initState(2*i+2)));
+      // PrintData(qa[pow2(height)+i-1]);
 	  }
 	for(int i = N/2-1; i >=0; i--) //Ony the middle ones
 	  {
@@ -1145,6 +1148,89 @@ call .position(j) or .orthogonalize() to set ortho center");
     std::vector<Real> data(z.size());
     for(int i = 0; i < (int)z.size(); ++i) data[i] = real(z[i]);
     return data;
+  }
+
+  BinaryTree
+  doubleTree(BinaryTree const& x, InitState const& initState)
+  {
+    if(not x) Error("position: BinaryTree is default constructed");
+    BinaryTree x2 = x;
+    x2.replaceLinkInds(sim(linkInds(x)));
+    x2.replaceSiteInds(sim(siteInds(x)));
+    BinaryTree phi(2*x.length());
+    for(auto i : range1(x.height()+1))
+      {
+      for(auto j : range1(pow2(i-1)))
+        {
+        // printfln("%d %d %d", pow2(i)+j-2, pow2(i)+pow2(i-1)+j-2, pow2(i-1)+j-2);
+        phi.ref(pow2(i)+j-2)=x(pow2(i-1)+j-2);
+        for(auto k : phi(pow2(i)+j-2).inds())
+          {
+          TagSet ts = k.tags();
+          if(k.tags()[1] == "Link")
+            {
+            int oldl = std::stoi(std::string(k.tags()[0]).substr(2));
+            int newl = pow2(phi.depth(oldl)+1)-pow2(phi.depth(oldl))+oldl;
+            ts[0] = format("l=%d",newl);
+            }
+          phi.ref(pow2(i)+j-2).replaceTags(k.tags(),ts,k);
+          // PrintData(phi(pow2(i)+j-2));
+          }
+        phi.ref(pow2(i)+pow2(i-1)+j-2)=x2(pow2(i-1)+j-2);
+        for(auto k : phi(pow2(i)+pow2(i-1)+j-2).inds())
+          {
+          TagSet ts = k.tags();
+          if(k.tags()[1] == "Link")
+            {
+            int oldl = std::stoi(std::string(k.tags()[0]).substr(2));
+            int newl = pow2(phi.depth(oldl)+1)+oldl;
+            ts[0] = format("l=%d",newl);
+            }
+          else
+            {
+            int oldl = std::stoi(std::string(k.tags()[0]).substr(2));
+            int newl = x.length()+oldl;
+            ts[0] = format("n=%d",newl);
+            }
+          phi.ref(pow2(i)+pow2(i-1)+j-2).replaceTags(k.tags(),ts,k);
+          // PrintData(phi(pow2(i)+pow2(i-1)+j-2));
+          }
+        }
+      }
+    // PrintData(phi(1)*phi(2));
+    Index a1, a2;
+    if(hasQNs(x))
+      {
+      // QN qa1 = Out*(-qa3*In-qa4*In), qa2 = Out*(-qa5*In-qa6*In);
+      // a1 = Index(qa1,1,"Link,l=1");
+      // a2 = Index(qa2,1,"Link,l=2");
+      QN qa = qn(initState(1))-qn(initState(1));
+      a1 = Index(qa,1,"Link,l=1");
+      a2 = Index(qa,1,"Link,l=2");
+      }
+    else
+      {
+      a1 = Index(1,"Link,l=1");
+      a2 = Index(1,"Link,l=2");
+      }
+    auto temp1 = phi(1);
+    auto temp2 = phi(2);
+    phi.ref(0) = ITensor(IndexSet(a1,a2));
+    phi.ref(0).set(1,1,1);
+    phi.ref(1) = ITensor(IndexSet(itensor::dag(a1),temp1.inds()));
+    for(auto it : iterInds(temp1))
+      {
+      phi.ref(1).set(1,it[0].val,it[1].val,temp1.real(it));
+      }
+    phi.ref(2) = ITensor(IndexSet(itensor::dag(a2),temp2.inds()));
+    for(auto it : iterInds(temp2))
+      {
+      phi.ref(2).set(1,it[0].val,it[1].val,temp2.real(it));
+      }
+    // PrintData(x);
+    // PrintData(phi);
+    // PrintData(phi(0)*phi(1)*phi(2));
+    return phi;
   }
 
   std::ostream&

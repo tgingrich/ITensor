@@ -763,6 +763,9 @@ namespace itensor {
   std::vector<Cplx>
   sitevalC(BinaryTree const& x, int site);
 
+  BinaryTree
+  doubleTree(BinaryTree const& x, InitState const& initState);
+
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M);
 

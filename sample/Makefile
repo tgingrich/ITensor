@@ -91,6 +91,12 @@ bosehubbard-g: mkdebugdir .debug_objs/bosehubbard.o $(ITENSOR_GLIBS) $(TENSOR_HE
 1dflashratchet-g: mkdebugdir .debug_objs/1dflashratchet.o $(ITENSOR_GLIBS) $(TENSOR_HEADERS)
 	$(CCCOM) $(CCGFLAGS) .debug_objs/1dflashratchet.o -o 1dflashratchet-g $(LIBGFLAGS)
 
+1dflashratchet_serial: 1dflashratchet_serial.o $(ITENSOR_LIBS) $(TENSOR_HEADERS)
+	$(CCCOM) $(CCFLAGS) 1dflashratchet_serial.o -o 1dflashratchet_serial $(LIBFLAGS)
+
+1dflashratchet_serial-g: mkdebugdir .debug_objs/1dflashratchet_serial.o $(ITENSOR_GLIBS) $(TENSOR_HEADERS)
+	$(CCCOM) $(CCGFLAGS) .debug_objs/1dflashratchet_serial.o -o 1dflashratchet_serial-g $(LIBGFLAGS)
+
 mkdebugdir:
 	mkdir -p .debug_objs
 
@@ -98,4 +104,5 @@ clean:
 	@rm -fr *.o .debug_objs dmrg dmrg-g \
 	dmrg_table dmrg_table-g dmrgj1j2 dmrgj1j2-g exthubbard exthubbard-g \
     mixedspin mixedspin-g trg trg-g hubbard_2d hubbard_2d-g tree_dmrg tree_dmrg-g \
-    testmp testmp-g bosehubbard bosehubbard-g 1dflashratchet 1dflashratchet-g
+    testmp testmp-g bosehubbard bosehubbard-g \
+    1dflashratchet 1dflashratchet-g 1dflashratchet_serial 1dflashratchet_serial-g
