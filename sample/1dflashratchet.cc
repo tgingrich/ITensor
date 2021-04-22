@@ -238,17 +238,18 @@ int main(int argc, char** argv)
 			nparticles *= 2;
 			sites = SpinHalf(bins,{"ConserveQNs",true});
 			state = InitState(sites);
-			auto Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6);
-			auto inds = Hfull.inds();
-			auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
-			auto psi1fullmat = C * Hfull;
-			PrintData(psi1fullmat);
+			// auto Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6);
+			// auto inds = Hfull.inds();
+			// auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
+			// auto psi1fullmat = C * Hfull;
+			// PrintData(psi1fullmat);
 			psi0 = doubleTree(psi0,state);
-			Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6) * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14);
-			inds = Hfull.inds();
-			C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7], inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]));
-			psi1fullmat = C * Hfull;
-			PrintData(psi1fullmat);
+			// PrintData(psi0);
+			// Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6) * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14);
+			// inds = Hfull.inds();
+			// C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7], inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]));
+			// psi1fullmat = C * Hfull;
+			// PrintData(psi1fullmat);
 			}
 		}
 

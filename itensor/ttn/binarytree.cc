@@ -1151,13 +1151,10 @@ call .position(j) or .orthogonalize() to set ortho center");
   }
 
   BinaryTree
-  doubleTree(BinaryTree const& x, InitState const& initState)
+  doubleTree(BinaryTree const& x, BinaryTree const& y, InitState const& initState)
   {
-    if(not x) Error("doubleTree: BinaryTree is default constructed");
-    if(initState.sites().length() != 2*x.length()) Error("doubleTree: incorrect initState length");
-    BinaryTree x2 = x;
-    x2.replaceLinkInds(sim(linkInds(x)));
-    x2.replaceSiteInds(sim(siteInds(x)));
+    if(not x || not y) Error("doubleTree: BinaryTrees are default constructed");
+    if(initState.sites().length() != 2*x.length() || initState.sites().length() != 2*y.length()) Error("doubleTree: incorrect initState length");
     BinaryTree phi(2*x.length());
     for(auto i : range1(x.height()+1))
       {
@@ -1180,7 +1177,7 @@ call .position(j) or .orthogonalize() to set ortho center");
             phi.ref(pow2(i)+j-2).replaceInds({k},{initState.sites()(oldl)});
             }
           }
-        phi.ref(pow2(i)+pow2(i-1)+j-2)=x2(pow2(i-1)+j-2);
+        phi.ref(pow2(i)+pow2(i-1)+j-2)=y(pow2(i-1)+j-2);
         for(auto k : phi(pow2(i)+pow2(i-1)+j-2).inds())
           {
           TagSet ts = k.tags();
@@ -1248,6 +1245,17 @@ call .position(j) or .orthogonalize() to set ortho center");
     // PrintData(phi);
     // PrintData(phi(0)*phi(1)*phi(2));
     return phi;
+  }
+
+  BinaryTree
+  doubleTree(BinaryTree const& x, InitState const& initState)
+  {
+    if(not x) Error("doubleTree: BinaryTree is default constructed");
+    if(initState.sites().length() != 2*x.length()) Error("doubleTree: incorrect initState length");
+    BinaryTree x2 = x;
+    x2.replaceLinkInds(sim(linkInds(x)));
+    x2.replaceSiteInds(sim(siteInds(x)));
+    return doubleTree(x,x2,initState);
   }
 
   std::ostream&
