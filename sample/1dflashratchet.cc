@@ -119,6 +119,16 @@ int main(int argc, char** argv)
 		W1 = toMPO(ampo1);
 		W2 = toMPO(ampo2);
 
+		// if(bins==16)
+		// 	{
+		// 	auto Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6) * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14);
+		// 	auto inds = Hfull.inds();
+		// 	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7], inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]));
+		// 	auto psi1fullmat = C * Hfull;
+		// 	PrintData(psi1fullmat);
+		// 	println(inner(psi0,W2,psi0));
+		// 	}
+
 		auto anop = AutoMPO(sites);
 		for(auto j : range1(bins))
 			{
@@ -243,6 +253,7 @@ int main(int argc, char** argv)
 			// auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
 			// auto psi1fullmat = C * Hfull;
 			// PrintData(psi1fullmat);
+			// println(inner(psi0,W2,psi0));
 			psi0 = doubleTree(psi0,state);
 			// PrintData(psi0);
 			// Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6) * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14);
@@ -250,8 +261,10 @@ int main(int argc, char** argv)
 			// C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7], inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]));
 			// psi1fullmat = C * Hfull;
 			// PrintData(psi1fullmat);
+			// println(inner(psi0,W2,psi0));
 			}
 		}
+	PrintData(psi0);
 
 	// auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
 	// psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));
