@@ -1153,7 +1153,8 @@ call .position(j) or .orthogonalize() to set ortho center");
   BinaryTree
   doubleTree(BinaryTree const& x, InitState const& initState)
   {
-    if(not x) Error("position: BinaryTree is default constructed");
+    if(not x) Error("doubleTree: BinaryTree is default constructed");
+    if(initState.sites().length() != 2*x.length()) Error("doubleTree: incorrect initState length");
     BinaryTree x2 = x;
     x2.replaceLinkInds(sim(linkInds(x)));
     x2.replaceSiteInds(sim(siteInds(x)));
@@ -1167,33 +1168,33 @@ call .position(j) or .orthogonalize() to set ortho center");
         for(auto k : phi(pow2(i)+j-2).inds())
           {
           TagSet ts = k.tags();
+          int oldl = std::stoi(std::string(k.tags()[0]).substr(2));
           if(k.tags()[1] == "Link")
             {
-            int oldl = std::stoi(std::string(k.tags()[0]).substr(2));
             int newl = pow2(phi.depth(oldl)+1)-pow2(phi.depth(oldl))+oldl;
             ts[0] = format("l=%d",newl);
+            phi.ref(pow2(i)+j-2).replaceTags(k.tags(),ts,k);
             }
-          phi.ref(pow2(i)+j-2).replaceTags(k.tags(),ts,k);
-          // PrintData(phi(pow2(i)+j-2));
+          else
+            {
+            phi.ref(pow2(i)+j-2).replaceInds({k},{initState.sites()(oldl)});
+            }
           }
         phi.ref(pow2(i)+pow2(i-1)+j-2)=x2(pow2(i-1)+j-2);
         for(auto k : phi(pow2(i)+pow2(i-1)+j-2).inds())
           {
           TagSet ts = k.tags();
+          int oldl = std::stoi(std::string(k.tags()[0]).substr(2));
           if(k.tags()[1] == "Link")
             {
-            int oldl = std::stoi(std::string(k.tags()[0]).substr(2));
             int newl = pow2(phi.depth(oldl)+1)+oldl;
             ts[0] = format("l=%d",newl);
+            phi.ref(pow2(i)+pow2(i-1)+j-2).replaceTags(k.tags(),ts,k);
             }
           else
             {
-            int oldl = std::stoi(std::string(k.tags()[0]).substr(2));
-            int newl = x.length()+oldl;
-            ts[0] = format("n=%d",newl);
+            phi.ref(pow2(i)+pow2(i-1)+j-2).replaceInds({k},{initState.sites()(oldl+x.length())});
             }
-          phi.ref(pow2(i)+pow2(i-1)+j-2).replaceTags(k.tags(),ts,k);
-          // PrintData(phi(pow2(i)+pow2(i-1)+j-2));
           }
         }
       }
