@@ -234,6 +234,37 @@ namespace itensor {
       }
   }
 
+  BinaryTree& BinaryTree::
+  plusEq(BinaryTree const& R, Args const& args)
+    {
+    //cout << "calling new orthog in sum" << endl;
+    if(!itensor::isOrtho(*this))
+        {
+        try { 
+            orthogonalize();
+            }
+        catch(ResultIsZero const& rz) 
+            { 
+            *this = R;
+            return *this;
+            }
+        }
+
+    if(!itensor::isOrtho(R))
+        {
+        BinaryTree oR(R);
+        try { 
+            oR.orthogonalize(); 
+            }
+        catch(ResultIsZero const& rz) 
+            { 
+            return *this;
+            }
+        return addAssumeOrth(*this,oR,args);
+        }
+
+    return addAssumeOrth(*this,R,args);
+    }
 
   BinaryTree& BinaryTree::
   randomize(Args const& args)
@@ -391,7 +422,7 @@ namespace itensor {
   BinaryTree& BinaryTree::
   orthogonalize(Args args) // Since position check the orthognality along the path
   {
-    return position(1,args);
+    return position(start_,args);
   }
 
 
@@ -1257,6 +1288,16 @@ call .position(j) or .orthogonalize() to set ortho center");
     x2.replaceSiteInds(sim(siteInds(x)));
     return doubleTree(x,x2,initState);
   }
+
+  template <class TreeType>
+  TreeType
+  sum(TreeType const& L, TreeType const& R, Args const& args)
+  {
+    auto res = L;
+    res.plusEq(R,args);
+    return res;
+  }
+  template BinaryTree sum<BinaryTree>(BinaryTree const& L, BinaryTree const& R, Args const& args);
 
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M)

@@ -223,6 +223,9 @@ namespace itensor {
     Real normalize();
 
     BinaryTree&
+    plusEq(BinaryTree const& R, Args const& args = Args::global());
+
+    BinaryTree&
     replaceSiteInds(IndexSet const& sites);
 
     BinaryTree&
@@ -457,6 +460,10 @@ namespace itensor {
 
   }; //class BinaryTree
 
+  // template <typename TreeType>
+  // TreeType&
+  // addAssumeOrth(TreeType& L, TreeType const& R, Args const& args = Args::global());
+
   BinaryTree&
   operator*=(BinaryTree & x, Real a);
 
@@ -633,9 +640,9 @@ namespace itensor {
 
   int size(BinaryTree const& W);
 
-  template <class BinaryTreeType>
+  template <class TreeType>
   bool
-  hasQNs(BinaryTreeType const& x);
+  hasQNs(TreeType const& x);
 
 
   //Create a random BinaryTree
@@ -654,9 +661,9 @@ namespace itensor {
             Args const& args = Args::global());
 
   //Remove the QNs of each tensor of the BinaryTree
-  template <class BinaryTreeType>
-  BinaryTreeType
-  removeQNs(BinaryTreeType const& x);
+  template <class TreeType>
+  TreeType
+  removeQNs(TreeType const& x);
 
 
   bool
@@ -677,9 +684,9 @@ namespace itensor {
   bool
   hasSiteInds(BinaryTree const& x, IndexSet const& sites);
 
-  template <class BinaryTreeType>
+  template <class TreeType>
   IndexSet
-  siteInds(BinaryTreeType const& W, int b);
+  siteInds(TreeType const& W, int b);
 
   IndexSet
   siteInds(BinaryTree const& x);
@@ -693,25 +700,25 @@ namespace itensor {
   Index
   siteIndex(BinaryTree const& x, int site);
 
-  template<typename BinaryTreeType>
+  template<typename TreeType>
   Index
-  linkIndex(BinaryTreeType const& x, int b);
+  linkIndex(TreeType const& x, int b);
 
-  template<typename BinaryTreeType>
+  template<typename TreeType>
   IndexSet
-  linkInds(BinaryTreeType const& x, int b);
+  linkInds(TreeType const& x, int b);
 
-  template<typename BinaryTreeType>
+  template<typename TreeType>
   IndexSet
-  linkInds(BinaryTreeType const& x);
+  linkInds(TreeType const& x);
 
-  template<typename BinaryTreeType>
+  template<typename TreeType>
   Real
-  averageLinkDim(BinaryTreeType const& x);
+  averageLinkDim(TreeType const& x);
 
-  template<typename BinaryTreeType>
+  template<typename TreeType>
   int
-  maxLinkDim(BinaryTreeType const& x);
+  maxLinkDim(TreeType const& x);
 
   bool
   checkQNs(BinaryTree const& x);
@@ -766,6 +773,10 @@ namespace itensor {
   BinaryTree
   doubleTree(BinaryTree const& x, InitState const& initState);
 
+  // template <class TreeType>
+  // TreeType
+  // sum(TreeType const& L, TreeType const& R, Args const& args = Args::global());
+
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M);
 
@@ -773,17 +784,17 @@ namespace itensor {
   orthPair(ITensor& A1, ITensor& A2, Args const& args);
 
 
-  template <class BinaryTreeType>
+  template <class TreeType>
   void inline
-  sweepnext(int &b, int &ha, BinaryTreeType &Tree,  Args const& args = Args::global())
+  sweepnext(int &b, int &ha, TreeType &Tree,  Args const& args = Args::global())
   {
     Tree.sweepnext(b,ha,args);
   }
 
 
-  template <class BinaryTreeType>
+  template <class TreeType>
   void inline
-  sweepnext(int &b, int &ha, BinaryTreeType &Tree)
+  sweepnext(int &b, int &ha, TreeType &Tree)
   {
     auto args = Args("NumCenter=",1);
     Tree.sweepnext(b,ha,args);

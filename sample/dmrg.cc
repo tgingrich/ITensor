@@ -36,163 +36,56 @@ main()
     // Use the AutoMPO feature to create the 
     // next-neighbor Heisenberg model
     //
-    // auto ampo = AutoMPO(sites);
-    // for(auto j : range1(N-1))
+    auto ampo = AutoMPO(sites);
+    for(auto j : range1(N-1))
+        {
+        ampo += 0.5,"S+",j,"S-",j+1;
+        ampo += 0.5,"S-",j,"S+",j+1;
+        ampo +=     "Sz",j,"Sz",j+1;
+        }
+    auto H = toMPO(ampo);
+
+    // std::vector<AutoMPO> densops(N,sites);
+    // std::set<std::vector<int>> perms;
+    // for(auto n : range((N+1)/2))
     //     {
-    //     ampo += 0.5,"S+",j,"S-",j+1;
-    //     ampo += 0.5,"S-",j,"S+",j+1;
-    //     ampo +=     "Sz",j,"Sz",j+1;
+    //     std::vector<int> a;
+    //     for(auto i : range(N-2*n-1)) a.push_back(0);
+    //     for(auto i : range(n))
+    //         {
+    //         a.push_back(1);
+    //         a.push_back(2);
+    //         }
+    //     gen_perms(perms,a,0,N-2);
     //     }
-    // auto H = toMPO(ampo);
-
-    // auto densop1 = AutoMPO(sites);
-    // densop1 += "projDn",1,"S+",2,"S+",3,"S-",4,"S-",5;
-    // densop1 += "projDn",1,"S+",2,"S-",3,"S+",4,"S-",5;
-    // densop1 += "projDn",1,"S+",2,"S-",3,"S-",4,"S+",5;
-    // densop1 += "projDn",1,"S-",2,"S+",3,"S+",4,"S-",5;
-    // densop1 += "projDn",1,"S-",2,"S+",3,"S-",4,"S+",5;
-    // densop1 += "projDn",1,"S-",2,"S-",3,"S+",4,"S+",5;
-    // densop1 += "projDn",1,"S+",4,"S-",5;
-    // densop1 += "projDn",1,"S-",4,"S+",5;
-    // densop1 += "projDn",1,"S+",3,"S-",5;
-    // densop1 += "projDn",1,"S-",3,"S+",5;
-    // densop1 += "projDn",1,"S+",3,"S-",4;
-    // densop1 += "projDn",1,"S-",3,"S+",4;
-    // densop1 += "projDn",1,"S+",2,"S-",5;
-    // densop1 += "projDn",1,"S-",2,"S+",5;
-    // densop1 += "projDn",1,"S+",2,"S-",4;
-    // densop1 += "projDn",1,"S-",2,"S+",4;
-    // densop1 += "projDn",1,"S+",2,"S-",3;
-    // densop1 += "projDn",1,"S-",2,"S+",3;
-    // densop1 += "projDn",1;
-    // auto densop2 = AutoMPO(sites);
-    // densop2 += "projDn",2,"S+",1,"S+",3,"S-",4,"S-",5;
-    // densop2 += "projDn",2,"S+",1,"S-",3,"S+",4,"S-",5;
-    // densop2 += "projDn",2,"S+",1,"S-",3,"S-",4,"S+",5;
-    // densop2 += "projDn",2,"S-",1,"S+",3,"S+",4,"S-",5;
-    // densop2 += "projDn",2,"S-",1,"S+",3,"S-",4,"S+",5;
-    // densop2 += "projDn",2,"S-",1,"S-",3,"S+",4,"S+",5;
-    // densop2 += "projDn",2,"S+",4,"S-",5;
-    // densop2 += "projDn",2,"S-",4,"S+",5;
-    // densop2 += "projDn",2,"S+",3,"S-",5;
-    // densop2 += "projDn",2,"S-",3,"S+",5;
-    // densop2 += "projDn",2,"S+",3,"S-",4;
-    // densop2 += "projDn",2,"S-",3,"S+",4;
-    // densop2 += "projDn",2,"S+",1,"S-",5;
-    // densop2 += "projDn",2,"S-",1,"S+",5;
-    // densop2 += "projDn",2,"S+",1,"S-",4;
-    // densop2 += "projDn",2,"S-",1,"S+",4;
-    // densop2 += "projDn",2,"S+",1,"S-",3;
-    // densop2 += "projDn",2,"S-",1,"S+",3;
-    // densop2 += "projDn",2;
-    // auto densop3 = AutoMPO(sites);
-    // densop3 += "projDn",3,"S+",1,"S+",2,"S-",4,"S-",5;
-    // densop3 += "projDn",3,"S+",1,"S-",2,"S+",4,"S-",5;
-    // densop3 += "projDn",3,"S+",1,"S-",2,"S-",4,"S+",5;
-    // densop3 += "projDn",3,"S-",1,"S+",2,"S+",4,"S-",5;
-    // densop3 += "projDn",3,"S-",1,"S+",2,"S-",4,"S+",5;
-    // densop3 += "projDn",3,"S-",1,"S-",2,"S+",4,"S+",5;
-    // densop3 += "projDn",3,"S+",4,"S-",5;
-    // densop3 += "projDn",3,"S-",4,"S+",5;
-    // densop3 += "projDn",3,"S+",2,"S-",5;
-    // densop3 += "projDn",3,"S-",2,"S+",5;
-    // densop3 += "projDn",3,"S+",2,"S-",4;
-    // densop3 += "projDn",3,"S-",2,"S+",4;
-    // densop3 += "projDn",3,"S+",1,"S-",5;
-    // densop3 += "projDn",3,"S-",1,"S+",5;
-    // densop3 += "projDn",3,"S+",1,"S-",4;
-    // densop3 += "projDn",3,"S-",1,"S+",4;
-    // densop3 += "projDn",3,"S+",1,"S-",3;
-    // densop3 += "projDn",3,"S-",1,"S+",3;
-    // densop3 += "projDn",3;
-    // auto densop4 = AutoMPO(sites);
-    // densop4 += "projDn",4,"S+",1,"S+",2,"S-",3,"S-",5;
-    // densop4 += "projDn",4,"S+",1,"S-",2,"S+",3,"S-",5;
-    // densop4 += "projDn",4,"S+",1,"S-",2,"S-",3,"S+",5;
-    // densop4 += "projDn",4,"S-",1,"S+",2,"S+",3,"S-",5;
-    // densop4 += "projDn",4,"S-",1,"S+",2,"S-",3,"S+",5;
-    // densop4 += "projDn",4,"S-",1,"S-",2,"S+",3,"S+",5;
-    // densop4 += "projDn",4,"S+",3,"S-",5;
-    // densop4 += "projDn",4,"S-",3,"S+",5;
-    // densop4 += "projDn",4,"S+",2,"S-",5;
-    // densop4 += "projDn",4,"S-",2,"S+",5;
-    // densop4 += "projDn",4,"S+",2,"S-",3;
-    // densop4 += "projDn",4,"S-",2,"S+",3;
-    // densop4 += "projDn",4,"S+",1,"S-",5;
-    // densop4 += "projDn",4,"S-",1,"S+",5;
-    // densop4 += "projDn",4,"S+",1,"S-",3;
-    // densop4 += "projDn",4,"S-",1,"S+",3;
-    // densop4 += "projDn",4,"S+",1,"S-",2;
-    // densop4 += "projDn",4,"S-",1,"S+",2;
-    // densop4 += "projDn",4;
-    // auto densop5 = AutoMPO(sites);
-    // densop5 += "projDn",5,"S+",1,"S+",2,"S-",3,"S-",4;
-    // densop5 += "projDn",5,"S+",1,"S-",2,"S+",3,"S-",4;
-    // densop5 += "projDn",5,"S+",1,"S-",2,"S-",3,"S+",4;
-    // densop5 += "projDn",5,"S-",1,"S+",2,"S+",3,"S-",4;
-    // densop5 += "projDn",5,"S-",1,"S+",2,"S-",3,"S+",4;
-    // densop5 += "projDn",5,"S-",1,"S-",2,"S+",3,"S+",4;
-    // densop5 += "projDn",5,"S+",3,"S-",4;
-    // densop5 += "projDn",5,"S-",3,"S+",4;
-    // densop5 += "projDn",5,"S+",2,"S-",4;
-    // densop5 += "projDn",5,"S-",2,"S+",4;
-    // densop5 += "projDn",5,"S+",2,"S-",3;
-    // densop5 += "projDn",5,"S-",2,"S+",3;
-    // densop5 += "projDn",5,"S+",1,"S-",4;
-    // densop5 += "projDn",5,"S-",1,"S+",4;
-    // densop5 += "projDn",5,"S+",1,"S-",3;
-    // densop5 += "projDn",5,"S-",1,"S+",3;
-    // densop5 += "projDn",5,"S+",1,"S-",2;
-    // densop5 += "projDn",5,"S-",1,"S+",2;
-    // densop5 += "projDn",5;
-    
-    // PrintData(toMPO(densop1));
-    // PrintData(toMPO(densop2));
-    // PrintData(toMPO(densop3));
-    // PrintData(toMPO(densop4));
-    // PrintData(toMPO(densop5));
-
-    std::vector<AutoMPO> densops(N,sites);
-    std::set<std::vector<int>> perms;
-    for(auto n : range((N+1)/2))
-        {
-        std::vector<int> a;
-        for(auto i : range(N-2*n-1)) a.push_back(0);
-        for(auto i : range(n))
-            {
-            a.push_back(1);
-            a.push_back(2);
-            }
-        gen_perms(perms,a,0,N-2);
-        }
-    println(perms.size());
-    for(auto it = perms.begin(); it != perms.end(); ++it)
-        {
-        for(auto i : range1(N))
-            {
-            HTerm term;
-            term.add("projDn",i);
-            for(auto j : range1(N-1))
-                {
-                std::string op;
-                switch(it->at(j-1))
-                    {
-                    case 1: op="S+"; break;
-                    case 2: op="S-";
-                    }
-                if(op.size())
-                    {
-                    term.add(op,j<i?j:j+1);
-                    }
-                }
-            densops[i-1].add(term);
-            }
-        }
-    for(auto densop : densops) 
-    PrintData(toMPO(densops[0]));
-    PrintData(toMPO(densops[N/4]));
-    PrintData(toMPO(densops[N/2]));
-    PrintData(toMPO(densops[3*N/4]));
+    // println(perms.size());
+    // for(auto it = perms.begin(); it != perms.end(); ++it)
+    //     {
+    //     for(auto i : range1(N))
+    //         {
+    //         HTerm term;
+    //         term.add("projDn",i);
+    //         for(auto j : range1(N-1))
+    //             {
+    //             std::string op;
+    //             switch(it->at(j-1))
+    //                 {
+    //                 case 1: op="S+"; break;
+    //                 case 2: op="S-";
+    //                 }
+    //             if(op.size())
+    //                 {
+    //                 term.add(op,j<i?j:j+1);
+    //                 }
+    //             }
+    //         densops[i-1].add(term);
+    //         }
+    //     }
+    // for(auto densop : densops) 
+    // PrintData(toMPO(densops[0]));
+    // PrintData(toMPO(densops[N/4]));
+    // PrintData(toMPO(densops[N/2]));
+    // PrintData(toMPO(densops[3*N/4]));
 
   // Real lc = 3.0;
   // // std::vector<Real> plist(N + 1);
@@ -223,85 +116,89 @@ main()
   // ampo += -plist[N], "projUp", N;
   // auto H = toMPO(ampo);
 
-  // // auto H = MPO_ASEP(sites, std::vector<Real>(N + 1, 0.6), std::vector<Real>(N + 1, 0.4), -0.0001);
+  // auto H = MPO_ASEP(sites, std::vector<Real>(N + 1, 0.6), std::vector<Real>(N + 1, 0.4), -0.0001);
 
-  // // PrintData(H);
-  // // auto Hfull = H(1) * H(2) * H(3) * H(4);
-  // // auto inds = Hfull.inds();
-  // // auto C = std::get<0>(combiner(inds[0], inds[2], inds[4], inds[6]));
-  // // auto Cp = std::get<0>(combiner(inds[1], inds[3], inds[5], inds[7]));
-  // // auto Hfullmat = C * Hfull * Cp;
-  // // Matrix M(std::pow(2, N), std::pow(2, N));
-  // // for(auto it : iterInds(Hfullmat)) {
-  // //   M(it[0].val - 1, it[1].val - 1) = Hfullmat.real(it);
-  // // }
-  // // Print(M);
+  // PrintData(H);
+  // auto Hfull = H(1) * H(2) * H(3) * H(4);
+  // auto inds = Hfull.inds();
+  // auto C = std::get<0>(combiner(inds[0], inds[2], inds[4], inds[6]));
+  // auto Cp = std::get<0>(combiner(inds[1], inds[3], inds[5], inds[7]));
+  // auto Hfullmat = C * Hfull * Cp;
+  // Matrix M(std::pow(2, N), std::pow(2, N));
+  // for(auto it : iterInds(Hfullmat)) {
+  //   M(it[0].val - 1, it[1].val - 1) = Hfullmat.real(it);
+  // }
+  // Print(M);
 
-  //   // Set the initial wavefunction matrix product state
-  //   // to be a Neel state.
-  //   //
-  //   // auto state = InitState(sites);
-  //   // for(auto i : range1(N))
-  //   //     {
-  //   //     if(i%2 == 1) state.set(i,"Up");
-  //   //     else         state.set(i,"Dn");
-  //   //     }
-  //   // auto psi0 = MPS(state);
-  //   auto psi0 = randomMPS(sites, 16);
-  //   // PrintData(psi0);
+    // Set the initial wavefunction matrix product state
+    // to be a Neel state.
+    //
+    auto state = InitState(sites);
+    for(auto i : range1(N))
+        {
+        if(i%2 == 1) state.set(i,"Up");
+        else         state.set(i,"Dn");
+        }
+    auto psi0 = MPS(state);
+    // PrintData(psi0);
 
-  //   //
-  //   // inner calculates matrix elements of MPO's with respect to MPS's
-  //   // inner(psi,H,psi) = <psi|H|psi>
-  //   //
-  //   printfln("Initial energy = %.5f", inner(psi0,H,psi0) );
+    //
+    // inner calculates matrix elements of MPO's with respect to MPS's
+    // inner(psi,H,psi) = <psi|H|psi>
+    //
+    printfln("Initial energy = %.5f", inner(psi0,H,psi0) );
 
-  //   //
-  //   // Set the parameters controlling the accuracy of the DMRG
-  //   // calculation for each DMRG sweep. 
-  //   // Here less than 5 cutoff values are provided, for example,
-  //   // so all remaining sweeps will use the last one given (= 1E-10).
-  //   //
-  //   auto sweeps = Sweeps(6);
-  //   sweeps.maxdim() = 16,16,16,16,16,16;
-  //   // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
-  //   sweeps.cutoff() = 1E-13;
-  //   sweeps.niter() = 10;
-  //   sweeps.noise() = 1E-7,1E-8,0.0,0.0,0.0,0.0;
-  //   println(sweeps);
+    //
+    // Set the parameters controlling the accuracy of the DMRG
+    // calculation for each DMRG sweep. 
+    // Here less than 5 cutoff values are provided, for example,
+    // so all remaining sweeps will use the last one given (= 1E-10).
+    //
+    auto sweeps = Sweeps(6);
+    sweeps.maxdim() = 16,16,16,16,16,16;
+    // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
+    sweeps.cutoff() = 1E-13;
+    sweeps.niter() = 10;
+    sweeps.noise() = 1E-7,1E-8,0.0,0.0,0.0,0.0;
+    println(sweeps);
 
-  //   // //
-  //   // // Begin the DMRG calculation
-  //   // //
-  //   auto [energy,psi] = dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"});
+    // //
+    // // Begin the DMRG calculation
+    // //
+    auto [energy,psi] = dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"});
 
-  //   //
-  //   // Print the final energy reported by DMRG
-  //   //
-  //   printfln("\nGround State Energy = %.10f",energy);
-  //   printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
+    auto psi1 = sum(psi,psi0);
+    PrintData(psi);
+    PrintData(psi0);
+    PrintData(psi1);
 
-  //   auto sweeps1 = Sweeps(10);
-  //   sweeps1.maxdim() = 16;
-  //   sweeps1.cutoff() = 1E-13;
-  //   sweeps1.niter() = 100;
-  //   sweeps1.noise() = 0.0;
-  //   println(sweeps1);
+    //
+    // Print the final energy reported by DMRG
+    //
+    printfln("\nGround State Energy = %.10f",energy);
+    printfln("\nUsing inner = %.10f", inner(psi,H,psi) );
 
-  //   // println("\nStart TDVP");
-  //   // auto energy2 = tdvp(psi,H,0.1,sweeps1,{"NumCenter",1,"Quiet",});
+    auto sweeps1 = Sweeps(10);
+    sweeps1.maxdim() = 16;
+    sweeps1.cutoff() = 1E-13;
+    sweeps1.niter() = 100;
+    sweeps1.noise() = 0.0;
+    println(sweeps1);
 
-  //   // printfln("\nEnergy of Evolved State = %.10f",energy2);
+    // println("\nStart TDVP");
+    // auto energy2 = tdvp(psi,H,0.1,sweeps1,{"NumCenter",1,"Quiet",});
 
-  //   psi = psi0;
-  //   for(auto i : range1(10))
-  //       {
-  //       auto psi1 = psi;
-  //       tdvp(psi,H,0.1,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",});
-  //       printfln("\n%d: SCGF = %f",i,std::log(inner(psi1,psi)));
-  //       psi.position(1);
-  //       psi.normalize();
-  //       }
+    // printfln("\nEnergy of Evolved State = %.10f",energy2);
 
-  //   return 0;
+    psi = psi0;
+    for(auto i : range1(10))
+        {
+        auto psi1 = psi;
+        tdvp(psi,H,0.1,sweeps1,{"NumCenter",1,"DoNormalize",false,"Quiet",});
+        printfln("\n%d: SCGF = %f",i,std::log(inner(psi1,psi)));
+        psi.position(1);
+        psi.normalize();
+        }
+
+    return 0;
     }

@@ -254,6 +254,13 @@ int main(int argc, char** argv)
 			// auto psi1fullmat = C * Hfull;
 			// PrintData(psi1fullmat);
 			// println(inner(psi0,W2,psi0));
+			// PrintData(psi0(3));
+			// PrintData(psi0(1)*psi0(3)*psi0(4));
+			// PrintData(psi0(0)*psi0(1)*psi0(2)*psi0(3)*psi0(4)*psi0(5)*psi0(6));
+			// PrintData(psi0(7));
+			// PrintData(psi0(3)*psi0(7)*psi0(8));
+			// PrintData(psi0(1)*psi0(3)*psi0(4)*psi0(7)*psi0(8)*psi0(9)*psi0(10));
+			// PrintData(psi0(0)*psi0(1)*psi0(2)*psi0(3)*psi0(4)*psi0(5)*psi0(6)*psi0(7)*psi0(8)*psi0(9)*psi0(10)*psi0(11)*psi0(12)*psi0(13)*psi0(14));
 			psi0 = doubleTree(psi0,state);
 			// PrintData(psi0);
 			// Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6) * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14);
@@ -262,6 +269,13 @@ int main(int argc, char** argv)
 			// psi1fullmat = C * Hfull;
 			// PrintData(psi1fullmat);
 			// println(inner(psi0,W2,psi0));
+			// PrintData(psi0(7));
+			// PrintData(psi0(3)*psi0(7)*psi0(8));
+			// PrintData(psi0(1)*psi0(3)*psi0(4)*psi0(7)*psi0(8)*psi0(9)*psi0(10));
+			// PrintData(psi0(15));
+			// PrintData(psi0(7)*psi0(15)*psi0(16));
+			// PrintData(psi0(3)*psi0(7)*psi0(8)*psi0(15)*psi0(16)*psi0(17)*psi0(18));
+			// PrintData(psi0(1)*psi0(3)*psi0(4)*psi0(7)*psi0(8)*psi0(9)*psi0(10)*psi0(15)*psi0(16)*psi0(17)*psi0(18)*psi0(19)*psi0(20)*psi0(21)*psi0(22));
 			}
 		}
 	PrintData(psi0);

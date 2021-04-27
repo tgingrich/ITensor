@@ -25,7 +25,7 @@ using std::istream;
 using std::ostream;
 using std::cout;
 using std::endl;
-// using std::vector;
+using std::vector;
 // using std::find;
 // using std::pair;
 // using std::make_pair;
@@ -155,5 +155,44 @@ totalQN(BinaryTree const& psi)
         }
     return tq;
     }
+
+template <class TreeType>
+TreeType&
+addAssumeOrth(TreeType& L, TreeType const& R, Args const& args)
+    {
+    auto N = length(L);
+    if(length(R) != N) Error("Mismatched TTN sizes");
+
+    // Make sure there aren't link index clashes between L and R
+    // by priming by a random amount
+    // TODO: use L.simLinkInds() to avoid clashing insteda of priming
+    auto rand_plev = 1254313;
+    auto l = linkInds(L);
+    L.replaceLinkInds(prime(linkInds(L),rand_plev));
+
+    auto first = vector<ITensor>(N);
+    auto second = vector<ITensor>(N);
+
+    for(auto i : range1(N-1))
+        {
+        auto l1 = linkIndex(L,i);
+        auto l2 = linkIndex(R,i);
+        auto r = l1;
+        plussers(l1,l2,r,first[i],second[i]);
+        }
+
+    L.ref(1) = L(1) * first.at(1) + R(1) * second.at(1);
+    for(auto i : range1(2,N-1))
+        {
+        L.ref(i) = dag(first.at(i-1)) * L(i) * first.at(i) 
+                     + dag(second.at(i-1)) * R(i) * second.at(i);
+        }
+    L.ref(N) = dag(first.at(N-1)) * L(N) + dag(second.at(N-1)) * R(N);
+
+    L.replaceLinkInds(prime(linkInds(L),-rand_plev));
+    L.orthogonalize(args);
+    return L;
+    }
+template BinaryTree& addAssumeOrth<BinaryTree>(BinaryTree& L,BinaryTree const& R, Args const& args);
 
 } //namespace itensor

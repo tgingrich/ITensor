@@ -483,6 +483,13 @@ class MPS
 
     }; //class MPS
 
+void 
+plussers(Index const& l1, 
+         Index const& l2, 
+         Index      & sumind, 
+         ITensor    & first, 
+         ITensor    & second);
+
 template <typename MPSType>
 MPSType&
 addAssumeOrth(MPSType      & L,
