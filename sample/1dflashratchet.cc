@@ -64,6 +64,7 @@ int main(int argc, char** argv)
 		}
 	auto psi0 = BinaryTree(state);
 	// auto psi1 = doubleTree(psi0,state);
+	auto psi1 = psi0;
 	Real dz = 0.0001;
 	MPO W1m, W1p, W2m, W2p, W1, W2;
 	for(auto level : range(dbl+1))
@@ -278,7 +279,12 @@ int main(int argc, char** argv)
 			// PrintData(psi0(1)*psi0(3)*psi0(4)*psi0(7)*psi0(8)*psi0(9)*psi0(10)*psi0(15)*psi0(16)*psi0(17)*psi0(18)*psi0(19)*psi0(20)*psi0(21)*psi0(22));
 			}
 		}
-	PrintData(psi0);
+	// auto psi2 = sum(psi0,psi1);
+	// psi2.normalize();
+	// auto Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6) * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14);
+	// PrintData(Hfull);
+	// Hfull = psi2(0) * psi2(1) * psi2(2) * psi2(3) * psi2(4) * psi2(5) * psi2(6) * psi2(7) * psi2(8) * psi2(9) * psi2(10) * psi2(11) * psi2(12) * psi2(13) * psi2(14);
+	// PrintData(Hfull);
 
 	// auto psim = std::get<1>(tree_dmrg(W2m,psi0,sweeps0,{"NumCenter",2,"WhichEig","LargestReal","Quiet",}));
 	// psim = std::get<1>(tree_dmrg(W2m,psim,sweeps,{"NumCenter",2,"WhichEig","LargestReal","SubspaceExpansion",false,"Quiet",}));

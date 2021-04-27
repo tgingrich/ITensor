@@ -160,8 +160,8 @@ template <class TreeType>
 TreeType&
 addAssumeOrth(TreeType& L, TreeType const& R, Args const& args)
     {
-    auto N = length(L);
-    if(length(R) != N) Error("Mismatched TTN sizes");
+    auto N = L.size();
+    if(R.size() != N) Error("Mismatched TTN sizes");
 
     // Make sure there aren't link index clashes between L and R
     // by priming by a random amount
@@ -181,13 +181,22 @@ addAssumeOrth(TreeType& L, TreeType const& R, Args const& args)
         plussers(l1,l2,r,first[i],second[i]);
         }
 
-    L.ref(1) = L(1) * first.at(1) + R(1) * second.at(1);
-    for(auto i : range1(2,N-1))
+    // PrintData(L(0));
+    L.ref(0) = L(0) * dag(first.at(1)) * dag(first.at(2)) + R(0) * dag(second.at(1)) * dag(second.at(2));
+    // PrintData(L(0));
+    for(auto i : range1((N-3)/2))
         {
-        L.ref(i) = dag(first.at(i-1)) * L(i) * first.at(i) 
-                     + dag(second.at(i-1)) * R(i) * second.at(i);
+        // PrintData(L(i));
+        L.ref(i) = first.at(i) * L(i) * dag(first.at(L.leftchild(i))) * dag(first.at(L.rightchild(i)))
+                     + second.at(i) * R(i) * dag(second.at(R.leftchild(i))) * dag(second.at(R.rightchild(i)));
+        // PrintData(L(i));
         }
-    L.ref(N) = dag(first.at(N-1)) * L(N) + dag(second.at(N-1)) * R(N);
+    for(auto i : range1((N-1)/2,N-1))
+        {
+        // PrintData(L(i));
+        L.ref(i) = first.at(i) * L(i) + second.at(i) * R(i);
+        // PrintData(L(i));
+        }
 
     L.replaceLinkInds(prime(linkInds(L),-rand_plev));
     L.orthogonalize(args);
