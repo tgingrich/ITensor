@@ -237,7 +237,12 @@ namespace itensor {
   BinaryTree& BinaryTree::
   plusEq(BinaryTree const& R, Args const& args)
     {
-    //cout << "calling new orthog in sum" << endl;
+    if(not *this)
+        {
+        *this = R;
+        return *this;
+        }
+
     if(!itensor::isOrtho(*this))
         {
         try { 
@@ -1275,6 +1280,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     // PrintData(x);
     // PrintData(phi);
     // PrintData(phi(0)*phi(1)*phi(2));
+    phi.orthogonalize();
     return phi;
   }
 
@@ -1298,6 +1304,39 @@ call .position(j) or .orthogonalize() to set ortho center");
     return res;
   }
   template BinaryTree sum<BinaryTree>(BinaryTree const& L, BinaryTree const& R, Args const& args);
+
+  template <class TreeType>
+  TreeType
+  sum(std::vector<TreeType> const& terms, Args const& args)
+    {
+    auto Nt = terms.size();
+    if(Nt == 2)
+        { 
+        return sum(terms.at(0),terms.at(1),args);
+        }
+    else 
+    if(Nt == 1) 
+        {
+        return terms.at(0);
+        }
+    else 
+    if(Nt > 2)
+        {
+        //Add all BinaryTrees in pairs
+        auto nsize = (Nt%2==0 ? Nt/2 : (Nt-1)/2+1);
+        std::vector<TreeType> newterms(nsize); 
+        for(decltype(Nt) n = 0, np = 0; n < Nt-1; n += 2, ++np)
+            {
+            newterms.at(np) = sum(terms.at(n),terms.at(n+1),args);
+            }
+        if(Nt%2 == 1) newterms.at(nsize-1) = terms.back();
+
+        //Recursively call sum again
+        return sum(newterms,args);
+        }
+    return TreeType();
+    }
+  template BinaryTree sum<BinaryTree>(std::vector<BinaryTree> const& terms, Args const& args);
 
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M)

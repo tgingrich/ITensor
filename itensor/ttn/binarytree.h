@@ -460,10 +460,6 @@ namespace itensor {
 
   }; //class BinaryTree
 
-  // template <typename TreeType>
-  // TreeType&
-  // addAssumeOrth(TreeType& L, TreeType const& R, Args const& args = Args::global());
-
   BinaryTree&
   operator*=(BinaryTree & x, Real a);
 
@@ -773,9 +769,8 @@ namespace itensor {
   BinaryTree
   doubleTree(BinaryTree const& x, InitState const& initState);
 
-  // template <class TreeType>
-  // TreeType
-  // sum(TreeType const& L, TreeType const& R, Args const& args = Args::global());
+  BinaryTree
+  doubleTree(BinaryTree const& x, BinaryTree const& y, InitState const& initState);
 
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M);
