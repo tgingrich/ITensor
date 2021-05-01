@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 	MPO W1m, W1p, W2m, W2p, W1, W2;
 	std::vector<BinaryTree> smalltreelist, largetreelist;
 	int minnp = dbl ? 0 : nparticles, maxnp = dbl ? std::min(nparticles,bins) : nparticles;
-	auto sites = SpinHalf(bins,{"ConserveQNs",false});
+	auto sites = SpinHalf(bins,{"ConserveQNs",true});
 	auto state = InitState(sites);
 	for(auto np : range1(minnp,maxnp))
 		{
@@ -91,11 +91,18 @@ int main(int argc, char** argv)
 				anop += "Sz",j;
 				}
 		  	auto Nop = toMPO(anop);
-		  	// PrintData(Nop);
-		  	// PrintData(psi0);
 			int spin = inner(psi0,Nop,psi0);
 			printfln("\nBin number: %d",bins);
 			printfln("\nParticle number: %d",bins/2-spin);
+
+			// if(bins==8)
+			// 	{
+			// 	auto Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6)/* * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14)*/;
+			// 	auto inds = Hfull.inds();
+			// 	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]/*, inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]*/));
+			// 	auto psi1fullmat = C * Hfull;
+			// 	PrintData(psi1fullmat);
+			// 	}
 
 			for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
 			println();
@@ -149,21 +156,10 @@ int main(int argc, char** argv)
 				W1 = toMPO(ampo1);
 				W2 = toMPO(ampo2);
 
-				// if(bins==16)
-				// 	{
-				// 	PrintData(psi0);
-				// 	println(inner(psi0,W2,psi0));
-				// 	auto Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6) * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14);
-				// 	auto inds = Hfull.inds();
-				// 	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7], inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]));
-				// 	auto psi1fullmat = C * Hfull;
-				// 	PrintData(psi1fullmat);
-				// 	}
-
 				auto sweeps0 = Sweeps(1);
 				sweeps0.maxdim() = maxdim;
 				sweeps0.cutoff() = co1;
-				sweeps0.niter() = 10;
+				sweeps0.niter() = 100;
 				sweeps0.noise() = 0.0;
 				sweeps0.alpha() = alpha;
 
@@ -176,7 +172,7 @@ int main(int argc, char** argv)
 						{
 						sweeps.maxdim() = 10*j;
 						sweeps.cutoff() = 1E-15;
-						sweeps.niter() = 10;
+						sweeps.niter() = 100;
 						sweeps.noise() = 0.0;
 						sweeps.alpha() = alpha<0 ? std::exp(-0.2*j) : alpha;
 						println(sweeps);
@@ -188,18 +184,28 @@ int main(int argc, char** argv)
 					auto sweeps = Sweeps(30);
 					sweeps.maxdim() = maxdim;
 					sweeps.cutoff() = co1;
-					sweeps.niter() = 10;
+					sweeps.niter() = 100;
 					sweeps.noise() = 0.0;
 					sweeps.alpha() = alpha;
 					println(sweeps);
 					psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
 					psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",1,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
 					}
-
-				for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
-				println();
 				}
 			else psi0.orthogonalize();
+			for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
+			println();
+
+			// if(bins==16)
+			// 	{
+			// 	auto Hfull = psi0(0) * psi0(1) * psi0(2) * psi0(3) * psi0(4) * psi0(5) * psi0(6) * psi0(7) * psi0(8) * psi0(9) * psi0(10) * psi0(11) * psi0(12) * psi0(13) * psi0(14);
+			// 	auto inds = Hfull.inds();
+			// 	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7], inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]));
+			// 	auto psi1fullmat = C * Hfull;
+			// 	PrintData(psi1fullmat);
+			// 	}
+			// PrintData(psi0);
+
 			smalltreelist.push_back(psi0);
 			++idx;
 			}
@@ -207,7 +213,7 @@ int main(int argc, char** argv)
 		if(level<dbl)
 			{
 			bins *= 2;
-			sites = SpinHalf(bins,{"ConserveQNs",false});
+			sites = SpinHalf(bins,{"ConserveQNs",true});
 			state = InitState(sites);
 			// psi0 = doubleTree(psi0,state);
 			minnp = level==dbl-1 ? nparticles : 0;
@@ -218,30 +224,33 @@ int main(int argc, char** argv)
 				BinaryTree largetree;
 				for(auto i : range(np+1))
 					{
-					BinaryTree smalltree1 = smalltreelist[i]*std::sqrt(choose(bins/2,i));
-					BinaryTree smalltree2 = smalltreelist[nparticles-i]*std::sqrt(choose(bins/2,nparticles-i));
 					if(i<=bins/2 && nparticles-i<=bins/2)
 						{
+						BinaryTree smalltree1 = smalltreelist[i]*std::sqrt(choose(bins/2,i));
+						BinaryTree smalltree2 = smalltreelist[np-i]*std::sqrt(choose(bins/2,np-i));
 						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",co1,"MaxDim",maxdim});
+
+						// if(bins==8)
+						// 	{
+						// 	auto Hfull = smalltree1(0) * smalltree1(1) * smalltree1(2)/* * smalltree1(3) * smalltree1(4) * smalltree1(5) * smalltree1(6)*/;
+						// 	auto inds = Hfull.inds();
+						// 	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3]/*, inds[4], inds[5], inds[6], inds[7]*/));
+						// 	auto psi1fullmat = C * Hfull;
+						// 	PrintData(psi1fullmat);
+
+						// 	Hfull = smalltree2(0) * smalltree2(1) * smalltree2(2)/* * smalltree2(3) * smalltree2(4) * smalltree2(5) * smalltree2(6)*/;
+						// 	inds = Hfull.inds();
+						// 	C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
+						// 	psi1fullmat = C * Hfull;
+						// 	PrintData(psi1fullmat);
+
+						// 	Hfull = largetree(0) * largetree(1) * largetree(2) * largetree(3) * largetree(4) * largetree(5) * largetree(6)/* * largetree(7) * largetree(8) * largetree(9) * largetree(10) * largetree(11) * largetree(12) * largetree(13) * largetree(14)*/;
+						// 	inds = Hfull.inds();
+						// 	C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]/*, inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]*/));
+						// 	psi1fullmat = C * Hfull;
+						// 	PrintData(psi1fullmat);
+						// 	}
 						}
-
-					// auto Hfull = smalltree1(0) * smalltree1(1) * smalltree1(2) * smalltree1(3) * smalltree1(4) * smalltree1(5) * smalltree1(6);
-					// auto inds = Hfull.inds();
-					// auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
-					// auto psi1fullmat = C * Hfull;
-					// PrintData(psi1fullmat);
-
-					// Hfull = smalltree2(0) * smalltree2(1) * smalltree2(2) * smalltree2(3) * smalltree2(4) * smalltree2(5) * smalltree2(6);
-					// inds = Hfull.inds();
-					// C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]));
-					// psi1fullmat = C * Hfull;
-					// PrintData(psi1fullmat);
-
-					// Hfull = largetree(0) * largetree(1) * largetree(2) * largetree(3) * largetree(4) * largetree(5) * largetree(6) * largetree(7) * largetree(8) * largetree(9) * largetree(10) * largetree(11) * largetree(12) * largetree(13) * largetree(14);
-					// inds = Hfull.inds();
-					// C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7], inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]));
-					// psi1fullmat = C * Hfull;
-					// PrintData(psi1fullmat);
 					}
 				largetree.normalize();
 				largetreelist.push_back(largetree);
