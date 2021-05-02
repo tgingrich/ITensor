@@ -310,19 +310,19 @@ int main(int argc, char** argv)
 		auto psip0 = psip;
 		auto mean0 = mean;
 		psim = std::get<1>(tree_tdvp(W1m,psim,deltat1,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(nstages2) psim = std::get<1>(tree_tdvp(W1m,psim,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
 		psim = std::get<1>(tree_tdvp(W2m,psim,deltat1,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W2m,psim,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(nstages2) psim = std::get<1>(tree_tdvp(W2m,psim,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
 		psip = std::get<1>(tree_tdvp(W1p,psip,deltat1,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W1p,psip,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(nstages2) psip = std::get<1>(tree_tdvp(W1p,psip,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
 		psip = std::get<1>(tree_tdvp(W2p,psip,deltat1,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W2p,psip,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(nstages2) psip = std::get<1>(tree_tdvp(W2p,psip,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
 		if(dens>0)
 			{
 			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat1,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
-			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat2,sweeps2,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
+			if(nstages2) psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat2,sweeps2,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
 			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat1,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
-			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat2,sweeps2,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
+			if(nstages2) psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat2,sweeps2,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
 			}
 		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
 		mean = (right-left)/(2*dz);
