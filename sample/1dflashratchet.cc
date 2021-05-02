@@ -46,17 +46,18 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq = 1E5, anneal = 0;
+	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E3, anneal = 0;
 	Real co1 = 1.0E-13, co2 = 1.0E-13, alpha = 0.1;
 	if (argc > 4) maxdim = std::stoi(argv[4]);
 	if (argc > 5) se1 = std::stoi(argv[5]);
 	if (argc > 6) se2 = std::stoi(argv[6]);
 	if (argc > 7) co1 = std::stod(argv[7]);
 	if (argc > 8) co2 = std::stod(argv[8]);
-	if (argc > 9) tdvp_freq = std::stoi(argv[9]);
-	if (argc > 10) alpha = std::stod(argv[10]);
-	if (argc > 11) anneal = std::stoi(argv[11]);
-	printfln("%d %d %d %.10e %.10e %d %f %d",maxdim,se1,se2,co1,co2,tdvp_freq,alpha,anneal);
+	if (argc > 9) tdvp_freq1 = std::stoi(argv[9]);
+	if (argc > 10) tdvp_freq2 = std::stoi(argv[10]);
+	if (argc > 11) alpha = std::stod(argv[11]);
+	if (argc > 12) anneal = std::stoi(argv[12]);
+	printfln("%d %d %d %.10e %.10e %d %d %f %d",maxdim,se1,se2,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
 
 	bins /= pow2(dbl);
 	Real dz = 0.0001;
@@ -262,13 +263,15 @@ int main(int argc, char** argv)
 
 	printfln("Driving frequency: %f",freq);
 
-	auto nstages = std::max(10,(int)(tdvp_freq/freq));
 	auto period = 1/freq;
-	auto deltat = period/nstages;
-	// auto deltat = period/100;
+	auto transient_freq = std::max(100.0,freq);
+	auto transient_period = 1/transient_freq;
+	auto nstages1 = std::max(5,(int)(tdvp_freq1*transient_period/2));
+	auto deltat1 = transient_period/(2*nstages1);
+	auto nstages2 = (int)(tdvp_freq2*(period-transient_period)/2);
+	auto deltat2 = nstages2 ? (period-transient_period)/(2*nstages2) : 0.0;
 
-	auto sweeps1 = Sweeps(nstages/2);
-	// auto sweeps1 = Sweeps(1);
+	auto sweeps1 = Sweeps(nstages1);
 	sweeps1.maxdim() = maxdim;
 	sweeps1.cutoff() = co2;
 	sweeps1.niter() = 100;
@@ -276,6 +279,15 @@ int main(int argc, char** argv)
 	sweeps1.alpha() = alpha;
 	println();
 	println(sweeps1);
+
+	auto sweeps2 = Sweeps(nstages2);
+	sweeps2.maxdim() = maxdim;
+	sweeps2.cutoff() = co2;
+	sweeps2.niter() = 100;
+	sweeps2.noise() = 0.0;
+	sweeps2.alpha() = alpha;
+	println();
+	println(sweeps2);
 
 	println("\nStart TDVP");
 
@@ -297,21 +309,27 @@ int main(int argc, char** argv)
 		auto psim0 = psim;
 		auto psip0 = psip;
 		auto mean0 = mean;
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W2m,psim,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W1p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W2p,psip,deltat,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat1,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat1,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat1,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat1,sweeps1,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat2,sweeps2,{"NumCenter",1,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(dens>0)
+			{
+			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat1,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat2,sweeps2,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat1,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat2,sweeps2,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
+			}
 		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
 		mean = (right-left)/(2*dz);
 		var = (right+left)/(dz*dz);
 		printfln("\n%d: v- = %f, v+ = %f, j = %f, dj = %f",iter++,left,right,mean,mean-mean0);
 		psim.normalize();
 		psip.normalize();
-		if(dens>0)
-			{
-			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
-			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat,sweeps1,{"NumCenter",1,"SubspaceExpansion",se2==1,"Quiet",}));
-			}
 		Real thresh = std::pow(10,(int)std::log10(fabs(mean)))/1000;
 		if(fabs(mean-mean0)<thresh && iter>miniter) break;
 		}
@@ -320,17 +338,19 @@ int main(int argc, char** argv)
 
 	if(dens>0)
 		{
-		auto sweeps2 = Sweeps(nstages/dens);
-		sweeps2.maxdim() = maxdim;
-		sweeps2.cutoff() = co2;
-		sweeps2.niter() = 100;
-		sweeps2.noise() = 0.0;
-		sweeps2.alpha() = alpha;
+		auto nstages3 = std::max(5,(int)(tdvp_freq1*period/dens));
+		auto deltat3 = period/(2*nstages3);
+		auto sweeps3 = Sweeps(nstages3);
+		sweeps3.maxdim() = maxdim;
+		sweeps3.cutoff() = co2;
+		sweeps3.niter() = 100;
+		sweeps3.noise() = 0.0;
+		sweeps3.alpha() = alpha;
 		std::ofstream ofs;
 		ofs.open("dens_"+std::to_string(nparticles)+"_"+std::to_string((int)freq)+"_"+std::to_string(bins)+".txt");
 		for(auto j : range(dens))
 			{
-			psi0 = std::get<1>(tree_tdvp(j*2/dens==0?W1:W2,psi0,deltat,sweeps2,{"NumCenter",1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(j*2/dens==0?W1:W2,psi0,deltat3,sweeps3,{"NumCenter",1,"Quiet",}));
 			for(auto n : range1(bins)) ofs << siteval(psi0,n)[1] << " ";
 			ofs << std::endl;
 			}
