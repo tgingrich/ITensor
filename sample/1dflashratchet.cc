@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E5, anneal = 0;
+	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq1 = 1E6, tdvp_freq2 = 1E6, anneal = 0;
 	Real co1 = 1.0E-13, co2 = 1.0E-13, alpha = 0.1;
 	if (argc > 4) maxdim = std::stoi(argv[4]);
 	if (argc > 5) se1 = std::stoi(argv[5]);
@@ -239,7 +239,7 @@ int main(int argc, char** argv)
 
 						// println("before");
 						// if(largetree) PrintData(largetree(1).inds());
-						// largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",co1,"MaxDim",maxdim});
+						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",co1,"MaxDim",maxdim});
 						// println("after");
 						// if(largetree) PrintData(largetree(1).inds());
 
