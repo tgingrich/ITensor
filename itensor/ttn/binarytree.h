@@ -166,6 +166,8 @@ namespace itensor {
 
 		}
 
+    void orthoReset() { std::fill(orth_pos_.begin(),orth_pos_.end(),-1); }
+
     void setOrder(int start, int end);
 
     void getSequence(std::list<int> &sequence, std::vector<bool> &counted, int start, int end) const;
@@ -222,8 +224,8 @@ namespace itensor {
 
     Real normalize();
 
-    BinaryTree&
-    plusEq(BinaryTree const& R, Args const& args = Args::global());
+    // BinaryTree&
+    // plusEq(BinaryTree const& R, Args const& args = Args::global());
 
     BinaryTree&
     replaceSiteInds(IndexSet const& sites);
@@ -767,10 +769,10 @@ namespace itensor {
   sitevalC(BinaryTree const& x, int site);
 
   BinaryTree
-  doubleTree(BinaryTree const& x, InitState const& initState);
+  doubleTree(BinaryTree const& x, InitState const& initState, Args const& args = Args::global());
 
   BinaryTree
-  doubleTree(BinaryTree const& x, BinaryTree const& y, InitState const& initState);
+  doubleTree(BinaryTree const& x, BinaryTree const& y, InitState const& initState, Args const& args = Args::global());
 
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M);

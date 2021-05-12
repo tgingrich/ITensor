@@ -5,7 +5,7 @@
 
 using namespace itensor;
 
-int choose(int n, int k)
+long long choose(int n, int k)
 	{
 	if(k == 0) return 1;
 	return (n*choose(n-1,k-1))/k;
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E3, anneal = 0;
+	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E5, anneal = 0;
 	Real co1 = 1.0E-13, co2 = 1.0E-13, alpha = 0.1;
 	if (argc > 4) maxdim = std::stoi(argv[4]);
 	if (argc > 5) se1 = std::stoi(argv[5]);
@@ -103,6 +103,12 @@ int main(int argc, char** argv)
 			// 	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]/*, inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]*/));
 			// 	auto psi1fullmat = C * Hfull;
 			// 	PrintData(psi1fullmat);
+			// 	}
+
+			// for(auto j : range(psi0.size()))
+			// 	{
+			// 	println(j);
+			// 	PrintData(psi0(j).inds());
 			// 	}
 
 			for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
@@ -227,9 +233,19 @@ int main(int argc, char** argv)
 					{
 					if(i<=bins/2 && nparticles-i<=bins/2)
 						{
-						BinaryTree smalltree1 = smalltreelist[i]*std::sqrt(choose(bins/2,i));
-						BinaryTree smalltree2 = smalltreelist[np-i]*std::sqrt(choose(bins/2,np-i));
-						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",co1,"MaxDim",maxdim});
+						BinaryTree smalltree1 = smalltreelist[i]*std::sqrt((double)choose(bins/2,i)/choose(bins,np));
+						BinaryTree smalltree2 = smalltreelist[np-i]*std::sqrt((double)choose(bins/2,np-i)/choose(bins,np));
+						// printfln("doubleTree %d %d",np,i);
+
+						// println("before");
+						// if(largetree) PrintData(largetree(1).inds());
+						// largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",co1,"MaxDim",maxdim});
+						// println("after");
+						// if(largetree) PrintData(largetree(1).inds());
+
+						// largetree.orthogonalize({"Cutoff",co1,"MaxDim",maxdim});
+						// println("after2");
+						// if(largetree) PrintData(largetree(1).inds());
 
 						// if(bins==8)
 						// 	{

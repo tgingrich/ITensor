@@ -235,43 +235,6 @@ namespace itensor {
   }
 
   BinaryTree& BinaryTree::
-  plusEq(BinaryTree const& R, Args const& args)
-    {
-    if(not *this)
-        {
-        *this = R;
-        return *this;
-        }
-
-    if(!itensor::isOrtho(*this))
-        {
-        try { 
-            orthogonalize();
-            }
-        catch(ResultIsZero const& rz) 
-            { 
-            *this = R;
-            return *this;
-            }
-        }
-
-    if(!itensor::isOrtho(R))
-        {
-        BinaryTree oR(R);
-        try { 
-            oR.orthogonalize(); 
-            }
-        catch(ResultIsZero const& rz) 
-            { 
-            return *this;
-            }
-        return addAssumeOrth(*this,oR,args);
-        }
-
-    return addAssumeOrth(*this,R,args);
-    }
-
-  BinaryTree& BinaryTree::
   randomize(Args const& args)
   {
     //if(maxLinkDim(*this)>1) Error(".randomize() not currently supported on BinaryTree with bond dimension greater than 1.");
@@ -1187,7 +1150,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   }
 
   BinaryTree
-  doubleTree(BinaryTree const& x, BinaryTree const& y, InitState const& initState)
+  doubleTree(BinaryTree const& x, BinaryTree const& y, InitState const& initState, Args const& args)
   {
     if(not x || not y) Error("doubleTree: BinaryTrees are default constructed");
     if(initState.sites().length() != 2*x.length() || initState.sites().length() != 2*y.length()) Error("doubleTree: incorrect initState length");
@@ -1275,32 +1238,68 @@ call .position(j) or .orthogonalize() to set ortho center");
     auto C2 = combiner(itensor::dag(a2),phi(2).inds()[0]);
     phi.ref(2).replaceInds({phi(2).inds()[0]},{std::get<1>(C2)});
     phi.ref(2) *= itensor::dag(std::get<0>(C2));
-    // phi.ref(1) *= delta(a1,phi(1).inds()[0],sim(phi(1).inds()[0]));
-    // phi.ref(2) *= delta(a2,phi(2).inds()[0],sim(phi(2).inds()[0]));
+    // for(auto j : range(phi.size()))
+    //   {
+    //   println(j);
+    //   PrintData(phi(j).inds());
+    //   }
     // PrintData(x);
+    // PrintData(y);
     // PrintData(phi);
-    // PrintData(phi(0)*phi(1)*phi(2));
-    phi.orthogonalize();
+    phi.orthogonalize(args);
     return phi;
   }
 
   BinaryTree
-  doubleTree(BinaryTree const& x, InitState const& initState)
+  doubleTree(BinaryTree const& x, InitState const& initState, Args const& args)
   {
     if(not x) Error("doubleTree: BinaryTree is default constructed");
     if(initState.sites().length() != 2*x.length()) Error("doubleTree: incorrect initState length");
     BinaryTree x2 = x;
     x2.replaceLinkInds(sim(linkInds(x)));
     x2.replaceSiteInds(sim(siteInds(x)));
-    return doubleTree(x,x2,initState);
+    return doubleTree(x,x2,initState,args);
   }
 
   template <class TreeType>
   TreeType
   sum(TreeType const& L, TreeType const& R, Args const& args)
   {
+    if(not L) return R;
+    if(not R) return L;
     auto res = L;
-    res.plusEq(R,args);
+    auto N = res.size();
+    if(R.size() != N) Error("Mismatched TTN sizes");
+
+    auto rand_plev = 1254313;
+    auto l = linkInds(res);
+    res.replaceLinkInds(prime(linkInds(res),rand_plev));
+
+    auto first = vector<ITensor>(N);
+    auto second = vector<ITensor>(N);
+
+    for(auto i : range1(N-1))
+        {
+        auto l1 = linkIndex(res,i);
+        auto l2 = linkIndex(R,i);
+        auto r = l1;
+        plussers(l1,l2,r,first[i],second[i]);
+        }
+
+    res.ref(0) = res(0) * dag(first.at(1)) * dag(first.at(2)) + R(0) * dag(second.at(1)) * dag(second.at(2));
+    for(auto i : range1((N-3)/2))
+        {
+        res.ref(i) = first.at(i) * res(i) * dag(first.at(res.leftchild(i))) * dag(first.at(res.rightchild(i)))
+                     + second.at(i) * R(i) * dag(second.at(R.leftchild(i))) * dag(second.at(R.rightchild(i)));
+        }
+    for(auto i : range1((N-1)/2,N-1))
+        {
+        res.ref(i) = first.at(i) * res(i) + second.at(i) * R(i);
+        }
+
+    res.replaceLinkInds(prime(linkInds(res),-rand_plev));
+    res.orthoReset();
+    res.orthogonalize(args);
     return res;
   }
   template BinaryTree sum<BinaryTree>(BinaryTree const& L, BinaryTree const& R, Args const& args);
@@ -1378,9 +1377,18 @@ call .position(j) or .orthogonalize() to set ortho center");
     //        }
     auto original_link_tags = tags(bnd);
     ITensor A,D,B(bnd);
+    // println(args.getInt("MaxDim", MAX_DIM));
+    // println("before svd");
+    // PrintData(L.inds());
+    // PrintData(R.inds());
     auto spec = svd(L,A,D,B,{args,"LeftTags=",original_link_tags});
     L = A;
     R *= (D*B);
+    // println("after svd");
+    // PrintData(L.inds());
+    // PrintData(D.inds());
+    // PrintData(B.inds());
+    // PrintData(R.inds());
   }
 
 } //namespace itensor
