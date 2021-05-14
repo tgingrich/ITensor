@@ -237,7 +237,7 @@ int main(int argc, char** argv)
 						{
 						BinaryTree smalltree1 = smalltreelist[i]*std::sqrt((double)choose(bins/2,i)/choose(bins,np));
 						BinaryTree smalltree2 = smalltreelist[np-i]*std::sqrt((double)choose(bins/2,np-i));
-						printfln("doubleTree %d %d",np,i);
+						// printfln("doubleTree %d %d",np,i);
 
 						// println("before");
 						// if(largetree) PrintData(largetree(1).inds());
@@ -249,60 +249,75 @@ int main(int argc, char** argv)
 						// println("after2");
 						// if(largetree) PrintData(largetree(1).inds());
 
-						if(bins==8)
-							{
-							auto Hfull = smalltree1(0) * smalltree1(1) * smalltree1(2)/* * smalltree1(3) * smalltree1(4) * smalltree1(5) * smalltree1(6)*/;
-							auto inds = Hfull.inds();
-							auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3]/*, inds[4], inds[5], inds[6], inds[7]*/));
-							auto psi1fullmat = C * Hfull;
-							PrintData(psi1fullmat);
-							println(norm(smalltree1));
+						// if(bins==8)
+						// 	{
+						// 	auto Hfull = smalltree1(0) * smalltree1(1) * smalltree1(2)/* * smalltree1(3) * smalltree1(4) * smalltree1(5) * smalltree1(6)*/;
+						// 	auto inds = Hfull.inds();
+						// 	auto C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3]/*, inds[4], inds[5], inds[6], inds[7]*/));
+						// 	auto psi1fullmat = C * Hfull;
+						// 	PrintData(psi1fullmat);
+						// 	println(norm(smalltree1));
 
-							Hfull = smalltree2(0) * smalltree2(1) * smalltree2(2)/* * smalltree2(3) * smalltree2(4) * smalltree2(5) * smalltree2(6)*/;
-							inds = Hfull.inds();
-							C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3]/*, inds[4], inds[5], inds[6], inds[7]*/));
-							psi1fullmat = C * Hfull;
-							PrintData(psi1fullmat);
-							println(norm(smalltree2));
+						// 	Hfull = smalltree2(0) * smalltree2(1) * smalltree2(2)/* * smalltree2(3) * smalltree2(4) * smalltree2(5) * smalltree2(6)*/;
+						// 	inds = Hfull.inds();
+						// 	C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3]/*, inds[4], inds[5], inds[6], inds[7]*/));
+						// 	psi1fullmat = C * Hfull;
+						// 	PrintData(psi1fullmat);
+						// 	println(norm(smalltree2));
 
-							Hfull = largetree(0) * largetree(1) * largetree(2) * largetree(3) * largetree(4) * largetree(5) * largetree(6)/* * largetree(7) * largetree(8) * largetree(9) * largetree(10) * largetree(11) * largetree(12) * largetree(13) * largetree(14)*/;
-							inds = Hfull.inds();
-							C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]/*, inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]*/));
-							psi1fullmat = C * Hfull;
-							PrintData(psi1fullmat);
-							println(norm(largetree));
-							}
+						// 	Hfull = largetree(0) * largetree(1) * largetree(2) * largetree(3) * largetree(4) * largetree(5) * largetree(6)/* * largetree(7) * largetree(8) * largetree(9) * largetree(10) * largetree(11) * largetree(12) * largetree(13) * largetree(14)*/;
+						// 	inds = Hfull.inds();
+						// 	C = std::get<0>(combiner(inds[0], inds[1], inds[2], inds[3], inds[4], inds[5], inds[6], inds[7]/*, inds[8], inds[9], inds[10], inds[11], inds[12], inds[13], inds[14], inds[15]*/));
+						// 	psi1fullmat = C * Hfull;
+						// 	PrintData(psi1fullmat);
+						// 	println(norm(largetree));
+						// 	}
 						}
 					}
-				std::vector<Real> plist2(bins), qlist2(bins);
-				for(auto j : range(bins))
-					{
-					plist2[j] = qlist2[j] = di/std::pow(h,2);
-					for (auto i : range((int)coefs.size()))
-						{
-			    		plist2[j] += (i+1)*ratio*strength*coefs[i]*M_PI*std::cos(2*(i+1)*M_PI*j*h)/h;
-			    		qlist2[j] -= (i+1)*ratio*strength*coefs[i]*M_PI*std::cos(2*(i+1)*M_PI*(j+1)*h)/h;
-			 			}
-					}
-				auto ampo2 = AutoMPO(sites);
-				for(auto j : range1(bins))
-					{
-					ampo2 += plist2[j-1],"S+",j,"S-",j%bins+1;
-					ampo2 += -plist2[j-1],"projDn",j,"projUp",j%bins+1;
-					ampo2 += qlist2[j-1],"S-",j,"S+",j%bins+1;
-					ampo2 += -qlist2[j-1],"projUp",j,"projDn",j%bins+1;
-					}
-				W2 = toMPO(ampo2);
-				println(inner(largetree,W2,largetree));
-				for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
-				println();
+				// largetree.normalize();
 
-				largetree.normalize();
+				// for(auto j : range(largetree.size()))
+				// 	{
+				// 	println(j);
+				// 	PrintData(largetree(j).inds());
+				// 	}
+
+				printfln("before ortho %d",np);
+				// std::vector<Real> plist2(bins), qlist2(bins);
+				// for(auto j : range(bins))
+				// 	{
+				// 	plist2[j] = qlist2[j] = di/std::pow(h,2);
+				// 	for (auto i : range((int)coefs.size()))
+				// 		{
+			 //    		plist2[j] += (i+1)*ratio*strength*coefs[i]*M_PI*std::cos(2*(i+1)*M_PI*j*h)/h;
+			 //    		qlist2[j] -= (i+1)*ratio*strength*coefs[i]*M_PI*std::cos(2*(i+1)*M_PI*(j+1)*h)/h;
+			 // 			}
+				// 	}
+				// auto ampo2 = AutoMPO(sites);
+				// for(auto j : range1(bins))
+				// 	{
+				// 	ampo2 += plist2[j-1],"S+",j,"S-",j%bins+1;
+				// 	ampo2 += -plist2[j-1],"projDn",j,"projUp",j%bins+1;
+				// 	ampo2 += qlist2[j-1],"S-",j,"S+",j%bins+1;
+				// 	ampo2 += -qlist2[j-1],"projUp",j,"projDn",j%bins+1;
+				// 	}
+				// W2 = toMPO(ampo2);
+				// println(inner(largetree,W2,largetree));
+				// println(norm(largetree));
+				// for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
+				// println();
+				largetree.orthoReset();
+				// largetree.orthogonalize({"Cutoff",co1});
+				largetree.position(largetree.endPoint(),{"Cutoff",co1});
+				largetree.orthoReset();
+				largetree.position(largetree.startPoint(),{"Cutoff",co1});
+				printfln("after ortho %d",np);
+				// println(inner(largetree,W2,largetree));
+				// println(norm(largetree));
+				// for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
+				// println();
+
 				largetreelist.push_back(largetree);
-
-				println(inner(largetree,W2,largetree));
-				for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
-				println();
 				}
 			smalltreelist.clear();
 			}

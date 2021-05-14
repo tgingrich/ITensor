@@ -15,6 +15,7 @@
 //
 #include "itensor/ttn/binarytree.h"
 #include "itensor/mps/localop.h"
+#include "itensor/mps/autompo.h"
 #include <stack>
 
 namespace itensor {
@@ -65,7 +66,7 @@ namespace itensor {
   BinaryTree::BinaryTree(SiteSet const& sites,int m)
     : N_(sites.length()-1),  height_(intlog2(sites.length())-1), N_sites_(sites.length()),
       A_(sites.length()-1), //2^(h+1)-1
-      orth_pos_(sites.length()-1,-1),order_(sites.length()-1), reverse_order_(sites.length()-1), site_dim_(sites.inds()[0].dim())
+      orth_pos_(sites.length()-1,-1),order_(sites.length()-1), reverse_order_(sites.length()-1), site_dim_(sites.inds()[0].dim()), sites_(sites)
   {
     if(!islog2(sites.length())) Error("The number of sites is not a power of 2");
     binary_new_tensors(A_,sites,m);
@@ -87,7 +88,7 @@ namespace itensor {
     : N_(initState.sites().length()-1),  height_(intlog2(initState.sites().length())-1), N_sites_(initState.sites().length()),
       A_(2*initState.sites().length()-1), //2*2^(h)-1
       orth_pos_(initState.sites().length()-1,-1),
-      order_(initState.sites().length()-1), reverse_order_(initState.sites().length()-1), site_dim_(initState.sites().inds()[0].dim())
+      order_(initState.sites().length()-1), reverse_order_(initState.sites().length()-1), site_dim_(initState.sites().inds()[0].dim()), sites_(initState.sites())
   {
     if(!islog2(initState.sites().length())) Error("The number of sites is not a power of 2");
     init_tensors(initState);
@@ -107,6 +108,7 @@ namespace itensor {
     site_dim_ = other.site_dim_;
     start_ = other.start_;
     end_ = other.end_;
+    sites_ = other.sites_;
   }
 
   BinaryTree& BinaryTree::
@@ -122,6 +124,7 @@ namespace itensor {
     site_dim_ = other.site_dim_;
     start_ = other.start_;
     end_ = other.end_;
+    sites_ = other.sites_;
     return *this;
   }
 
@@ -356,6 +359,22 @@ namespace itensor {
   BinaryTree& BinaryTree::
   position(int k, Args args)
     {
+    Real h = 1.0/N_sites_, di = 12.635;
+    std::vector<Real> plist2(N_sites_), qlist2(N_sites_);
+    for(auto j : range(N_sites_))
+     {
+     plist2[j] = qlist2[j] = di/std::pow(h,2);
+     }
+    auto ampo2 = AutoMPO(sites_);
+    for(auto j : range1(N_sites_))
+     {
+     ampo2 += plist2[j-1],"S+",j,"S-",j%N_sites_+1;
+     ampo2 += -plist2[j-1],"projDn",j,"projUp",j%N_sites_+1;
+     ampo2 += qlist2[j-1],"S-",j,"S+",j%N_sites_+1;
+     ampo2 += -qlist2[j-1],"projUp",j,"projDn",j%N_sites_+1;
+     }
+    auto W2 = toMPO(ampo2);
+
     if(not *this) Error("position: BinaryTree is default constructed");
 
     //Find the max distance from the position to orthogonalize
@@ -376,10 +395,23 @@ namespace itensor {
             }
           else
             {
+            printfln("%d %d",node_d.at(i)[0],node_d.at(i)[1]);
+            PrintData(A_[node_d.at(i)[0]].inds());
+            PrintData(A_[node_d.at(i)[1]].inds());
+            println(inner(*this,W2,*this));
+            for(auto n : range1(N_sites_)) printf("%f ",siteval(*this,n)[1]);
+            println();
+
             orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
 						// this->setOrthoLink(node_d.at(i)[0],node_d.at(i)[1]);
 						orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
 						orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
+
+            PrintData(A_[node_d.at(i)[0]].inds());
+            PrintData(A_[node_d.at(i)[1]].inds());
+            println(inner(*this,W2,*this));
+            for(auto n : range1(N_sites_)) printf("%f ",siteval(*this,n)[1]);
+            println();
             }
           }
         }
@@ -1154,7 +1186,7 @@ call .position(j) or .orthogonalize() to set ortho center");
   {
     if(not x || not y) Error("doubleTree: BinaryTrees are default constructed");
     if(initState.sites().length() != 2*x.length() || initState.sites().length() != 2*y.length()) Error("doubleTree: incorrect initState length");
-    BinaryTree phi(2*x.length());
+    BinaryTree phi(initState);
     for(auto i : range1(x.height()+1))
       {
       for(auto j : range1(pow2(i-1)))
@@ -1298,7 +1330,7 @@ call .position(j) or .orthogonalize() to set ortho center");
         }
 
     res.replaceLinkInds(prime(linkInds(res),-rand_plev));
-    res.orthoReset();
+    // res.orthoReset();
     res.orthogonalize(args);
     return res;
   }

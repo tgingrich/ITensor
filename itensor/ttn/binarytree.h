@@ -64,6 +64,7 @@ namespace itensor {
     int site_dim_;
     int start_;
     int end_;
+    SiteSet sites_;
   public:
 
     //
