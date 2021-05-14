@@ -231,23 +231,47 @@ int main(int argc, char** argv)
 			for(auto np : range1(minnp,maxnp))
 				{
 				BinaryTree largetree;
+				std::vector<Real> plist2(bins), qlist2(bins);
+				for(auto j : range(bins))
+					{
+					plist2[j] = qlist2[j] = di/std::pow(h,2);
+					for (auto i : range((int)coefs.size()))
+						{
+			    		plist2[j] += (i+1)*ratio*strength*coefs[i]*M_PI*std::cos(2*(i+1)*M_PI*j*h)/h;
+			    		qlist2[j] -= (i+1)*ratio*strength*coefs[i]*M_PI*std::cos(2*(i+1)*M_PI*(j+1)*h)/h;
+			 			}
+					}
+				auto ampo2 = AutoMPO(sites);
+				for(auto j : range1(bins))
+					{
+					ampo2 += plist2[j-1],"S+",j,"S-",j%bins+1;
+					ampo2 += -plist2[j-1],"projDn",j,"projUp",j%bins+1;
+					ampo2 += qlist2[j-1],"S-",j,"S+",j%bins+1;
+					ampo2 += -qlist2[j-1],"projUp",j,"projDn",j%bins+1;
+					}
+				W2 = toMPO(ampo2);
 				for(auto i : range(np+1))
 					{
 					if(i<=bins/2 && np-i<=bins/2)
 						{
 						BinaryTree smalltree1 = smalltreelist[i]*std::sqrt((double)choose(bins/2,i)/choose(bins,np));
 						BinaryTree smalltree2 = smalltreelist[np-i]*std::sqrt((double)choose(bins/2,np-i));
-						// printfln("doubleTree %d %d",np,i);
+						printfln("doubleTree %d %d",np,i);
 
 						// println("before");
 						// if(largetree) PrintData(largetree(1).inds());
-						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",co1,"MaxDim",maxdim});
+						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",co1});
 						// println("after");
 						// if(largetree) PrintData(largetree(1).inds());
 
 						// largetree.orthogonalize({"Cutoff",co1,"MaxDim",maxdim});
 						// println("after2");
 						// if(largetree) PrintData(largetree(1).inds());
+
+						println(inner(largetree,W2,largetree));
+						println(norm(largetree));
+						for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
+						println();
 
 						// if(bins==8)
 						// 	{
@@ -274,44 +298,25 @@ int main(int argc, char** argv)
 						// 	}
 						}
 					}
-				// largetree.normalize();
+				largetree.normalize();
 
-				// for(auto j : range(largetree.size()))
-				// 	{
-				// 	println(j);
-				// 	PrintData(largetree(j).inds());
-				// 	}
+				for(auto j : range(largetree.size()))
+					{
+					println(j);
+					PrintData(largetree(j).inds());
+					}
 
-				printfln("before ortho %d",np);
-				// std::vector<Real> plist2(bins), qlist2(bins);
-				// for(auto j : range(bins))
-				// 	{
-				// 	plist2[j] = qlist2[j] = di/std::pow(h,2);
-				// 	for (auto i : range((int)coefs.size()))
-				// 		{
-			 //    		plist2[j] += (i+1)*ratio*strength*coefs[i]*M_PI*std::cos(2*(i+1)*M_PI*j*h)/h;
-			 //    		qlist2[j] -= (i+1)*ratio*strength*coefs[i]*M_PI*std::cos(2*(i+1)*M_PI*(j+1)*h)/h;
-			 // 			}
-				// 	}
-				// auto ampo2 = AutoMPO(sites);
-				// for(auto j : range1(bins))
-				// 	{
-				// 	ampo2 += plist2[j-1],"S+",j,"S-",j%bins+1;
-				// 	ampo2 += -plist2[j-1],"projDn",j,"projUp",j%bins+1;
-				// 	ampo2 += qlist2[j-1],"S-",j,"S+",j%bins+1;
-				// 	ampo2 += -qlist2[j-1],"projUp",j,"projDn",j%bins+1;
-				// 	}
-				// W2 = toMPO(ampo2);
-				// println(inner(largetree,W2,largetree));
-				// println(norm(largetree));
-				// for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
-				// println();
-				largetree.orthoReset();
-				// largetree.orthogonalize({"Cutoff",co1});
-				largetree.position(largetree.endPoint(),{"Cutoff",co1});
-				largetree.orthoReset();
-				largetree.position(largetree.startPoint(),{"Cutoff",co1});
-				printfln("after ortho %d",np);
+				// printfln("before ortho %d",np);
+				println(inner(largetree,W2,largetree));
+				println(norm(largetree));
+				for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
+				println();
+				// largetree.orthoReset();
+				// // largetree.orthogonalize({"Cutoff",co1});
+				// largetree.position(largetree.endPoint(),{"Cutoff",co1});
+				// largetree.orthoReset();
+				// largetree.position(largetree.startPoint(),{"Cutoff",co1});
+				// printfln("after ortho %d",np);
 				// println(inner(largetree,W2,largetree));
 				// println(norm(largetree));
 				// for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);

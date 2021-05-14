@@ -359,21 +359,21 @@ namespace itensor {
   BinaryTree& BinaryTree::
   position(int k, Args args)
     {
-    Real h = 1.0/N_sites_, di = 12.635;
-    std::vector<Real> plist2(N_sites_), qlist2(N_sites_);
-    for(auto j : range(N_sites_))
-     {
-     plist2[j] = qlist2[j] = di/std::pow(h,2);
-     }
-    auto ampo2 = AutoMPO(sites_);
-    for(auto j : range1(N_sites_))
-     {
-     ampo2 += plist2[j-1],"S+",j,"S-",j%N_sites_+1;
-     ampo2 += -plist2[j-1],"projDn",j,"projUp",j%N_sites_+1;
-     ampo2 += qlist2[j-1],"S-",j,"S+",j%N_sites_+1;
-     ampo2 += -qlist2[j-1],"projUp",j,"projDn",j%N_sites_+1;
-     }
-    auto W2 = toMPO(ampo2);
+    // Real h = 1.0/N_sites_, di = 12.635;
+    // std::vector<Real> plist2(N_sites_), qlist2(N_sites_);
+    // for(auto j : range(N_sites_))
+    //  {
+    //  plist2[j] = qlist2[j] = di/std::pow(h,2);
+    //  }
+    // auto ampo2 = AutoMPO(sites_);
+    // for(auto j : range1(N_sites_))
+    //  {
+    //  ampo2 += plist2[j-1],"S+",j,"S-",j%N_sites_+1;
+    //  ampo2 += -plist2[j-1],"projDn",j,"projUp",j%N_sites_+1;
+    //  ampo2 += qlist2[j-1],"S-",j,"S+",j%N_sites_+1;
+    //  ampo2 += -qlist2[j-1],"projUp",j,"projDn",j%N_sites_+1;
+    //  }
+    // auto W2 = toMPO(ampo2);
 
     if(not *this) Error("position: BinaryTree is default constructed");
 
@@ -395,23 +395,22 @@ namespace itensor {
             }
           else
             {
-            printfln("%d %d",node_d.at(i)[0],node_d.at(i)[1]);
-            PrintData(A_[node_d.at(i)[0]].inds());
-            PrintData(A_[node_d.at(i)[1]].inds());
-            println(inner(*this,W2,*this));
-            for(auto n : range1(N_sites_)) printf("%f ",siteval(*this,n)[1]);
-            println();
+            // printfln("%d %d",node_d.at(i)[0],node_d.at(i)[1]);
+            // PrintData(A_[node_d.at(i)[0]].inds());
+            // PrintData(A_[node_d.at(i)[1]].inds());
+            // println(inner(*this,W2,*this));
+            // for(auto n : range1(N_sites_)) printf("%f ",siteval(*this,n)[1]);
+            // println();
 
             orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
-						// this->setOrthoLink(node_d.at(i)[0],node_d.at(i)[1]);
 						orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
 						orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
 
-            PrintData(A_[node_d.at(i)[0]].inds());
-            PrintData(A_[node_d.at(i)[1]].inds());
-            println(inner(*this,W2,*this));
-            for(auto n : range1(N_sites_)) printf("%f ",siteval(*this,n)[1]);
-            println();
+            // PrintData(A_[node_d.at(i)[0]].inds());
+            // PrintData(A_[node_d.at(i)[1]].inds());
+            // println(inner(*this,W2,*this));
+            // for(auto n : range1(N_sites_)) printf("%f ",siteval(*this,n)[1]);
+            // println();
             }
           }
         }
@@ -1330,8 +1329,10 @@ call .position(j) or .orthogonalize() to set ortho center");
         }
 
     res.replaceLinkInds(prime(linkInds(res),-rand_plev));
-    // res.orthoReset();
-    res.orthogonalize(args);
+    res.orthoReset();
+    res.position(res.endPoint(),args);
+    res.orthoReset();
+    res.position(res.startPoint(),args);
     return res;
   }
   template BinaryTree sum<BinaryTree>(BinaryTree const& L, BinaryTree const& R, Args const& args);
