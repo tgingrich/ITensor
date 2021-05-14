@@ -15,7 +15,6 @@ int main(int argc, char** argv)
 	{
 	auto start = std::chrono::high_resolution_clock::now();
 	auto freq = atof(argv[3]);
-	printfln("Driving frequency: %f",freq);
 	int nparticles = atoi(argv[2]);
 	std::ifstream ifs;
 	ifs.open(argv[1]);
@@ -58,7 +57,8 @@ int main(int argc, char** argv)
 	if (argc > 10) tdvp_freq2 = std::stoi(argv[10]);
 	if (argc > 11) alpha = std::stod(argv[11]);
 	if (argc > 12) anneal = std::stoi(argv[12]);
-	printfln("%d %d %d %.10e %.10e %d %d %f %d",maxdim,se1,se2,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
+	printfln("\n%d %d %d %.10e %.10e %d %d %f %d",maxdim,se1,se2,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
+	printfln("\nDriving frequency: %f",freq);
 
 	bins /= pow2(dbl);
 	Real dz = 0.0001;
@@ -159,6 +159,7 @@ int main(int argc, char** argv)
 			// 	PrintData(psi0(j).inds());
 			// 	}
 
+			println();
 			for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
 			println();
 			if(np!=0 && np!=bins)
@@ -173,6 +174,7 @@ int main(int argc, char** argv)
 				sweeps0.alpha() = alpha;
 
 				println("\nStart DMRG");
+				println();
 
 				if(anneal)
 					{
@@ -200,6 +202,7 @@ int main(int argc, char** argv)
 					psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
 					psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",1,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
 					}
+				println();
 				for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
 				println();
 				}
@@ -256,7 +259,7 @@ int main(int argc, char** argv)
 						{
 						BinaryTree smalltree1 = smalltreelist[i]*std::sqrt((double)choose(bins/2,i)/choose(bins,np));
 						BinaryTree smalltree2 = smalltreelist[np-i]*std::sqrt((double)choose(bins/2,np-i));
-						printfln("doubleTree %d %d",np,i);
+						// printfln("doubleTree %d %d",np,i);
 
 						// println("before");
 						// if(largetree) PrintData(largetree(1).inds());
@@ -268,10 +271,10 @@ int main(int argc, char** argv)
 						// println("after2");
 						// if(largetree) PrintData(largetree(1).inds());
 
-						println(inner(largetree,W2,largetree));
-						println(norm(largetree));
-						for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
-						println();
+						// println(inner(largetree,W2,largetree));
+						// println(norm(largetree));
+						// for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
+						// println();
 
 						// if(bins==8)
 						// 	{
@@ -300,17 +303,17 @@ int main(int argc, char** argv)
 					}
 				largetree.normalize();
 
-				for(auto j : range(largetree.size()))
-					{
-					println(j);
-					PrintData(largetree(j).inds());
-					}
+				// for(auto j : range(largetree.size()))
+				// 	{
+				// 	println(j);
+				// 	PrintData(largetree(j).inds());
+				// 	}
 
 				// printfln("before ortho %d",np);
-				println(inner(largetree,W2,largetree));
-				println(norm(largetree));
-				for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
-				println();
+				// println(inner(largetree,W2,largetree));
+				// println(norm(largetree));
+				// for(auto n : range1(bins)) printf("%f ",siteval(largetree,n)[1]);
+				// println();
 				// largetree.orthoReset();
 				// // largetree.orthogonalize({"Cutoff",co1});
 				// largetree.position(largetree.endPoint(),{"Cutoff",co1});
