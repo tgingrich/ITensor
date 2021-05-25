@@ -115,10 +115,10 @@ namespace itensor {
     const bool quiet = args.getBool("Quiet",false);
     const int debug_level = args.getInt("DebugLevel",(quiet ? -1 : 0));
     const int numCenter = args.getInt("NumCenter",2);
-    if(numCenter != 1)
-        args.add("Truncate",args.getBool("Truncate",true));
-    else
-        args.add("Truncate",args.getBool("Truncate",false));
+    // if(numCenter != 1)
+    //     args.add("Truncate",args.getBool("Truncate",true));
+    // else
+    //     args.add("Truncate",args.getBool("Truncate",false));
 
     Real energy = NAN;
 
@@ -213,15 +213,15 @@ namespace itensor {
                     phi0 = psi(b1);
 		  }
                 else if(numCenter == 1)
-		  {
+		  {             
+                    // PrintData(psi(b).inds());
                     Index l;
                     l = commonIndex(psi(b),psi(adjacent));
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
-                    // PrintData(psi(b).inds());
                     psi.ref(b) = U;
-                    // PrintData(psi(b).inds());
                     phi0 = S*V;
+                    // PrintData(psi(b).inds());
 
                     auto current = std::log(commonIndex(psi(b), phi0).dim())/std::log(psi.site_dim());
                     int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
@@ -288,6 +288,12 @@ namespace itensor {
             // printfln("%d %d %d %d %d %d", sw, b, energy, norm(psi), norm(phi0), norm(phi1));
 
 	  } //for loop over b
+
+    // for(auto j : range(psi.size()))
+    //   {
+    //   println(j);
+    //   PrintData(psi(j).inds());
+    //   }
 
         if(!silent)
 	  {

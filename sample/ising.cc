@@ -3,11 +3,16 @@
 
 using namespace itensor;
 
-int main()
+int main(int argc, char** argv)
 {
-  int L = 512;
+  if(argc != 4) Error("Incorrect number of arguments!");
+
+  int L = atoi(argv[1]);
   Real h = 1.0;
   auto sites = SpinHalf(L,{"ConserveQNs",false});
+
+  int maxdim = atoi(argv[2]);
+  Real co = atof(argv[3]);
 
   auto state = InitState(sites);
   for(auto i : range1(L))
@@ -41,8 +46,8 @@ int main()
   printfln("Initial energy = %.5f", std::real(innerC(psi0,H,psi0)));
 
   auto sweeps = Sweeps(30);
-  sweeps.maxdim() = 70;
-  sweeps.cutoff() = 1E-13;
+  sweeps.maxdim() = maxdim;
+  sweeps.cutoff() = co;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
   sweeps.alpha() = 0.1;
@@ -52,6 +57,12 @@ int main()
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi1,psi1)));
   printfln("\nGround state energy = %.10f", std::real(innerC(psi1,H,psi1)));
+
+  for(auto j : range(psi1.size()))
+    {
+    println(j);
+    PrintData(psi1(j).inds());
+    }
 
   return 0;
 }

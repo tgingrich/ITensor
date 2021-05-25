@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq1 = 1E6, tdvp_freq2 = 1E6, anneal = 0;
+	int maxdim = 300, se1 = 1, se2 = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E5, anneal = 0;
 	Real co1 = 1.0E-13, co2 = 1.0E-13, alpha = 0.1;
 	if (argc > 4) maxdim = std::stoi(argv[4]);
 	if (argc > 5) se1 = std::stoi(argv[5]);
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 	if (argc > 10) tdvp_freq2 = std::stoi(argv[10]);
 	if (argc > 11) alpha = std::stod(argv[11]);
 	if (argc > 12) anneal = std::stoi(argv[12]);
-	printfln("\n%d %d %d %.10e %.10e %d %d %f %d",maxdim,se1,se2,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
+	printfln("%d %d %d %.10e %.10e %d %d %f %d",maxdim,se1,se2,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
 	printfln("\nDriving frequency: %f",freq);
 
 	bins /= pow2(dbl);
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 		  	auto Nop = toMPO(anop);
 			int spin = inner(psi0,Nop,psi0);
 			printfln("\nBin number: %d",bins);
-			printfln("\nParticle number: %d",bins/2-spin);
+			printfln("Particle number: %d",bins/2-spin);
 
 			// if(bins==8)
 			// 	{
@@ -153,18 +153,18 @@ int main(int argc, char** argv)
 			// 	PrintData(psi1fullmat);
 			// 	}
 
-			// for(auto j : range(psi0.size()))
-			// 	{
-			// 	println(j);
-			// 	PrintData(psi0(j).inds());
-			// 	}
-
 			println();
 			for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
 			println();
 			if(np!=0 && np!=bins)
 				{
 				printfln("\nInitial energy: %f",inner(psi0,W2,psi0));
+
+				for(auto j : range(psi0.size()))
+					{
+					println(j);
+					PrintData(psi0(j).inds());
+					}
 
 				auto sweeps0 = Sweeps(1);
 				sweeps0.maxdim() = maxdim;
@@ -205,6 +205,12 @@ int main(int argc, char** argv)
 				println();
 				for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
 				println();
+			
+				for(auto j : range(psi0.size()))
+					{
+					println(j);
+					PrintData(psi0(j).inds());
+					}
 				}
 			else psi0.orthogonalize();
 
