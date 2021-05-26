@@ -115,10 +115,10 @@ namespace itensor {
     const bool quiet = args.getBool("Quiet",false);
     const int debug_level = args.getInt("DebugLevel",(quiet ? -1 : 0));
     const int numCenter = args.getInt("NumCenter",2);
-    // if(numCenter != 1)
-    //     args.add("Truncate",args.getBool("Truncate",true));
-    // else
-    //     args.add("Truncate",args.getBool("Truncate",false));
+    if(numCenter != 1)
+        args.add("Truncate",args.getBool("Truncate",true));
+    else
+        args.add("Truncate",args.getBool("Truncate",false));
 
     Real energy = NAN;
 
@@ -165,7 +165,9 @@ namespace itensor {
             if(!quiet)
 	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
 
+        // printfln("before1 %f",inner(psi,psi));
         psi.position(b,args); //Orthogonalize with respect to b
+        // printfln("after1 %f",inner(psi,psi));
 
             H.numCenter(numCenter);
             H.position(b,ha==1?Fromleft:Fromright,psi);
@@ -199,7 +201,9 @@ namespace itensor {
               }
             else if(numCenter == 1)
               {
+              // printfln("before2 %f",inner(psi,psi));
       	      psi.ref(b) = phi1;
+              // printfln("after2 %f",inner(psi,psi));
               H.haveBeenUpdated(b);
               }
  
@@ -219,24 +223,11 @@ namespace itensor {
                     l = commonIndex(psi(b),psi(adjacent));
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
+                    // printfln("before3 %f",inner(psi,psi));
                     psi.ref(b) = U;
+                    // printfln("after3 %f",inner(psi,psi));
                     phi0 = S*V;
                     // PrintData(psi(b).inds());
-
-                    auto current = std::log(commonIndex(psi(b), phi0).dim())/std::log(psi.site_dim());
-                    int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-                    int max_dim = args.getInt("MaxDim", MAX_DIM);
-                    auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
-                    if(subspace_exp && current < correct)
-                      {
-                      auto temp = psi(adjacent);
-                      psi.ref(adjacent) = phi0;
-                      long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
-                      orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
-                      psi.setOrthoLink(b,adjacent); // Update orthogonalization
-                      phi0 = psi(adjacent);
-                      psi.ref(adjacent) = temp;
-                      }
 		  }
  
                 H.numCenter(numCenter-1);
@@ -253,9 +244,9 @@ namespace itensor {
 		  }
                 if(numCenter == 1)
 		  {
-                    // PrintData(psi(adjacent).inds());
+                    // printfln("before4 %f",inner(psi,psi));
                     psi.ref(adjacent) *= phi0;
-                    // PrintData(psi(adjacent).inds());
+                    // printfln("after4 %f",inner(psi,psi));
                     H.haveBeenUpdated(b);
 		  }
  
