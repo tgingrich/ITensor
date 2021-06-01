@@ -419,12 +419,16 @@ TIMER_START(2);
 TIMER_STOP(2);
 
 TIMER_START(3);
-            energy = arnoldi(PH,phi,args).real();
-            phi.takeReal();
+            energy = davidson(PH,phi,args);
+            // energy = arnoldi(PH,phi,args).real();
+            // phi.takeReal();
 TIMER_STOP(3);
             
 TIMER_START(4);
+            PrintData(psi(b));
             auto spec = psi.svdBond(b,phi,(ha==1?Fromleft:Fromright),PH,args);
+            PrintData(psi(b));
+            PrintData(spec);
 TIMER_STOP(4);
 
             if(!quiet)

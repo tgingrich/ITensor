@@ -56,15 +56,16 @@ int main()
   printfln("Initial norm = %.5f", std::real(innerC(psi0,psi0)));
   printfln("Initial current = %.5f", std::real(innerC(psi0,I,psi0)));
 
-  auto sweeps = Sweeps(10);
-  sweeps.maxdim() = 10,20,30,40,50,60,60,60,60,60;
-  sweeps.cutoff() = 1E-13;
+  auto sweeps = Sweeps(30);
+  // sweeps.maxdim() = 10,20,30,40,50,60,60,60,60,60;
+  sweeps.maxdim() = 5000;
+  sweeps.cutoff() = 1E-6;
   sweeps.niter() = 10;
   sweeps.noise() = 0.0;
   sweeps.alpha() = 0.1,0.1,0.05,0.05,0.02,0.02,0.01,0.01,0.005,0.002;
   println(sweeps);
 
-  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",}));
+  auto psi1 = std::get<1>(tree_dmrg(H,psi0,sweeps,{"NumCenter",1,"Quiet",}));
 
   printfln("\nFinal norm = %.5f", std::real(innerC(psi1,psi1)));
   printfln("\nGround state current = %.10f", std::real(innerC(psi1,I,psi1)));

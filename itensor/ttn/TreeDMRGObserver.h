@@ -38,6 +38,9 @@ namespace itensor {
 
     void virtual
     measure(Args const& args = Args::global());
+
+    void virtual
+    lastSpectrum(Spectrum const& spec) { last_spec_ = spec; }
     
     BinaryTree const& 
     psi() const { return psi_; }
@@ -81,7 +84,7 @@ measure(Args const& args)
 
     if(!silent && printeigs)
         {
-        if(b == 0 && ha == 2)
+        if(b == 4 && ha == 2)
             {
             println();
             auto center_eigs = last_spec_.eigsKept();
@@ -99,7 +102,7 @@ measure(Args const& args)
                 }
             S *= -1;
             printfln("    vN Entropy at center bond b=%d = %.12f",1,S);
-            printf(  "    Eigs at center bond b=%d: ",1);
+            printf(  "    Eigs at center bond b=%d: ",b);
             auto ten = decltype(center_eigs.size())(10);
             for(auto j : range(std::min(center_eigs.size(),ten)))
                 {

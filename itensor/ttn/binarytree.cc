@@ -1398,11 +1398,12 @@ call .position(j) or .orthogonalize() to set ortho center");
   }
   template BinaryTree removeQNs<BinaryTree>(BinaryTree const& psi);
 
-  void
+  Spectrum
   orthPair(ITensor& L, ITensor& R,  Args const& args)
   {
+    Spectrum spec;
     auto bnd = commonIndex(L,R);
-    if(!bnd) return;
+    if(!bnd) return spec;
 
     //    if(args.getBool("Verbose",false))
     //        {
@@ -1414,7 +1415,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     // println("before svd");
     // PrintData(L.inds());
     // PrintData(R.inds());
-    auto spec = svd(L,A,D,B,{args,"LeftTags=",original_link_tags});
+    spec = svd(L,A,D,B,{args,"LeftTags=",original_link_tags});
     L = A;
     R *= (D*B);
     // println("after svd");
@@ -1422,6 +1423,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     // PrintData(D.inds());
     // PrintData(B.inds());
     // PrintData(R.inds());
+    return spec;
   }
 
 } //namespace itensor

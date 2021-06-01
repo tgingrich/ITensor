@@ -778,7 +778,7 @@ namespace itensor {
   std::ostream&
   operator<<(std::ostream& s, BinaryTree const& M);
 
-  void
+  Spectrum
   orthPair(ITensor& A1, ITensor& A2, Args const& args);
 
 

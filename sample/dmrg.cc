@@ -21,7 +21,7 @@ gen_perms(std::set<std::vector<int>>& perms, std::vector<int>& a, int l, int r)
 int 
 main()
     {
-    int N = 16;
+    int N = 100;
 
     //
     // Initialize the site degrees of freedom
@@ -159,7 +159,8 @@ main()
     // sweeps.maxdim() = 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300;
     sweeps.cutoff() = 1E-13;
     sweeps.niter() = 10;
-    sweeps.noise() = 1E-7,1E-8,0.0,0.0,0.0,0.0;
+    // sweeps.noise() = 1E-7,1E-8,0.0,0.0,0.0,0.0;
+    sweeps.noise() = 0.0;
     println(sweeps);
 
     // //
@@ -168,9 +169,9 @@ main()
     auto [energy,psi] = dmrg(H,psi0,sweeps,{"NumCenter",2,"Quiet",true,"WhichEig","LargestReal"});
 
     auto psi1 = sum(psi,psi0);
-    PrintData(psi);
-    PrintData(psi0);
-    PrintData(psi1);
+    // PrintData(psi);
+    // PrintData(psi0);
+    // PrintData(psi1);
 
     //
     // Print the final energy reported by DMRG

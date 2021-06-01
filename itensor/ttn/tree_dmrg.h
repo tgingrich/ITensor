@@ -268,7 +268,8 @@ namespace itensor {
               PH.haveBeenUpdated(b);
               if(adjacent != -1)
                 {
-                orthPair(psi.ref(b),psi.ref(adjacent),args);
+                spec = orthPair(psi.ref(b),psi.ref(adjacent),args);
+                // PrintData(spec);
                 psi.setOrthoLink(b,adjacent);
                 auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
                 int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
