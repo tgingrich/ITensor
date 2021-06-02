@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 					PrintData(psi0(j).inds());
 					}
 				}
-			else psi0.orthogonalize();
+			else psi0.position(psi0.startPoint());
 
 			// if(bins==16)
 			// 	{

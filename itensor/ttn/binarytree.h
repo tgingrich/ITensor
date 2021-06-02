@@ -455,11 +455,11 @@ namespace itensor {
             Args args = Args::global());
 
     //Move the orthogonality center to site i
-    BinaryTree&
+    std::vector<std::pair<int,Spectrum>>
     position(int i, Args args = Args::global());
 
-    BinaryTree&
-    orthogonalize(Args args = Args::global());
+    // BinaryTree&
+    // orthogonalize(Args args = Args::global());
 
   }; //class BinaryTree
 

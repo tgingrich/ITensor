@@ -84,7 +84,7 @@ measure(Args const& args)
 
     if(!silent && printeigs)
         {
-        if(b == 4 && ha == 2)
+        if(b == 1 && ha == 2)
             {
             println();
             auto center_eigs = last_spec_.eigsKept();
@@ -101,7 +101,7 @@ measure(Args const& args)
                 if(p > 1E-13) S += p*log(p);
                 }
             S *= -1;
-            printfln("    vN Entropy at center bond b=%d = %.12f",1,S);
+            printfln("    vN Entropy at center bond b=%d = %.12f",b,S);
             printf(  "    Eigs at center bond b=%d: ",b);
             auto ten = decltype(center_eigs.size())(10);
             for(auto j : range(std::min(center_eigs.size(),ten)))

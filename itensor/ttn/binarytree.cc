@@ -356,7 +356,7 @@ namespace itensor {
   // Orthogonalization
   //
 
-  BinaryTree& BinaryTree::
+  std::vector<std::pair<int,Spectrum>> BinaryTree::
   position(int k, Args args)
     {
     // Real h = 1.0/N_sites_, di = 12.635;
@@ -376,6 +376,8 @@ namespace itensor {
     // auto W2 = toMPO(ampo2);
 
     if(not *this) Error("position: BinaryTree is default constructed");
+
+    std::vector<std::pair<int,Spectrum>> specs;
 
     //Find the max distance from the position to orthogonalize
     auto dist_to_zero=depth(k);
@@ -402,9 +404,15 @@ namespace itensor {
             // for(auto n : range1(N_sites_)) printf("%f ",siteval(*this,n)[1]);
             // println();
 
-            orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
+            auto spec = orthPair(ref(node_d.at(i)[0]),ref(node_d.at(i)[1]),args);
 						orth_pos_.at(node_d.at(i)[0]) = node_d.at(i)[1];// We update the orthogonalisation memory
 						orth_pos_.at(node_d.at(i)[1]) = -1; // The next one is not any more orthogonal
+            specs.push_back(std::make_pair(std::max(node_d.at(i)[0],node_d.at(i)[1]),spec));
+            // if((node_d.at(i)[0] == 4 && node_d.at(i)[1] == 1) || (node_d.at(i)[0] == 1 && node_d.at(i)[1] == 4))
+            //   {
+              // printfln("%d %d", node_d.at(i)[0], node_d.at(i)[1]);
+              // PrintData(spec);
+              // }
 
             // PrintData(A_[node_d.at(i)[0]].inds());
             // PrintData(A_[node_d.at(i)[1]].inds());
@@ -415,14 +423,14 @@ namespace itensor {
           }
         }
       }
-    return *this;
+    return specs;
     }
 
-  BinaryTree& BinaryTree::
-  orthogonalize(Args args) // Since position check the orthognality along the path
-  {
-    return position(start_,args);
-  }
+  // BinaryTree& BinaryTree::
+  // orthogonalize(Args args) // Since position check the orthognality along the path
+  // {
+  //   return position(start_,args);
+  // }
 
 
   Spectrum BinaryTree::
@@ -593,7 +601,7 @@ namespace itensor {
     }
 
     psi.randomize(args);
-    psi.orthogonalize();
+    psi.position(psi.startPoint(),args);
     psi /= std::sqrt(inner(psi, psi));
     return psi;
   }
@@ -1277,7 +1285,7 @@ call .position(j) or .orthogonalize() to set ortho center");
     // PrintData(x);
     // PrintData(y);
     // PrintData(phi);
-    phi.orthogonalize(args);
+    phi.position(phi.startPoint(),args);
     return phi;
   }
 
