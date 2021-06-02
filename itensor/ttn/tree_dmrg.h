@@ -245,32 +245,31 @@ namespace itensor {
               // PrintData(psi(b).inds());
               spec = psi.svdBond(b,phi,adjacent,PH,args);
               // spec = psi.svdBond(b,phi,adjacent,PH,{"MaxDim",max_dim,"MinDim",max_dim});
+              PH.haveBeenUpdated(b);
+              PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
               }
             else if(numCenter == 1)
               {
-              int max_dim = args.getInt("MaxDim", MAX_DIM);
               psi.ref(b) = phi;
+              PH.haveBeenUpdated(b);
               if(adjacent != -1)
                 {
                 // PrintData(psi(b).inds());
                 // PrintData(psi(adjacent).inds());
-                auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
-                int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-                auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
-                if(subspace_exp && current < correct)
+                if(subspace_exp)
                   {
                   long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
                   args.add("MinDim",min_dim);
                   }
                 spec = orthPair(psi.ref(b),psi.ref(adjacent),args);
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                PH.haveBeenUpdated(b);
+                PH.haveBeenUpdated(adjacent);
                 // PrintData(psi(b).inds());
                 // PrintData(psi(adjacent).inds());
                 // PrintData(spec);
                 }
               }
-              PH.haveBeenUpdated(b);
-              PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
 
       TIMER_STOP(4);
 
