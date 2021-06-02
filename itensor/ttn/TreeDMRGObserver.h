@@ -84,7 +84,7 @@ measure(Args const& args)
 
     if(!silent && printeigs)
         {
-        if(b == 4 && ha == 2)
+        if(b == 1 && ha == 2)
             {
             println();
             auto center_eigs = last_spec_.eigsKept();
