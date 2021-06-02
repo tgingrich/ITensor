@@ -257,7 +257,7 @@ namespace itensor {
             args.add("Energy",energy); 
             args.add("Truncerr",spec.truncerr()); 
 
-            obs.measure(true,args);
+            obs.measure(args);
 
             // printfln("%d %d %d %d %d %d", sw, b, energy, norm(psi), norm(phi0), norm(phi1));
 
