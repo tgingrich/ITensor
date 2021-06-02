@@ -37,7 +37,7 @@ namespace itensor {
     virtual ~TreeDMRGObserver() { }
 
     void virtual
-    measure(Args const& args = Args::global());
+    measure(bool center, Args const& args = Args::global());
 
     void virtual
     lastSpectrum(Spectrum const& spec) { last_spec_ = spec; }
@@ -71,7 +71,7 @@ namespace itensor {
   }
 
 void inline TreeDMRGObserver::
-measure(Args const& args)
+measure(bool center, Args const& args)
     {
     //auto N = length(psi_);
 	//auto ha = args.getInt("HalfSweep",0);
@@ -84,7 +84,7 @@ measure(Args const& args)
 
     if(!silent && printeigs)
         {
-        if(b == 1 && ha == 2)
+        if(b == 4 && ha == 2 && center)
             {
             println();
             auto center_eigs = last_spec_.eigsKept();

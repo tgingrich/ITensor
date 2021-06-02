@@ -202,9 +202,8 @@ namespace itensor {
             PH.doWrite(true,args);
     }
 
-        psi.position(psi.startPoint(),args);
-
         ITensor phi;
+        Spectrum spec;
 
         for(int b = psi.startPoint(), ha = 1; ha <= 2; sweepnext(b,ha,psi,args)) // Do one sweep go and return
     {
@@ -215,6 +214,19 @@ namespace itensor {
 
       TIMER_START(1);
 
+        std::vector<std::pair<int,Spectrum>> speclist = psi.position(b,args); //Orthogonalize with respect to b
+        for(auto& s : speclist)
+          {
+          // println(s.first);
+          // PrintData(s.second);
+          // PrintData(psi(s.first).inds());
+          obs.lastSpectrum(s.second);
+          args.add("AtBond",s.first);
+          args.add("HalfSweep",ha);
+          args.add("Energy",energy); 
+          args.add("Truncerr",s.second.truncerr()); 
+          obs.measure(true,args);
+          }
         PH.position(b,ha==1?Fromleft:Fromright,psi); // Compute the local environnement
       TIMER_STOP(1);
 
@@ -226,11 +238,11 @@ namespace itensor {
       TIMER_STOP(2);
 
       TIMER_START(3);
-            if(!PH.lop().LIsNull()) PrintData(PH.lop().L().inds());
-            if(!PH.lop().RIsNull()) PrintData(PH.lop().R().inds());
-            PrintData(PH.lop().Op1().inds());
-            if(numCenter == 2) PrintData(PH.lop().Op2().inds());
-            PrintData(phi.inds());
+            // if(!PH.lop().LIsNull()) PrintData(PH.lop().L().inds());
+            // if(!PH.lop().RIsNull()) PrintData(PH.lop().R().inds());
+            // PrintData(PH.lop().Op1().inds());
+            // if(numCenter == 2) PrintData(PH.lop().Op2().inds());
+            // PrintData(phi.inds());
             // energy = davidson(PH,phi,args);
             energy = arnoldi(PH,phi,args).real();
             phi.takeReal();
@@ -241,20 +253,10 @@ namespace itensor {
       //Restore tensor network form
             if (numCenter == 2) 
               {
-              int max_dim = args.getInt("MaxDim", MAX_DIM);
-              psi.svdBond(b,phi,adjacent,PH,args);
+              spec = psi.svdBond(b,phi,adjacent,PH,args);
               // spec = psi.svdBond(b,phi,adjacent,PH,{"MaxDim",max_dim,"MinDim",max_dim});
               PH.haveBeenUpdated(b);
               PH.haveBeenUpdated(adjacent); // To known that we need to update the environement tensor
-              auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
-              int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
-              auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
-              if(subspace_exp && current < correct)
-                {
-                long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
-                psi.setOrthoLink(b,adjacent); // Update orthogonalization
-                }
               }
             else if(numCenter == 1)
               {
@@ -265,45 +267,37 @@ namespace itensor {
                 {
                 // PrintData(psi(b).inds());
                 // PrintData(psi(adjacent).inds());
-                orthPair(psi.ref(b),psi.ref(adjacent),args);
+                // spec = orthPair(psi.ref(b),psi.ref(adjacent),args);
+                // psi.setOrthoLink(b,adjacent);
+                // PrintData(spec);
                 // PrintData(psi(b).inds());
                 // PrintData(psi(adjacent).inds());
-                // PrintData(spec);
-                psi.setOrthoLink(b,adjacent);
-                // if(b == 4) PrintData(spec);
-                // if(b == 4) PrintData(psi(b).inds());
                 auto current = std::log(commonIndex(psi(b), psi(adjacent)).dim())/std::log(psi.site_dim());
                 int tree_level = psi.height()-std::min(psi.depth(b), psi.depth(adjacent));
                 auto correct = std::min((double)pow2(tree_level), std::log(max_dim)/std::log(psi.site_dim()));
                 if(subspace_exp && current < correct)
                   {
                   long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
-                  orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
+                  spec = orthPair(psi.ref(b),psi.ref(adjacent),{"MaxDim",max_dim,"MinDim",min_dim});
                   psi.setOrthoLink(b,adjacent); // Update orthogonalization
-                  // if(b == 4) PrintData(spec2);
-                  // if(b == 4) PrintData(psi(b).inds());
+                  // PrintData(spec);
+                  // PrintData(psi(b).inds());
                   }
                 }
               }
 
-            int next = adjacent;
-            if(next == -1) next = ha == 1 ? psi.endPoint() : psi.startPoint();
-            std::vector<std::pair<int,Spectrum>> speclist = psi.position(next,args); //Orthogonalize with respect to b
-            // PrintData(psi(4).inds());
-
       TIMER_STOP(4);
 
-            for(auto& s : speclist)
-              {
-              obs.lastSpectrum(s.second);
-              args.add("AtBond",s.first);
-              args.add("HalfSweep",ha);
-              args.add("Energy",energy); 
-              args.add("Truncerr",s.second.truncerr()); 
-              obs.measure(args);
-              }
+            obs.lastSpectrum(spec);
 
-            printfln("%d %d %d", sw, b, energy);
+            args.add("AtBond",b);
+            args.add("HalfSweep",ha);
+            args.add("Energy",energy); 
+            args.add("Truncerr",spec.truncerr()); 
+
+            obs.measure(false, args);
+
+            // printfln("%d %d %d", sw, b, energy);
 
     } //for loop over b
 
