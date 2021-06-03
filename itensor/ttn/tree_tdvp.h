@@ -116,9 +116,9 @@ namespace itensor {
     const int debug_level = args.getInt("DebugLevel",(quiet ? -1 : 0));
     const int numCenter = args.getInt("NumCenter",2);
     if(numCenter != 1)
-        args.add("Truncate",args.getBool("Truncate",true));
+        args.add("Truncate",true);
     else
-        args.add("Truncate",args.getBool("Truncate",false));
+        args.add("Truncate",false);
 
     Real energy = NAN;
 
@@ -212,6 +212,7 @@ namespace itensor {
                       {
                       long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
                       args.add("MinDim",min_dim);
+                      args.add("Truncate",true);
                       phi1 = psi(b);
                       }
                     Index l;
@@ -221,6 +222,7 @@ namespace itensor {
                     psi.ref(b) = U;
                     phi0 = S*V;
                     H.haveBeenUpdated(b);
+                    args.add("Truncate",false);
 		  }
  
                 H.numCenter(numCenter-1);
