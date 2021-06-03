@@ -260,6 +260,8 @@ namespace itensor {
                   {
                   long min_dim=subspace_expansion(psi,PH,b,adjacent,alpha);
                   args.add("MinDim",min_dim);
+                  // subspace_expansion(psi,PH,b,adjacent,alpha);
+                  // args.add("MinDim",2);
                   }
                 spec = orthPair(psi.ref(b),psi.ref(adjacent),args);
                 psi.setOrthoLink(b,adjacent); // Update orthogonalization
