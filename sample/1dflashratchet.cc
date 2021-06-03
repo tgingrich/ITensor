@@ -46,19 +46,20 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, nc1 = 1, nc2 = 1, se = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E5, anneal = 0;
+	int maxdim = 300, nc1 = 1, nc2 = 1, se1 = 1, se2 = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E5, anneal = 0;
 	Real co1 = 1.0E-13, co2 = 1.0E-13, alpha = 0.1;
 	if (argc > 4) maxdim = std::stoi(argv[4]);
 	if (argc > 5) nc1 = std::stoi(argv[5]);
 	if (argc > 6) nc2 = std::stoi(argv[6]);
-	if (argc > 7) se = std::stoi(argv[7]);
-	if (argc > 8) co1 = std::stod(argv[8]);
-	if (argc > 9) co2 = std::stod(argv[9]);
-	if (argc > 10) tdvp_freq1 = std::stoi(argv[10]);
-	if (argc > 11) tdvp_freq2 = std::stoi(argv[11]);
-	if (argc > 12) alpha = std::stod(argv[12]);
-	if (argc > 13) anneal = std::stoi(argv[13]);
-	printfln("%d %d %d %d %.10e %.10e %d %d %f %d",maxdim,nc1,nc2,se,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
+	if (argc > 7) se1 = std::stoi(argv[7]);
+	if (argc > 8) se2 = std::stoi(argv[8]);
+	if (argc > 9) co1 = std::stod(argv[9]);
+	if (argc > 10) co2 = std::stod(argv[10]);
+	if (argc > 11) tdvp_freq1 = std::stoi(argv[11]);
+	if (argc > 12) tdvp_freq2 = std::stoi(argv[12]);
+	if (argc > 13) alpha = std::stod(argv[13]);
+	if (argc > 14) anneal = std::stoi(argv[14]);
+	printfln("%d %d %d %d %d %.10e %.10e %d %d %f %d",maxdim,nc1,nc2,se1,se2,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
 	printfln("\nDriving frequency: %f",freq);
 
 	bins /= pow2(dbl);
@@ -201,7 +202,7 @@ int main(int argc, char** argv)
 					sweeps.alpha() = alpha;
 					println(sweeps);
 					psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps0,{"NumCenter",1,"WhichEig","LargestReal","Quiet",}));
-					psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",nc1==1?1:2,"WhichEig","LargestReal","SubspaceExpansion",se==1,"Quiet",}));
+					psi0 = std::get<1>(tree_dmrg(W2,psi0,sweeps,{"NumCenter",nc1==1?1:2,"WhichEig","LargestReal","SubspaceExpansion",se1==1,"Quiet",}));
 					}
 				println();
 				for(auto n : range1(bins)) printf("%f ",siteval(psi0,n)[1]);
@@ -385,20 +386,20 @@ int main(int argc, char** argv)
 		auto psim0 = psim;
 		auto psip0 = psip;
 		auto mean0 = mean;
-		psim = std::get<1>(tree_tdvp(W1m,psim,deltat1,sweeps1,{"NumCenter",nc1==1?1:2,"DoNormalize",false,"Quiet",}));
-		if(nstages2) psim = std::get<1>(tree_tdvp(W1m,psim,deltat2,sweeps2,{"NumCenter",nc1==1?1:2,"DoNormalize",false,"Quiet",}));
-		psim = std::get<1>(tree_tdvp(W2m,psim,deltat1,sweeps1,{"NumCenter",nc1==1?1:2,"DoNormalize",false,"Quiet",}));
-		if(nstages2) psim = std::get<1>(tree_tdvp(W2m,psim,deltat2,sweeps2,{"NumCenter",nc1==1?1:2,"DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W1p,psip,deltat1,sweeps1,{"NumCenter",nc1==1?1:2,"DoNormalize",false,"Quiet",}));
-		if(nstages2) psip = std::get<1>(tree_tdvp(W1p,psip,deltat2,sweeps2,{"NumCenter",nc1==1?1:2,"DoNormalize",false,"Quiet",}));
-		psip = std::get<1>(tree_tdvp(W2p,psip,deltat1,sweeps1,{"NumCenter",nc1==1?1:2,"DoNormalize",false,"Quiet",}));
-		if(nstages2) psip = std::get<1>(tree_tdvp(W2p,psip,deltat2,sweeps2,{"NumCenter",nc1==1?1:2,"DoNormalize",false,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W1m,psim,deltat1,sweeps1,{"NumCenter",nc2==1?1:2,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(nstages2) psim = std::get<1>(tree_tdvp(W1m,psim,deltat2,sweeps2,{"NumCenter",nc2==1?1:2,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psim = std::get<1>(tree_tdvp(W2m,psim,deltat1,sweeps1,{"NumCenter",nc2==1?1:2,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(nstages2) psim = std::get<1>(tree_tdvp(W2m,psim,deltat2,sweeps2,{"NumCenter",nc2==1?1:2,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W1p,psip,deltat1,sweeps1,{"NumCenter",nc2==1?1:2,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(nstages2) psip = std::get<1>(tree_tdvp(W1p,psip,deltat2,sweeps2,{"NumCenter",nc2==1?1:2,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		psip = std::get<1>(tree_tdvp(W2p,psip,deltat1,sweeps1,{"NumCenter",nc2==1?1:2,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
+		if(nstages2) psip = std::get<1>(tree_tdvp(W2p,psip,deltat2,sweeps2,{"NumCenter",nc2==1?1:2,"DoNormalize",false,"SubspaceExpansion",se2==1,"Quiet",}));
 		if(dens>0)
 			{
-			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat1,sweeps1,{"NumCenter",nc1==1?1:2,"Quiet",}));
-			if(nstages2) psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat2,sweeps2,{"NumCenter",nc1==1?1:2,"Quiet",}));
-			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat1,sweeps1,{"NumCenter",nc1==1?1:2,"Quiet",}));
-			if(nstages2) psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat2,sweeps2,{"NumCenter",nc1==1?1:2,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat1,sweeps1,{"NumCenter",nc2==1?1:2,"SubspaceExpansion",se2==1,"Quiet",}));
+			if(nstages2) psi0 = std::get<1>(tree_tdvp(W1,psi0,deltat2,sweeps2,{"NumCenter",nc2==1?1:2,"SubspaceExpansion",se2==1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat1,sweeps1,{"NumCenter",nc2==1?1:2,"SubspaceExpansion",se2==1,"Quiet",}));
+			if(nstages2) psi0 = std::get<1>(tree_tdvp(W2,psi0,deltat2,sweeps2,{"NumCenter",nc2==1?1:2,"SubspaceExpansion",se2==1,"Quiet",}));
 			}
 		auto left = std::log(inner(psim0,psim))/period, right = std::log(inner(psip0,psip))/period;
 		mean = (right-left)/(2*dz);
@@ -426,7 +427,7 @@ int main(int argc, char** argv)
 		ofs.open("dens_"+std::to_string(nparticles)+"_"+std::to_string((int)freq)+"_"+std::to_string(bins)+".txt");
 		for(auto j : range(dens))
 			{
-			psi0 = std::get<1>(tree_tdvp(j*2/dens==0?W1:W2,psi0,deltat3,sweeps3,{"NumCenter",1,"Quiet",}));
+			psi0 = std::get<1>(tree_tdvp(j*2/dens==0?W1:W2,psi0,deltat3,sweeps3,{"NumCenter",nc2==1?1:2,"SubspaceExpansion",se2==1,"Quiet",}));
 			for(auto n : range1(bins)) ofs << siteval(psi0,n)[1] << " ";
 			ofs << std::endl;
 			}

@@ -122,6 +122,8 @@ namespace itensor {
 
     Real energy = NAN;
 
+    const bool subspace_exp=args.getBool("SubspaceExpansion",true);
+    Real alpha = 0.0;
     args.add("DebugLevel",debug_level);
     args.add("UseSVD",true);
 
@@ -134,6 +136,11 @@ namespace itensor {
         args.add("MinDim",sweeps.mindim(sw));
         args.add("MaxDim",sweeps.maxdim(sw));
         args.add("MaxIter",sweeps.niter(sw));
+ 
+        if(numCenter == 2 && subspace_exp)
+        {
+          alpha = sweeps.alpha(sw);
+        }
 
         if(!H.doWrite()
            && args.defined("WriteDim")
@@ -201,16 +208,18 @@ namespace itensor {
 		  }
                 else if(numCenter == 1)
 		  {             
-                    // PrintData(psi(b).inds());
+                    if(subspace_exp)
+                      {
+                      long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
+                      args.add("MinDim",min_dim);
+                      }
                     Index l;
                     l = commonIndex(psi(b),psi(adjacent));
                     ITensor U,S,V(l);
                     spec = svd(phi1,U,S,V,args);
-                    // printfln("before3 %f",inner(psi,psi));
                     psi.ref(b) = U;
-                    // printfln("after3 %f",inner(psi,psi));
                     phi0 = S*V;
-                    // PrintData(psi(b).inds());
+                    H.haveBeenUpdated(b);
 		  }
  
                 H.numCenter(numCenter-1);
@@ -224,13 +233,14 @@ namespace itensor {
                 if(numCenter == 2)
 		  {
                     psi.ref(b1) = phi0;
+                    H.haveBeenUpdated(b1);
 		  }
                 if(numCenter == 1)
 		  {
                     // printfln("before4 %f",inner(psi,psi));
                     psi.ref(adjacent) *= phi0;
                     // printfln("after4 %f",inner(psi,psi));
-                    H.haveBeenUpdated(b);
+                    H.haveBeenUpdated(adjacent);
 		  }
  
                 // Calculate energy
