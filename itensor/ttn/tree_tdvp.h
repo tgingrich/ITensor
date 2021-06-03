@@ -212,7 +212,7 @@ namespace itensor {
                       {
                       long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
                       args.add("MinDim",min_dim);
-                      phi1 = phi(b);
+                      phi1 = psi(b);
                       }
                     Index l;
                     l = commonIndex(psi(b),psi(adjacent));
