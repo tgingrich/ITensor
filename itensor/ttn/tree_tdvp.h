@@ -227,7 +227,6 @@ namespace itensor {
                     spec = svd(phi1,U,S,V,args);
                     psi.ref(b) = U;
                     phi0 = S*V;
-                    H.haveBeenUpdated(b);
                     args.add("Truncate",false);
 		  }
  
@@ -242,16 +241,16 @@ namespace itensor {
                 if(numCenter == 2)
 		  {
                     psi.ref(b1) = phi0;
-                    H.haveBeenUpdated(b1);
 		  }
                 if(numCenter == 1)
 		  {
                     // printfln("before4 %f",inner(psi,psi));
                     psi.ref(adjacent) *= phi0;
                     // printfln("after4 %f",inner(psi,psi));
-                    H.haveBeenUpdated(adjacent);
 		  }
- 
+      H.haveBeenUpdated(b);
+      H.haveBeenUpdated(adjacent);
+                
                 // Calculate energy
                 ITensor H_phi0;
                 H.product(phi0,H_phi0);
