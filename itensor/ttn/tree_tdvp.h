@@ -178,11 +178,11 @@ namespace itensor {
             else if(numCenter == 1)
 	      phi1 = psi(b);
 
-            if(!H.lop().LIsNull()) PrintData(H.lop().L().inds());
-            if(!H.lop().RIsNull()) PrintData(H.lop().R().inds());
-            PrintData(H.lop().Op1().inds());
-            if(numCenter == 2) PrintData(H.lop().Op2().inds());
-            PrintData(phi1.inds());
+            // if(!H.lop().LIsNull()) PrintData(H.lop().L().inds());
+            // if(!H.lop().RIsNull()) PrintData(H.lop().R().inds());
+            // PrintData(H.lop().Op1().inds());
+            // if(numCenter == 2) PrintData(H.lop().Op2().inds());
+            // PrintData(phi1.inds());
 
             applyExp(H,phi1,t/2,args);
 
@@ -220,6 +220,8 @@ namespace itensor {
                       args.add("MinDim",min_dim);
                       args.add("Truncate",true);
                       phi1 = psi(b);
+                      H.haveBeenUpdated(b);
+                      H.haveBeenUpdated(adjacent);
                       }
                     Index l;
                     l = commonIndex(psi(b),psi(adjacent));
@@ -232,6 +234,11 @@ namespace itensor {
  
                 H.numCenter(numCenter-1);
                 H.position(b1,ha==1?Fromleft:Fromright,psi);
+
+                // if(!H.lop().LIsNull()) PrintData(H.lop().L().inds());
+                // if(!H.lop().RIsNull()) PrintData(H.lop().R().inds());
+                // if(numCenter == 2) PrintData(H.lop().Op1().inds());
+                // PrintData(phi0.inds());
                 
                 applyExp(H,phi0,-t/2,args);
  
@@ -250,7 +257,7 @@ namespace itensor {
 		  }
       H.haveBeenUpdated(b);
       H.haveBeenUpdated(adjacent);
-                
+
                 // Calculate energy
                 ITensor H_phi0;
                 H.product(phi0,H_phi0);
