@@ -46,20 +46,21 @@ int main(int argc, char** argv)
 		coefs.push_back(std::stod(val));
 		}
 	ifs.close();
-	int maxdim = 300, nc1 = 1, nc2 = 1, se1 = 1, se2 = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E5, anneal = 0;
+	int maxdim1 = 300, maxdim2 = 300, nc1 = 1, nc2 = 1, se1 = 1, se2 = 0, tdvp_freq1 = 1E5, tdvp_freq2 = 1E5, anneal = 0;
 	Real co1 = 1.0E-13, co2 = 1.0E-13, alpha = 0.1;
-	if (argc > 4) maxdim = std::stoi(argv[4]);
-	if (argc > 5) nc1 = std::stoi(argv[5]);
-	if (argc > 6) nc2 = std::stoi(argv[6]);
-	if (argc > 7) se1 = std::stoi(argv[7]);
-	if (argc > 8) se2 = std::stoi(argv[8]);
-	if (argc > 9) co1 = std::stod(argv[9]);
-	if (argc > 10) co2 = std::stod(argv[10]);
-	if (argc > 11) tdvp_freq1 = std::stoi(argv[11]);
-	if (argc > 12) tdvp_freq2 = std::stoi(argv[12]);
-	if (argc > 13) alpha = std::stod(argv[13]);
-	if (argc > 14) anneal = std::stoi(argv[14]);
-	printfln("%d %d %d %d %d %.10e %.10e %d %d %f %d",maxdim,nc1,nc2,se1,se2,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
+	if (argc > 4) maxdim1 = std::stoi(argv[4]);
+	if (argc > 5) maxdim2 = std::stoi(argv[5]);
+	if (argc > 6) nc1 = std::stoi(argv[6]);
+	if (argc > 7) nc2 = std::stoi(argv[7]);
+	if (argc > 8) se1 = std::stoi(argv[8]);
+	if (argc > 9) se2 = std::stoi(argv[9]);
+	if (argc > 10) co1 = std::stod(argv[10]);
+	if (argc > 11) co2 = std::stod(argv[11]);
+	if (argc > 12) tdvp_freq1 = std::stoi(argv[12]);
+	if (argc > 13) tdvp_freq2 = std::stoi(argv[13]);
+	if (argc > 14) alpha = std::stod(argv[14]);
+	if (argc > 15) anneal = std::stoi(argv[15]);
+	printfln("%d %d %d %d %d %d %.10e %.10e %d %d %f %d",maxdim1,maxdim2,nc1,nc2,se1,se2,co1,co2,tdvp_freq1,tdvp_freq2,alpha,anneal);
 	printfln("\nDriving frequency: %f",freq);
 
 	bins /= pow2(dbl);
@@ -169,7 +170,7 @@ int main(int argc, char** argv)
 					}
 
 				auto sweeps0 = Sweeps(5);
-				sweeps0.maxdim() = maxdim;
+				sweeps0.maxdim() = maxdim1;
 				sweeps0.cutoff() = co1;
 				sweeps0.niter() = 100;
 				sweeps0.noise() = 0.0;
@@ -181,7 +182,7 @@ int main(int argc, char** argv)
 				if(anneal)
 					{
 					auto sweeps = Sweeps(anneal);
-					for(auto j : range1(maxdim/10))
+					for(auto j : range1(maxdim1/10))
 						{
 						sweeps.maxdim() = 10*j;
 						sweeps.cutoff() = 1E-15;
@@ -195,7 +196,7 @@ int main(int argc, char** argv)
 				else
 					{
 					auto sweeps = Sweeps(30);
-					sweeps.maxdim() = maxdim;
+					sweeps.maxdim() = maxdim1;
 					sweeps.cutoff() = co1;
 					sweeps.niter() = 100;
 					sweeps.noise() = 0.0;
@@ -349,7 +350,7 @@ int main(int argc, char** argv)
 	auto deltat2 = nstages2 ? (period-transient_period)/(2*nstages2) : 0.0;
 
 	auto sweeps1 = Sweeps(nstages1);
-	sweeps1.maxdim() = maxdim;
+	sweeps1.maxdim() = maxdim2;
 	sweeps1.cutoff() = co2;
 	sweeps1.niter() = 100;
 	sweeps1.noise() = 0.0;
@@ -358,7 +359,7 @@ int main(int argc, char** argv)
 	println(sweeps1);
 
 	auto sweeps2 = Sweeps(nstages2);
-	sweeps2.maxdim() = maxdim;
+	sweeps2.maxdim() = maxdim2;
 	sweeps2.cutoff() = co2;
 	sweeps2.niter() = 100;
 	sweeps2.noise() = 0.0;
@@ -418,7 +419,7 @@ int main(int argc, char** argv)
 		auto nstages3 = std::max(5,(int)(tdvp_freq1*period/dens));
 		auto deltat3 = period/(2*nstages3);
 		auto sweeps3 = Sweeps(nstages3);
-		sweeps3.maxdim() = maxdim;
+		sweeps3.maxdim() = maxdim2;
 		sweeps3.cutoff() = co2;
 		sweeps3.niter() = 100;
 		sweeps3.noise() = 0.0;

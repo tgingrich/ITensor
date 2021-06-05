@@ -137,7 +137,7 @@ namespace itensor {
         args.add("MaxDim",sweeps.maxdim(sw));
         args.add("MaxIter",sweeps.niter(sw));
  
-        if(numCenter == 2 && subspace_exp)
+        if(subspace_exp)
         {
           alpha = sweeps.alpha(sw);
         }
@@ -177,6 +177,12 @@ namespace itensor {
 	      phi1 = psi(b)*psi(adjacent);
             else if(numCenter == 1)
 	      phi1 = psi(b);
+
+            if(!H.lop().LIsNull()) PrintData(H.lop().L().inds());
+            if(!H.lop().RIsNull()) PrintData(H.lop().R().inds());
+            PrintData(H.lop().Op1().inds());
+            if(numCenter == 2) PrintData(H.lop().Op2().inds());
+            PrintData(phi1.inds());
 
             applyExp(H,phi1,t/2,args);
 
