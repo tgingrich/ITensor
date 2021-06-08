@@ -76,6 +76,7 @@ measure(Args const& args)
     //auto N = length(psi_);
 	//auto ha = args.getInt("HalfSweep",0);
     auto b = args.getInt("AtBond",1);
+    auto adjacent = args.getInt("Adjacent",1);
     auto sw = args.getInt("Sweep",0);
     auto nsweep = args.getInt("NSweep",0);
     auto energy = args.getReal("Energy",0);
@@ -84,7 +85,7 @@ measure(Args const& args)
 
     if(!silent && printeigs)
         {
-        if(b == 1 && ha == 2)
+        if(std::max(b,adjacent) == 1 && ha == 2)
             {
             println();
             auto center_eigs = last_spec_.eigsKept();
