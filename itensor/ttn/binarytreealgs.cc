@@ -32,7 +32,7 @@ using std::vector;
 // using std::string;
 // using std::move;
 
-long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha)
+long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha, bool ortho)
 {
     //Build Pi
     ITensor Pi = alpha*dag(prime(psi(b1)));
@@ -49,8 +49,8 @@ long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real al
     auto original_link_tags = tags(ind_b1);
     auto tocombine_inds=uniqueInds(Pi,psi(b1));
     // Use of combiner to mix indexes
-    auto [Comb,extra_ind] = combiner(dag(tocombine_inds));
-    auto PiC= dag(Pi)*Comb;
+    auto [Comb,extra_ind] = ortho ? combiner(tocombine_inds) : combiner(dag(tocombine_inds));
+    auto PiC = ortho ? dag(Pi*Comb) : dag(Pi)*Comb;
     //Expand psi(b1)
 
     // PrintData(tocombine_inds);
@@ -66,7 +66,8 @@ long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real al
     ITensor zero;
     if(hasQNs(psi(b2)))
     {
-        zero = ITensor(div(psi(b2)),unionInds(inds_b2,dag(extra_ind))); // We need to allocate the zero tensor at the same divergence
+        // We need to allocate the zero tensor at the same divergence
+        zero = ortho ? ITensor(div(psi(b2)),unionInds(inds_b2,extra_ind)) : ITensor(div(psi(b2)),unionInds(inds_b2,dag(extra_ind)));
     }
     else
     {

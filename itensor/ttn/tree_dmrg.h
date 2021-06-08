@@ -28,7 +28,7 @@
 
 namespace itensor {
 
-	long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha);
+	long subspace_expansion(BinaryTree & psi,LocalMPO_BT & PH,int b1,int b2, Real alpha, bool ortho=false);
 
   template<class LocalOpT>
   Real
@@ -288,14 +288,14 @@ namespace itensor {
 
             obs.lastSpectrum(spec);
 
-            args.add("AtBond",b);
+            args.add("AtBond",std::max(b,adjacent));
             args.add("HalfSweep",ha);
             args.add("Energy",energy); 
             args.add("Truncerr",spec.truncerr()); 
 
             obs.measure(args);
 
-            // printfln("%d %d %d", sw, b, energy);
+            // printfln("%d %d %d %f", sw, b, adjacent, energy);
 
     } //for loop over b
 

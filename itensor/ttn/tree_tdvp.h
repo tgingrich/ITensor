@@ -165,9 +165,10 @@ namespace itensor {
             if(!quiet)
 	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
 
-        // printfln("before1 %f",inner(psi,psi));
+        // PrintData(psi(1).inds());
         psi.position(b,args); //Orthogonalize with respect to b
-        // printfln("after1 %f",inner(psi,psi));
+        // PrintData(psi(1).inds());
+        // PrintData(args);
 
             H.numCenter(numCenter);
             H.position(b,ha==1?Fromleft:Fromright,psi);
@@ -177,6 +178,7 @@ namespace itensor {
 	      phi1 = psi(b)*psi(adjacent);
             else if(numCenter == 1)
 	      phi1 = psi(b);
+        // PrintData(phi1.inds());
 
             // if(!H.lop().LIsNull()) PrintData(H.lop().L().inds());
             // if(!H.lop().RIsNull()) PrintData(H.lop().R().inds());
@@ -197,9 +199,8 @@ namespace itensor {
               }
             else if(numCenter == 1)
               {
-              // printfln("before2 %f",inner(psi,psi));
       	      psi.ref(b) = phi1;
-              // printfln("after2 %f",inner(psi,psi));
+              // PrintData(psi(1).inds());
               H.haveBeenUpdated(b);
               }
  
@@ -214,22 +215,18 @@ namespace itensor {
 		  }
                 else if(numCenter == 1)
 		  {             
-                    if(subspace_exp)
-                      {
-                      long min_dim=subspace_expansion(psi,H,b,adjacent,alpha);
-                      args.add("MinDim",min_dim);
-                      args.add("Truncate",true);
-                      phi1 = psi(b);
-                      H.haveBeenUpdated(b);
-                      H.haveBeenUpdated(adjacent);
-                      }
-                    Index l;
-                    l = commonIndex(psi(b),psi(adjacent));
+                    Index l = commonIndex(psi(b),psi(adjacent));
                     ITensor U,S,V(l);
-                    spec = svd(phi1,U,S,V,args);
+                    // PrintData(l);
+                    // PrintData(phi1.inds());
+                    auto original_link_tags = tags(l);
+                    spec = svd(phi1,U,S,V,{args,"LeftTags=",original_link_tags});
+                    // PrintData(U.inds());
+                    // PrintData(S.inds());
+                    // PrintData(V.inds());
                     psi.ref(b) = U;
+                    // PrintData(psi(1).inds());
                     phi0 = S*V;
-                    args.add("Truncate",false);
 		  }
  
                 H.numCenter(numCenter-1);
@@ -251,12 +248,30 @@ namespace itensor {
 		  }
                 if(numCenter == 1)
 		  {
-                    // printfln("before4 %f",inner(psi,psi));
                     psi.ref(adjacent) *= phi0;
-                    // printfln("after4 %f",inner(psi,psi));
+                    // PrintData(psi(1).inds());
+                    if(subspace_exp)
+                      {
+                      // PrintData(psi(b).inds());
+                      // PrintData(psi(adjacent).inds());
+                      long min_dim=subspace_expansion(psi,H,b,adjacent,alpha,true);
+                      // PrintData(psi(b).inds());
+                      // PrintData(psi(adjacent).inds());
+                      // PrintData(psi(1).inds());
+                      args.add("MinDim",min_dim);
+                      args.add("Truncate",true);
+                      H.haveBeenUpdated(b);
+                      H.haveBeenUpdated(adjacent);
+                      orthPair(psi.ref(b),psi.ref(adjacent),args);
+                      psi.setOrthoLink(b,adjacent); // Update orthogonalization
+                      // PrintData(psi(1).inds());
+                      args.add("Truncate",false);
+                      }
 		  }
       H.haveBeenUpdated(b);
       H.haveBeenUpdated(adjacent);
+      // PrintData(psi(b).inds());
+      // PrintData(psi(adjacent).inds());
 
                 // Calculate energy
                 ITensor H_phi0;
@@ -277,14 +292,14 @@ namespace itensor {
 
             obs.lastSpectrum(spec);
 
-            args.add("AtBond",b);
+            args.add("AtBond",std::max(b,adjacent));
             args.add("HalfSweep",ha);
             args.add("Energy",energy); 
             args.add("Truncerr",spec.truncerr()); 
 
             obs.measure(args);
 
-            // printfln("%d %d %d %d %d %d", sw, b, energy, norm(psi), norm(phi0), norm(phi1));
+            printfln("%d %d %d %f %f %f %f", sw, b, adjacent, energy, norm(psi), norm(phi0), norm(phi1));
 
 	  } //for loop over b
 
