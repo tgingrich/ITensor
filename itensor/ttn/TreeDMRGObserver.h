@@ -76,7 +76,6 @@ measure(Args const& args)
     //auto N = length(psi_);
 	//auto ha = args.getInt("HalfSweep",0);
     auto b = args.getInt("AtBond",1);
-    auto adjacent = args.getInt("Adjacent",1);
     auto sw = args.getInt("Sweep",0);
     auto nsweep = args.getInt("NSweep",0);
     auto energy = args.getReal("Energy",0);
@@ -85,7 +84,7 @@ measure(Args const& args)
 
     if(!silent && printeigs)
         {
-        if(std::max(b,adjacent) == 1 && ha == 2)
+        if(b == 0 && ha == 2)
             {
             println();
             auto center_eigs = last_spec_.eigsKept();
@@ -102,8 +101,8 @@ measure(Args const& args)
                 if(p > 1E-13) S += p*log(p);
                 }
             S *= -1;
-            printfln("    vN Entropy at center bond b=%d = %.12f",b,S);
-            printf(  "    Eigs at center bond b=%d: ",b);
+            printfln("    vN Entropy at center bond b=1 = %.12f",1,S);
+            print(  "    Eigs at center bond b=1: ");
             auto ten = decltype(center_eigs.size())(10);
             for(auto j : range(std::min(center_eigs.size(),ten)))
                 {

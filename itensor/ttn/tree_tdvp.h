@@ -257,14 +257,14 @@ namespace itensor {
                       long min_dim=subspace_expansion(psi,H,b,adjacent,alpha,true);
                       // PrintData(psi(b).inds());
                       // PrintData(psi(adjacent).inds());
-                      // PrintData(psi(1).inds());
                       args.add("MinDim",min_dim);
                       args.add("Truncate",true);
                       H.haveBeenUpdated(b);
                       H.haveBeenUpdated(adjacent);
                       orthPair(psi.ref(b),psi.ref(adjacent),args);
                       psi.setOrthoLink(b,adjacent); // Update orthogonalization
-                      // PrintData(psi(1).inds());
+                      // PrintData(psi(b).inds());
+                      // PrintData(psi(adjacent).inds());
                       args.add("Truncate",false);
                       }
 		  }
@@ -293,7 +293,6 @@ namespace itensor {
             obs.lastSpectrum(spec);
 
             args.add("AtBond",b);
-            args.add("Adjacent",adjacent);
             args.add("HalfSweep",ha);
             args.add("Energy",energy); 
             args.add("Truncerr",spec.truncerr()); 

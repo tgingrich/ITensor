@@ -425,10 +425,10 @@ TIMER_START(3);
 TIMER_STOP(3);
             
 TIMER_START(4);
-            PrintData(psi(b));
+            // PrintData(psi(b));
             auto spec = psi.svdBond(b,phi,(ha==1?Fromleft:Fromright),PH,args);
-            PrintData(psi(b));
-            PrintData(spec);
+            // PrintData(psi(b));
+            // PrintData(spec);
 TIMER_STOP(4);
 
             if(!quiet)

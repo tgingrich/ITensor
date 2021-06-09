@@ -289,7 +289,6 @@ namespace itensor {
             obs.lastSpectrum(spec);
 
             args.add("AtBond",b);
-            args.add("Adjacent",adjacent);
             args.add("HalfSweep",ha);
             args.add("Energy",energy); 
             args.add("Truncerr",spec.truncerr()); 
