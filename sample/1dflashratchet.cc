@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 					for(auto j : range1(maxdim1/10))
 						{
 						sweeps.maxdim() = 10*j;
-						sweeps.cutoff() = 1E-15;
+						sweeps.cutoff() = co1;
 						sweeps.niter() = 100;
 						sweeps.noise() = 0.0;
 						sweeps.alpha() = alpha<0 ? std::exp(-0.2*j) : alpha;
@@ -272,7 +272,7 @@ int main(int argc, char** argv)
 
 						// println("before");
 						// if(largetree) PrintData(largetree(1).inds());
-						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",1.0E-12});
+						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state));
 						// println("after");
 						// if(largetree) PrintData(largetree(1).inds());
 

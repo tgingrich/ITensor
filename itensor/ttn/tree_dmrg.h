@@ -213,7 +213,7 @@ namespace itensor {
         }
 
       TIMER_START(1);
-      psi.position(b,args); //Orthogonalize with respect to b
+      psi.position(b); //Orthogonalize with respect to b
 
         PH.position(b,ha==1?Fromleft:Fromright,psi); // Compute the local environnement
       TIMER_STOP(1);
