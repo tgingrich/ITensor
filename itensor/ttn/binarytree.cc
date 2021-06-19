@@ -991,24 +991,25 @@ call .position(j) or .orthogonalize() to set ortho center");
     if(N != size(phi)) Error("inner: mismatched size");
 
     auto psidag = dag(psi);
-    // psidag.replaceSiteInds(siteInds(phi));
     psidag.replaceLinkInds(sim(linkInds(psidag)));
-
-    // auto L = phi(N-1) * psidag(N-1);
-    // if(N == 0) return eltC(L);
-    // for(int i = N-2 ; i >=0; i-- )
-    //   L = L * phi(i) * psidag(i);
-    // return eltC(L);
 
     auto N_sites = length(psi);
     auto height = intlog2(N_sites) - 1;
     std::vector<ITensor> psi2(N_sites / 2 + 2);
     for (auto n : range1(N_sites / 2)) {
+      // println(n);
+      // PrintData(phi(n + N_sites / 2 - 2));
+      // PrintData(psidag(n + N_sites / 2 - 2));
       psi2[n] = phi(n + N_sites / 2 - 2) * psidag(n + N_sites / 2 - 2);
       // PrintData(psi2[n]);
     }
     for (int i = height - 1; i >= 0; --i) {
       for (auto n : range1(pow2(i))) {
+        // printfln("%f %f",i,n);
+        // PrintData(phi(n + pow2(i) - 2));
+        // PrintData(psi2[2 * n - 1]);
+        // PrintData(psi2[2 * n]);
+        // PrintData(psidag(n + pow2(i) - 2));
         psi2[n] = phi(n + pow2(i) - 2) * psi2[2 * n - 1] * psi2[2 * n] * psidag(n + pow2(i) - 2);
         // PrintData(psi2[n]);
       }

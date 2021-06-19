@@ -170,8 +170,8 @@ int main(int argc, char** argv)
 					}
 
 				auto sweeps0 = Sweeps(5);
-				sweeps0.maxdim() = maxdim1;
-				sweeps0.cutoff() = co1;
+				sweeps0.maxdim() = 300;
+				sweeps0.cutoff() = 1.0E-12;
 				sweeps0.niter() = 100;
 				sweeps0.noise() = 0.0;
 				sweeps0.alpha() = alpha;
@@ -272,7 +272,7 @@ int main(int argc, char** argv)
 
 						// println("before");
 						// if(largetree) PrintData(largetree(1).inds());
-						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",co1});
+						largetree = sum(largetree,doubleTree(smalltree1,smalltree2,state),{"Cutoff",1.0E-12});
 						// println("after");
 						// if(largetree) PrintData(largetree(1).inds());
 

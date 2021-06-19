@@ -165,10 +165,7 @@ namespace itensor {
             if(!quiet)
 	      printfln("Sweep=%d, HS=%d, Bond=%d/%d",sw,ha,b,psi.size()-1);
 
-        // PrintData(psi(1).inds());
         psi.position(b,args); //Orthogonalize with respect to b
-        // PrintData(psi(1).inds());
-        // PrintData(args);
 
             H.numCenter(numCenter);
             H.position(b,ha==1?Fromleft:Fromright,psi);
@@ -178,7 +175,7 @@ namespace itensor {
 	      phi1 = psi(b)*psi(adjacent);
             else if(numCenter == 1)
 	      phi1 = psi(b);
-        // PrintData(phi1.inds());
+        // PrintData(psi(b).inds());
 
             // if(!H.lop().LIsNull()) PrintData(H.lop().L().inds());
             // if(!H.lop().RIsNull()) PrintData(H.lop().R().inds());
@@ -186,7 +183,9 @@ namespace itensor {
             // if(numCenter == 2) PrintData(H.lop().Op2().inds());
             // PrintData(phi1.inds());
 
+            // PrintData(phi1.inds());
             applyExp(H,phi1,t/2,args);
+            // PrintData(phi1.inds());
 
             if(args.getBool("DoNormalize",true))
 	      phi1 /= norm(phi1);
@@ -200,7 +199,6 @@ namespace itensor {
             else if(numCenter == 1)
               {
       	      psi.ref(b) = phi1;
-              // PrintData(psi(1).inds());
               H.haveBeenUpdated(b);
               }
  
@@ -217,15 +215,11 @@ namespace itensor {
 		  {             
                     Index l = commonIndex(psi(b),psi(adjacent));
                     ITensor U,S,V(l);
-                    // PrintData(l);
-                    // PrintData(phi1.inds());
+                    // PrintData(psi(b).inds());
+                    // PrintData(psi(adjacent).inds());
                     auto original_link_tags = tags(l);
                     spec = svd(phi1,U,S,V,{args,"LeftTags=",original_link_tags});
-                    // PrintData(U.inds());
-                    // PrintData(S.inds());
-                    // PrintData(V.inds());
                     psi.ref(b) = U;
-                    // PrintData(psi(1).inds());
                     phi0 = S*V;
 		  }
  
@@ -235,9 +229,10 @@ namespace itensor {
                 // if(!H.lop().LIsNull()) PrintData(H.lop().L().inds());
                 // if(!H.lop().RIsNull()) PrintData(H.lop().R().inds());
                 // if(numCenter == 2) PrintData(H.lop().Op1().inds());
+
                 // PrintData(phi0.inds());
-                
                 applyExp(H,phi0,-t/2,args);
+                // PrintData(phi0.inds());
  
                 if(args.getBool("DoNormalize",true))
 		  phi0 /= norm(phi0);
@@ -249,30 +244,24 @@ namespace itensor {
                 if(numCenter == 1)
 		  {
                     psi.ref(adjacent) *= phi0;
-                    // PrintData(psi(1).inds());
+                    // PrintData(psi(b).inds());
+                    // PrintData(psi(adjacent).inds());
                     if(subspace_exp)
                       {
-                      // PrintData(psi(b).inds());
-                      // PrintData(psi(adjacent).inds());
                       long min_dim=subspace_expansion(psi,H,b,adjacent,alpha,true);
-                      // PrintData(psi(b).inds());
-                      // PrintData(psi(adjacent).inds());
                       args.add("MinDim",min_dim);
                       args.add("Truncate",true);
                       H.haveBeenUpdated(b);
                       H.haveBeenUpdated(adjacent);
                       orthPair(psi.ref(b),psi.ref(adjacent),args);
                       psi.setOrthoLink(b,adjacent); // Update orthogonalization
-                      // PrintData(psi(b).inds());
-                      // PrintData(psi(adjacent).inds());
                       args.add("Truncate",false);
                       }
+                    // PrintData(psi(b).inds());
+                    // PrintData(psi(adjacent).inds());
 		  }
       H.haveBeenUpdated(b);
       H.haveBeenUpdated(adjacent);
-      // PrintData(psi(b).inds());
-      // PrintData(psi(adjacent).inds());
-
                 // Calculate energy
                 ITensor H_phi0;
                 H.product(phi0,H_phi0);
